@@ -11,9 +11,14 @@ auricularesChetos = Tesoro { nombreTesoro = "Auriculares Shure SRH 440",
                     valor = 6000
                   }
 
-zapatillas :: Tesoro
-zapatillas = Tesoro {nombreTesoro = "Zapatillas Mike",
+zapatillasViotti :: Tesoro
+zapatillasViotti = Tesoro {nombreTesoro = "Zapatillas Mike",
                 valor = 400
+                }
+
+zapatillasDini :: Tesoro
+zapatillasDini = Tesoro {nombreTesoro = "Zapatillas Mike",
+                valor = 500
                 }
 
 biciCopada :: Tesoro
@@ -21,19 +26,14 @@ biciCopada = Tesoro{nombreTesoro = "Bicicleta GT Avalanche"
                    valor = 25000
                    }
 
-zapatillas :: Tesoro
-zapatillas = Tesoro {nombreTesoro = "Zapatillas Mike",
-                valor = 500
-                }
-
 viotti :: Pirata
 viotti = Pirata { nombrePirata = "Viotti el terrible",
-            botin = [juventud, belleza]
+            botin = [auricularesChetos, zapatillas]
          }
 
 dini :: Pirata
 dini = Pirata { nombrePirata = "Dini el magnifico",
-            botin = []
+            botin = [biciCopada, zapatillas]
               }
 
 cantidad_tesoros :: Pirata -> Int
