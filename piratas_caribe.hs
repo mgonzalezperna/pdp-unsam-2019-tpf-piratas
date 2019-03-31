@@ -8,12 +8,12 @@ data Tesoro = Tesoro {nombreTesoro :: String,
 
 juventud :: Tesoro
 juventud = Tesoro { nombreTesoro = "Juventud",
-                    valor = 20
+                    valor = 20000
                   }
 
 belleza :: Tesoro
 belleza = Tesoro {nombreTesoro = "Belleza",
-                valor = 30
+                valor = 3000
                 }
 
 viotti :: Pirata
@@ -23,3 +23,6 @@ viotti = Pirata { nombrePirata = "Viotti",
 
 cantidad_tesoros :: Pirata -> Int
 cantidad_tesoros pirata = length (botin pirata)
+
+es_afortunado :: Pirata -> Bool
+es_afortunado pirata = sum (map valor (botin pirata)) > 10000
