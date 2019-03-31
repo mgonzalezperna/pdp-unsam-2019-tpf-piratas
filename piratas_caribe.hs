@@ -6,23 +6,40 @@ data Tesoro = Tesoro {nombreTesoro :: String,
                      valor :: Integer
                      } deriving (Show)
 
-juventud :: Tesoro
-juventud = Tesoro { nombreTesoro = "Juventud",
-                    valor = 20000
+auricularesChetos :: Tesoro
+auricularesChetos = Tesoro { nombreTesoro = "Auriculares Shure SRH 440",
+                    valor = 6000
                   }
 
-belleza :: Tesoro
-belleza = Tesoro {nombreTesoro = "Belleza",
-                valor = 3000
+zapatillas :: Tesoro
+zapatillas = Tesoro {nombreTesoro = "Zapatillas Mike",
+                valor = 400
+                }
+
+biciCopada :: Tesoro
+biciCopada = Tesoro{nombreTesoro = "Bicicleta GT Avalanche"
+                   valor = 25000
+                   }
+
+zapatillas :: Tesoro
+zapatillas = Tesoro {nombreTesoro = "Zapatillas Mike",
+                valor = 500
                 }
 
 viotti :: Pirata
-viotti = Pirata { nombrePirata = "Viotti",
+viotti = Pirata { nombrePirata = "Viotti el terrible",
             botin = [juventud, belleza]
          }
+
+dini :: Pirata
+dini = Pirata { nombrePirata = "Dini el magnifico",
+            botin = []
+              }
 
 cantidad_tesoros :: Pirata -> Int
 cantidad_tesoros pirata = length (botin pirata)
 
 es_afortunado :: Pirata -> Bool
 es_afortunado pirata = sum (map valor (botin pirata)) > 10000
+
+
