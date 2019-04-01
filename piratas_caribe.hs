@@ -67,4 +67,5 @@ valor_tesoro_mas_valioso = maximum.valores_tesoros
 adquirir_tesoro :: Pirata -> Tesoro -> Pirata
 adquirir_tesoro pirata tesoro = Pirata (nombrePirata pirata) (tesoro : (botin pirata))
 
-
+perder_tesoros_valiosos :: Pirata -> Pirata
+perder_tesoros_valiosos pirata = Pirata (nombrePirata pirata) (filter ((<100).valor) (botin pirata))
