@@ -13,7 +13,7 @@ auricularesChetos = Tesoro { nombreTesoro = "Auriculares Shure SRH 440",
 
 zapatillasViotti :: Tesoro
 zapatillasViotti = Tesoro {nombreTesoro = "Zapatillas Mike",
-                valor = 400
+                valor = 500
                 }
 
 zapatillasDini :: Tesoro
@@ -42,7 +42,18 @@ cantidad_tesoros pirata = length (botin pirata)
 es_afortunado :: Pirata -> Bool
 es_afortunado pirata = sum (map valor (botin pirata)) > 10000
 
-comparar_nombres_tesoro :: Tesoro -> Tesoro -> Bool
-comparar_nombres_tesoro tesoro_1 tesoro_2 = nombreTesoro tesoro_1 == nombreTesoro tesoro_2
+comparar_nombres_tesoros :: Tesoro -> Tesoro -> Bool
+comparar_nombres_tesoros tesoro_1 tesoro_2 = nombreTesoro tesoro_1 == nombreTesoro tesoro_2
 
+comparar_valores_tesoros :: Tesoro -> Tesoro -> Bool
+comparar_valores_tesoros tesoro_1 tesoro_2 = valor tesoro_1 /= valor tesoro_2
 
+comparar_valores_de_nombres_iguales :: Tesoro -> Tesoro -> Bool
+comparar_valores_de_nombres_iguales tesoro_1 tesoro_2 = comparar_nombres_tesoros tesoro_1 tesoro_2 && 
+            comparar_valores_tesoros tesoro_1 tesoro_2
+
+cumpleCondicion :: [Tesoro] -> Tesoro -> Bool
+cumpleCondicion botin tesoro = any (comparar_valores_de_nombres_iguales tesoro) botin
+
+tienen_mismo_tesoro_y_valor_diferente :: Pirata -> Pirata -> Bool
+tienen_mismo_tesoro_y_valor_diferente pirata_1 pirata_2 = length (filter (cumpleCondicion (botin pirata_2)) (botin pirata_1)) > 0
