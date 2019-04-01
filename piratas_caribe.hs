@@ -40,7 +40,10 @@ cantidad_tesoros :: Pirata -> Int
 cantidad_tesoros pirata = length (botin pirata)
 
 es_afortunado :: Pirata -> Bool
-es_afortunado pirata = sum (map valor (botin pirata)) > 10000
+es_afortunado = (>10000).sum.valores_tesoros
+
+valores_tesoros :: Pirata -> [Integer]
+valores_tesoros pirata = map valor (botin pirata)
 
 comparar_nombres_tesoros :: Tesoro -> Tesoro -> Bool
 comparar_nombres_tesoros tesoro_1 tesoro_2 = nombreTesoro tesoro_1 == nombreTesoro tesoro_2
