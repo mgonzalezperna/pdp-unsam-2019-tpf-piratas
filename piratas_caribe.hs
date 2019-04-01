@@ -59,4 +59,7 @@ cumpleCondicion :: [Tesoro] -> Tesoro -> Bool
 cumpleCondicion botin tesoro = any (comparar_valores_de_nombres_iguales tesoro) botin
 
 tienen_mismo_tesoro_y_valor_diferente :: Pirata -> Pirata -> Bool
-tienen_mismo_tesoro_y_valor_diferente pirata_1 pirata_2 = any (cumpleCondicion (botin pirata_2)) (botin pirata_1)
+tienen_mismo_tesoro_y_valor_diferente pirata = any (cumpleCondicion (botin pirata)).botin
+
+valor_tesoro_mas_valioso :: Pirata -> Integer
+valor_tesoro_mas_valioso = maximum.valores_tesoros
