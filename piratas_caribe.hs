@@ -69,3 +69,6 @@ adquirir_tesoro pirata tesoro = Pirata (nombrePirata pirata) (tesoro : (botin pi
 
 perder_tesoros_valiosos :: Pirata -> Pirata
 perder_tesoros_valiosos pirata = Pirata (nombrePirata pirata) (filter ((<100).valor) (botin pirata))
+
+perder_tesoros_con_nombre :: String -> Pirata -> Pirata
+perder_tesoros_con_nombre nombre pirata = Pirata (nombrePirata pirata) (filter ((/= nombre).nombreTesoro) (botin pirata))
