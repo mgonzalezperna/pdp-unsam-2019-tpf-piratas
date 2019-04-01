@@ -63,3 +63,8 @@ tienen_mismo_tesoro_y_valor_diferente pirata = any (cumpleCondicion (botin pirat
 
 valor_tesoro_mas_valioso :: Pirata -> Integer
 valor_tesoro_mas_valioso = maximum.valores_tesoros
+
+adquirir_tesoro :: Pirata -> Tesoro -> Pirata
+adquirir_tesoro pirata tesoro = Pirata (nombrePirata pirata) (tesoro : (botin pirata))
+
+
