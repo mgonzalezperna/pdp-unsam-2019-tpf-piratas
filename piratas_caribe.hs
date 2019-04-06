@@ -6,6 +6,7 @@ data Tesoro = Tesoro {nombreTesoro :: String,
                      valor :: Integer
                      } deriving (Show)
 
+--TESOROS
 auricularesChetos :: Tesoro
 auricularesChetos = Tesoro { nombreTesoro = "Auriculares Shure SRH 440",
                     valor = 6000
@@ -26,16 +27,66 @@ biciCopada = Tesoro{nombreTesoro = "Bicicleta GT Avalanche",
                    valor = 25000
                    }
 
+brujula :: Tesoro
+brujula = Tesoro {
+  nombreTesoro = "Brujula",
+  valor = 10000
+}
+
+frascoJack :: Tesoro
+frascoJack = Tesoro {
+  nombreTesoro = "Frasco de arena",
+  valor = 0
+}
+
+frascoAnne :: Tesoro
+frascoAnne = Tesoro {
+  nombreTesoro = "Frasco de arena",
+  valor = 1
+}
+
+cajitaMusical :: Tesoro
+cajitaMusical = Tesoro {
+  nombreTesoro = "Cajita Musical",
+  valor = 1
+}
+
+doblones :: Tesoro
+doblones = Tesoro {
+  nombreTesoro = "Doblones",
+  valor = 100
+}
+
+--PIRATAS
 viotti :: Pirata
 viotti = Pirata { nombrePirata = "Viotti el terrible",
             botin = [auricularesChetos, zapatillasViotti]
          }
 
 dini :: Pirata
-dini = Pirata { nombrePirata = "Dini el magnifico",
+dini = Pirata {nombrePirata = "Dini el magnifico",
             botin = [biciCopada, zapatillasDini]
               }
 
+jackSparrow :: Pirata
+jackSparrow = Pirata {
+  nombrePirata = "Jack Sparrow",
+  botin = [brujula, frascoJack]
+}
+
+davidJones :: Pirata
+davidJones = Pirata {
+  nombrePirata = "David Jones",
+  botin = [cajitaMusical]
+}
+
+anneBonny :: Pirata
+anneBonny = Pirata {
+  nombrePirata = "Anne Bonny",
+  botin = [doblones, frascoAnne]
+}
+
+--FUNCIONES
 cantidad_tesoros :: Pirata -> Int
 cantidad_tesoros pirata = length (botin pirata)
 
