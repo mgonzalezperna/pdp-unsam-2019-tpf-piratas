@@ -138,3 +138,15 @@ incorporar_a_tripulacion pirata tripulacion = Tripulacion ((miembros tripulacion
 
 abandonar_tripulacion :: Pirata -> Tripulacion -> Tripulacion
 abandonar_tripulacion pirata tripulacion =  Tripulacion (delete pirata (miembros tripulacion )) (barco tripulacion)
+
+saquear pirata forma tesoro 
+  | forma tesoro = adquirir_tesoro pirata tesoro
+  | otherwise = pirata
+
+solo_tesoros_valiosos tesoro = (valor tesoro) > 100
+
+solo_tesoros_especificos clave tesoro = (nombreTesoro tesoro) == clave
+
+pirata_con_corazon tesoro = False
+
+forma_compleja formas tesoro = any (==True) (map  ($tesoro) formas)
