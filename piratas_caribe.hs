@@ -1,12 +1,19 @@
+import Data.List
+
 data Pirata = Pirata
   { nombrePirata :: String
   , botin        :: [Tesoro]
-  } deriving (Show)
+  } deriving (Show, Eq)
 
 data Tesoro = Tesoro
   { nombreTesoro :: String
   , valor        :: Integer
-  } deriving (Show)
+  } deriving (Show, Eq)
+
+
+data Tripulacion = Tripulacion
+   { miembros :: [Pirata]
+   , barco    :: String} deriving (Show, Eq)
 
 --TESOROS
 auricularesChetos :: Tesoro
@@ -37,6 +44,15 @@ cajitaMusical = Tesoro {nombreTesoro = "Cajita Musical", valor = 1}
 doblones :: Tesoro
 doblones = Tesoro {nombreTesoro = "Doblones", valor = 100}
 
+moneda :: Tesoro
+moneda = Tesoro {nombreTesoro = "Moneda del cofre muerto", valor = 100}
+
+espada :: Tesoro
+espada = Tesoro {nombreTesoro = "Espada de hierro", valor = 50}
+
+cuchillo :: Tesoro
+cuchillo = Tesoro {nombreTesoro = "Cuchillo", valor = 5}
+
 --PIRATAS
 viotti :: Pirata
 viotti =
@@ -59,6 +75,14 @@ davidJones = Pirata {nombrePirata = "David Jones", botin = [cajitaMusical]}
 
 anneBonny :: Pirata
 anneBonny = Pirata {nombrePirata = "Anne Bonny", botin = [doblones, frascoAnne]}
+
+elizabethSwann :: Pirata
+elizabethSwann = Pirata {nombrePirata = "Elizabeth Swann", botin = [moneda, espada]}
+
+--BARCOS
+perla = Tripulacion [jackSparrow, anneBonny] "Perla Negra"
+holandes = Tripulacion [davidJones] "Holandes Errante"
+
 
 --FUNCIONES
 cantidad_tesoros :: Pirata -> Int
@@ -106,3 +130,11 @@ perder_tesoros_con_nombre nombre pirata =
   Pirata
     (nombrePirata pirata)
     (filter ((/= nombre) . nombreTesoro) (botin pirata))
+
+-- NAVEGANDO LOS SIETE MARES
+
+incorporar_a_tripulacion :: Pirata -> Tripulacion -> Tripulacion
+incorporar_a_tripulacion pirata tripulacion = Tripulacion ((miembros tripulacion) ++ [pirata]) (barco tripulacion)
+
+abandonar_tripulacion :: Pirata -> Tripulacion -> Tripulacion
+abandonar_tripulacion pirata tripulacion =  Tripulacion (delete pirata (miembros tripulacion )) (barco tripulacion)
