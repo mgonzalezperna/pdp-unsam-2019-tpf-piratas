@@ -152,10 +152,10 @@ saquear pirata forma tesoro
   | otherwise = pirata
 
 solo_tesoros_valiosos :: Tesoro -> Bool 
-solo_tesoros_valiosos tesoro = (valor tesoro) > 100
+solo_tesoros_valiosos = (>100) . valor
 
 solo_tesoros_especificos :: String -> Tesoro -> Bool 
-solo_tesoros_especificos clave tesoro = (nombreTesoro tesoro) == clave
+solo_tesoros_especificos clave = (==clave) . nombreTesoro 
 
 pirata_con_corazon :: Tesoro -> Bool 
 pirata_con_corazon tesoro = False
