@@ -12,7 +12,13 @@ data Tesoro = Tesoro
 
 data Barco = Barco
    { tripulacion :: [Pirata]
-   , nombre    :: String} deriving (Show, Eq)
+   , nombreBarco    :: String
+   } deriving (Show, Eq)
+
+data Isla = Isla
+   { elemento_tipico :: Tesoro
+   , nombreIsla    :: String
+   } deriving (Show, Eq)
 
 --TESOROS
 auricularesChetos :: Tesoro
@@ -55,6 +61,9 @@ cuchillo = Tesoro {nombreTesoro = "Cuchillo", valor = 5}
 oro :: Tesoro
 oro = Tesoro {nombreTesoro = "Oro", valor = 750}
 
+ron :: Tesoro
+ron = Tesoro {nombreTesoro = "Ron", valor = 25}
+
 --PIRATAS
 viotti :: Pirata
 viotti =
@@ -82,9 +91,12 @@ elizabethSwann :: Pirata
 elizabethSwann = Pirata {nombrePirata = "Elizabeth Swann", botin = [moneda, espada]}
 
 --BARCOS
-perla = Barco { tripulacion = [jackSparrow, anneBonny] , nombre = "Perla Negra"}
-holandes = Barco { tripulacion = [davidJones]  , nombre = "Holandes Errante"}
+perla = Barco { tripulacion = [jackSparrow, anneBonny] , nombreBarco = "Perla Negra"}
+holandes = Barco { tripulacion = [davidJones]  , nombreBarco = "Holandes Errante"}
 
+--ISLAS
+isla_tortuga = Isla { elemento_tipico = frascoAnne, nombreIsla = "Isla Tortuga" }
+isla_ron = Isla { elemento_tipico = ron, nombreIsla = "Isla del Ron" }
 
 --FUNCIONES
 cantidad_tesoros :: Pirata -> Int
@@ -160,9 +172,9 @@ forma_compleja formas tesoro = any (evaluar tesoro) formas
 -- NAVEGANDO LOS SIETE MARES
 
 incorporar_a_tripulacion :: Pirata -> Barco -> Barco
-incorporar_a_tripulacion pirata barco = Barco ((tripulacion barco) ++ [pirata]) (nombre barco)
+incorporar_a_tripulacion pirata barco = Barco ((tripulacion barco) ++ [pirata]) (nombreBarco barco)
 
 abandonar_tripulacion :: Pirata -> Barco -> Barco
-abandonar_tripulacion pirata barco =  Barco (delete pirata (tripulacion barco )) (nombre barco)
+abandonar_tripulacion pirata barco =  Barco (delete pirata (tripulacion barco )) (nombreBarco barco)
 
 
