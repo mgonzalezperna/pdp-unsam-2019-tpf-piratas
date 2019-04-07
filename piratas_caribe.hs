@@ -98,7 +98,7 @@ holandes = Barco { tripulacion = [davidJones]  , nombreBarco = "Holandes Errante
 isla_tortuga = Isla { elemento_tipico = frascoAnne, nombreIsla = "Isla Tortuga" }
 isla_ron = Isla { elemento_tipico = ron, nombreIsla = "Isla del Ron" }
 
---FUNCIONES
+--TESOROS PIRATAS
 cantidad_tesoros :: Pirata -> Int
 cantidad_tesoros pirata = length (botin pirata)
 
@@ -146,7 +146,6 @@ perder_tesoros_con_nombre nombre pirata =
     (filter ((/= nombre) . nombreTesoro) (botin pirata))
 
 --TEMPORADA DE SAQUEOS
-
 saquear :: Pirata -> (Tesoro -> Bool) -> Tesoro -> Pirata
 saquear pirata forma tesoro 
   | forma tesoro = adquirir_tesoro pirata tesoro
@@ -170,11 +169,14 @@ forma_compleja formas tesoro = any (evaluar tesoro) formas
 
 
 -- NAVEGANDO LOS SIETE MARES
-
 incorporar_a_tripulacion :: Pirata -> Barco -> Barco
 incorporar_a_tripulacion pirata barco = Barco ((tripulacion barco) ++ [pirata]) (nombreBarco barco)
 
 abandonar_tripulacion :: Pirata -> Barco -> Barco
-abandonar_tripulacion pirata barco =  Barco (delete pirata (tripulacion barco )) (nombreBarco barco)
+abandonar_tripulacion pirata barco =  Barco (delete pirata (tripulacion barco)) (nombreBarco barco)
 
+anclar_en_isla :: Barco -> Isla -> Barco
+anclar_en_isla barco isla = Barco (tomar_tesoros (tripulacion barco) (elemento_tipico isla)) (nombreBarco barco)
 
+tomar_tesoros :: [Pirata] -> Tesoro -> [Pirata]
+tomar_tesoros tripulacion tesoro = map (flip adquirir_tesoro tesoro) tripulacion 
