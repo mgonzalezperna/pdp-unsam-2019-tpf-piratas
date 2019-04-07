@@ -10,10 +10,9 @@ data Tesoro = Tesoro
   , valor        :: Integer
   } deriving (Show, Eq)
 
-
-data Tripulacion = Tripulacion
-   { miembros :: [Pirata]
-   , barco    :: String} deriving (Show, Eq)
+data Barco = Barco
+   { tripulacion :: [Pirata]
+   , nombre    :: String} deriving (Show, Eq)
 
 --TESOROS
 auricularesChetos :: Tesoro
@@ -53,6 +52,9 @@ espada = Tesoro {nombreTesoro = "Espada de hierro", valor = 50}
 cuchillo :: Tesoro
 cuchillo = Tesoro {nombreTesoro = "Cuchillo", valor = 5}
 
+oro :: Tesoro
+oro = Tesoro {nombreTesoro = "Oro", valor = 750}
+
 --PIRATAS
 viotti :: Pirata
 viotti =
@@ -80,8 +82,8 @@ elizabethSwann :: Pirata
 elizabethSwann = Pirata {nombrePirata = "Elizabeth Swann", botin = [moneda, espada]}
 
 --BARCOS
-perla = Tripulacion [jackSparrow, anneBonny] "Perla Negra"
-holandes = Tripulacion [davidJones] "Holandes Errante"
+perla = Barco { tripulacion = [jackSparrow, anneBonny] , nombre = "Perla Negra"}
+holandes = Barco { tripulacion = [davidJones]  , nombre = "Holandes Errante"}
 
 
 --FUNCIONES
@@ -131,13 +133,7 @@ perder_tesoros_con_nombre nombre pirata =
     (nombrePirata pirata)
     (filter ((/= nombre) . nombreTesoro) (botin pirata))
 
--- NAVEGANDO LOS SIETE MARES
-
-incorporar_a_tripulacion :: Pirata -> Tripulacion -> Tripulacion
-incorporar_a_tripulacion pirata tripulacion = Tripulacion ((miembros tripulacion) ++ [pirata]) (barco tripulacion)
-
-abandonar_tripulacion :: Pirata -> Tripulacion -> Tripulacion
-abandonar_tripulacion pirata tripulacion =  Tripulacion (delete pirata (miembros tripulacion )) (barco tripulacion)
+--TEMPORADA DE SAQUEOS
 
 saquear :: Pirata -> (Tesoro -> Bool) -> Tesoro -> Pirata
 saquear pirata forma tesoro 
@@ -159,3 +155,14 @@ evaluar tesoro forma = forma tesoro
 
 forma_compleja :: [(Tesoro -> Bool)] -> Tesoro -> Bool
 forma_compleja formas tesoro = any (evaluar tesoro) formas
+
+
+-- NAVEGANDO LOS SIETE MARES
+
+incorporar_a_tripulacion :: Pirata -> Barco -> Barco
+incorporar_a_tripulacion pirata barco = Barco ((tripulacion barco) ++ [pirata]) (nombre barco)
+
+abandonar_tripulacion :: Pirata -> Barco -> Barco
+abandonar_tripulacion pirata barco =  Barco (delete pirata (tripulacion barco )) (nombre barco)
+
+
