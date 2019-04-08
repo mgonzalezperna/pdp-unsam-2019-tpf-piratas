@@ -1,4 +1,5 @@
-import Data.List
+import           Data.List
+import           Text.Show.Functions
 
 data Pirata = Pirata
   { nombrePirata :: String
@@ -11,14 +12,20 @@ data Tesoro = Tesoro
   } deriving (Show, Eq)
 
 data Barco = Barco
-   { tripulacion :: [Pirata]
-   , nombreBarco    :: String
-   } deriving (Show, Eq)
+  { tripulacion  :: [Pirata]
+  , nombreBarco  :: String
+  , forma_saqueo :: Tesoro -> Bool
+  } deriving (Show)
 
 data Isla = Isla
-   { elemento_tipico :: Tesoro
-   , nombreIsla    :: String
-   } deriving (Show, Eq)
+  { elemento_tipico :: Tesoro
+  , nombreIsla      :: String
+  } deriving (Show, Eq)
+
+data Ciudad = Ciudad
+  { tesoros_disponibles :: [Tesoro]
+  , nombreCiudad        :: String
+  } deriving (Show, Eq)
 
 --TESOROS
 auricularesChetos :: Tesoro
@@ -88,15 +95,38 @@ anneBonny :: Pirata
 anneBonny = Pirata {nombrePirata = "Anne Bonny", botin = [doblones, frascoAnne]}
 
 elizabethSwann :: Pirata
-elizabethSwann = Pirata {nombrePirata = "Elizabeth Swann", botin = [moneda, espada]}
+elizabethSwann =
+  Pirata {nombrePirata = "Elizabeth Swann", botin = [moneda, espada]}
 
 --BARCOS
-perla = Barco { tripulacion = [jackSparrow, anneBonny] , nombreBarco = "Perla Negra"}
-holandes = Barco { tripulacion = [davidJones]  , nombreBarco = "Holandes Errante"}
+perla =
+  Barco
+    { tripulacion = [jackSparrow, anneBonny]
+    , nombreBarco = "Perla Negra"
+    , forma_saqueo = solo_tesoros_valiosos
+    }
+
+holandes =
+  Barco
+    { tripulacion = [davidJones]
+    , nombreBarco = "Holandes Errante"
+    , forma_saqueo = solo_tesoros_valiosos
+    }
 
 --ISLAS
-isla_tortuga = Isla { elemento_tipico = frascoAnne, nombreIsla = "Isla Tortuga" }
-isla_ron = Isla { elemento_tipico = ron, nombreIsla = "Isla del Ron" }
+isla_tortuga = Isla {elemento_tipico = frascoAnne, nombreIsla = "Isla Tortuga"}
+
+isla_ron = Isla {elemento_tipico = ron, nombreIsla = "Isla del Ron"}
+
+--CIUDADES
+port_royal =
+  Ciudad
+    { tesoros_disponibles = [oro, cuchillo, espada, biciCopada]
+    , nombreCiudad = "Port Royal"
+    }
+
+carmen_de_patagones =
+  Ciudad {tesoros_disponibles = [oro], nombreCiudad = "Carmen de Patagones"}
 
 --TESOROS PIRATAS
 cantidad_tesoros :: Pirata -> Int
@@ -147,17 +177,17 @@ perder_tesoros_con_nombre nombre pirata =
 
 --TEMPORADA DE SAQUEOS
 saquear :: Pirata -> (Tesoro -> Bool) -> Tesoro -> Pirata
-saquear pirata forma tesoro 
+saquear pirata forma tesoro
   | forma tesoro = adquirir_tesoro pirata tesoro
   | otherwise = pirata
 
-solo_tesoros_valiosos :: Tesoro -> Bool 
-solo_tesoros_valiosos = (>100) . valor
+solo_tesoros_valiosos :: Tesoro -> Bool
+solo_tesoros_valiosos = (> 100) . valor
 
-solo_tesoros_especificos :: String -> Tesoro -> Bool 
-solo_tesoros_especificos clave = (==clave) . nombreTesoro 
+solo_tesoros_especificos :: String -> Tesoro -> Bool
+solo_tesoros_especificos clave = (== clave) . nombreTesoro
 
-pirata_con_corazon :: Tesoro -> Bool 
+pirata_con_corazon :: Tesoro -> Bool
 pirata_con_corazon tesoro = False
 
 --Condicion de cumplimiento del any
@@ -167,16 +197,59 @@ evaluar tesoro forma = forma tesoro
 forma_compleja :: [(Tesoro -> Bool)] -> Tesoro -> Bool
 forma_compleja formas tesoro = any (evaluar tesoro) formas
 
-
 -- NAVEGANDO LOS SIETE MARES
 incorporar_a_tripulacion :: Pirata -> Barco -> Barco
-incorporar_a_tripulacion pirata barco = Barco ((tripulacion barco) ++ [pirata]) (nombreBarco barco)
+incorporar_a_tripulacion pirata barco =
+  Barco
+    ((tripulacion barco) ++ [pirata])
+    (nombreBarco barco)
+    (forma_saqueo barco)
 
 abandonar_tripulacion :: Pirata -> Barco -> Barco
-abandonar_tripulacion pirata barco =  Barco (delete pirata (tripulacion barco)) (nombreBarco barco)
+abandonar_tripulacion pirata barco =
+  Barco
+    (delete pirata (tripulacion barco))
+    (nombreBarco barco)
+    (forma_saqueo barco)
 
 anclar_en_isla :: Barco -> Isla -> Barco
-anclar_en_isla barco isla = Barco (tomar_tesoros (tripulacion barco) (elemento_tipico isla)) (nombreBarco barco)
+anclar_en_isla barco isla =
+  Barco
+    (tomar_tesoros (tripulacion barco) (elemento_tipico isla))
+    (nombreBarco barco)
+    (forma_saqueo barco)
 
 tomar_tesoros :: [Pirata] -> Tesoro -> [Pirata]
-tomar_tesoros tripulacion tesoro = map (flip adquirir_tesoro tesoro) tripulacion 
+tomar_tesoros tripulacion tesoro = map (flip adquirir_tesoro tesoro) tripulacion
+
+atacar_ciudad :: Barco -> Ciudad -> Barco
+atacar_ciudad barco ciudad
+  | mas_tesoros_que_tripulantes (tesoros_disponibles ciudad) (tripulacion barco) =
+    saquear_ciudad barco ciudad
+  | otherwise =
+    saquear_ciudad
+      (echar_piratas barco (length (tesoros_disponibles ciudad)))
+      ciudad
+
+saquear_ciudad :: Barco -> Ciudad -> Barco
+saquear_ciudad barco ciudad =
+  Barco
+    (map
+       (tomar_si_le_interesa (forma_saqueo barco))
+       (zip (tripulacion barco) (tesoros_disponibles ciudad)))
+    (nombreBarco barco)
+    (forma_saqueo barco)
+
+tomar_si_le_interesa :: (Tesoro -> Bool) -> (Pirata, Tesoro) -> Pirata
+tomar_si_le_interesa forma (pirata, tesoro) = saquear pirata forma tesoro
+
+echar_piratas :: Barco -> Int -> Barco
+echar_piratas barco quedan =
+  Barco
+    (take quedan (tripulacion barco))
+    (nombreBarco barco)
+    (forma_saqueo barco)
+
+mas_tesoros_que_tripulantes :: [Tesoro] -> [Pirata] -> Bool
+mas_tesoros_que_tripulantes tesoros tripulantes =
+  (length tesoros) >= (length tripulantes)
