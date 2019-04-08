@@ -89,7 +89,11 @@ jackSparrow =
   Pirata {nombrePirata = "Jack Sparrow", botin = [brujula, frascoJack]}
 
 davidJones :: Pirata
-davidJones = Pirata {nombrePirata = "David Jones", botin = [cajitaMusical]}
+davidJones =
+  Pirata
+    { nombrePirata = "David Jones"
+    , botin = [biciCopada, zapatillasDini, cajitaMusical, cuchillo]
+    }
 
 anneBonny :: Pirata
 anneBonny = Pirata {nombrePirata = "Anne Bonny", botin = [doblones, frascoAnne]}
@@ -253,3 +257,26 @@ echar_piratas barco quedan =
 mas_tesoros_que_tripulantes :: [Tesoro] -> [Pirata] -> Bool
 mas_tesoros_que_tripulantes tesoros tripulantes =
   (length tesoros) >= (length tripulantes)
+
+abordar :: Barco -> Barco -> (Barco, Barco)
+abordar barco1 barco2 = (quien_gana barco1 barco2)
+
+quien_gana :: Barco -> Barco -> (Barco, Barco)
+quien_gana barco1 barco2
+  | length (tripulacion barco1) >= length (tripulacion barco2) =
+    sacarle_todos_los_tesoros barco1 barco2
+  | length (tripulacion barco1) < length (tripulacion barco2) =
+    sacarle_todos_los_tesoros barco2 barco1
+
+sacarle_todos_los_tesoros :: Barco -> Barco -> (Barco, Barco)
+sacarle_todos_los_tesoros ganador perdedor =
+  ( Barco
+      (map
+         (tomar_si_le_interesa (forma_saqueo ganador))
+         (zip (tripulacion ganador) (concat (map botin (tripulacion perdedor)))))
+      (nombreBarco ganador)
+      (forma_saqueo ganador)
+  , Barco
+      (map perder_tesoros_valiosos (tripulacion perdedor))
+      (nombreBarco perdedor)
+      (forma_saqueo perdedor))
