@@ -20,6 +20,11 @@ data Isla = Isla
    , nombreIsla    :: String
    } deriving (Show, Eq)
 
+data Ciudad = Ciudad
+    { nombreCiudad :: String
+    , tesorosSaqueables :: [Tesoro] 
+    } deriving (Show, Eq)
+
 --TESOROS
 auricularesChetos :: Tesoro
 auricularesChetos =
@@ -59,7 +64,7 @@ cuchillo :: Tesoro
 cuchillo = Tesoro {nombreTesoro = "Cuchillo", valor = 5}
 
 oro :: Tesoro
-oro = Tesoro {nombreTesoro = "Oro", valor = 750}
+oro = Tesoro {nombreTesoro = "Oro", valor = 75000}
 
 ron :: Tesoro
 ron = Tesoro {nombreTesoro = "Ron", valor = 25}
@@ -97,6 +102,10 @@ holandes = Barco { tripulacion = [davidJones]  , nombreBarco = "Holandes Errante
 --ISLAS
 isla_tortuga = Isla { elemento_tipico = frascoAnne, nombreIsla = "Isla Tortuga" }
 isla_ron = Isla { elemento_tipico = ron, nombreIsla = "Isla del Ron" }
+
+--CIUDADES
+port_royal = Ciudad { nombreCiudad = "Port Royal", tesorosSaqueables = [brujula] }
+new_providence = Ciudad { nombreCiudad = "Nueva Providencia", tesorosSaqueables = [oro, ron, doblones] }
 
 --TESOROS PIRATAS
 cantidad_tesoros :: Pirata -> Int
@@ -147,8 +156,8 @@ perder_tesoros_con_nombre nombre pirata =
 
 --TEMPORADA DE SAQUEOS
 saquear :: Pirata -> (Tesoro -> Bool) -> Tesoro -> Pirata
-saquear pirata forma tesoro 
-  | forma tesoro = adquirir_tesoro pirata tesoro
+saquear pirata forma_saqueo tesoro 
+  | forma_saqueo tesoro = adquirir_tesoro pirata tesoro
   | otherwise = pirata
 
 solo_tesoros_valiosos :: Tesoro -> Bool 
@@ -160,7 +169,7 @@ solo_tesoros_especificos clave = (==clave) . nombreTesoro
 pirata_con_corazon :: Tesoro -> Bool 
 pirata_con_corazon tesoro = False
 
---Condicion de cumplimiento del any
+--Nota: condicion de cumplimiento del any
 evaluar :: Tesoro -> (Tesoro -> Bool) -> Bool
 evaluar tesoro forma = forma tesoro
 
@@ -179,4 +188,17 @@ anclar_en_isla :: Barco -> Isla -> Barco
 anclar_en_isla barco isla = Barco (tomar_tesoros (tripulacion barco) (elemento_tipico isla)) (nombreBarco barco)
 
 tomar_tesoros :: [Pirata] -> Tesoro -> [Pirata]
-tomar_tesoros tripulacion tesoro = map (flip adquirir_tesoro tesoro) tripulacion 
+tomar_tesoros tripulacion tesoro = map (flip adquirir_tesoro tesoro) tripulacion
+
+--Nota: cada barco tiene una forma definida de saquear
+atacar_ciudad :: Ciudad -> Barco -> (Tesoro -> Bool) -> Barco
+atacar_ciudad ciudad barco forma_saqueo = Barco (repartir_tesoros (tripulacion barco) forma_saqueo (tesorosSaqueables ciudad)) (nombreBarco barco)
+
+repartir_tesoros :: [Pirata] -> (Tesoro -> Bool) -> [Tesoro] -> [Pirata]
+repartir_tesoros (pirata:piratas) forma_saqueo (tesoro:tesoros) = saquear pirata forma_saqueo tesoro : repartir_tesoros piratas forma_saqueo tesoros
+--condicion corte cuando hay mas tesoros que piratas
+repartir_tesoros [] forma_saqueo (tesoro:tesoros) = [] 
+--condicion de corte cuando hay mas piratas que tesoros 
+repartir_tesoros (pirata:piratas) forma_saqueo [] = []
+--condicion de corte si hay igual cantidad de piratas que tesoros
+repartir_tesoros [] forma_saqueo [] = []
