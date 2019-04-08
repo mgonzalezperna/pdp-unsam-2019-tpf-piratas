@@ -280,3 +280,19 @@ sacarle_todos_los_tesoros ganador perdedor =
       (map perder_tesoros_valiosos (tripulacion perdedor))
       (nombreBarco perdedor)
       (forma_saqueo perdedor))
+
+escena1 = anclar_en_isla perla isla_ron
+
+escena2 = atacar_ciudad perla port_royal
+
+escena3 = anclar_en_isla holandes isla_tortuga
+
+escena4 = atacar_ciudad holandes carmen_de_patagones
+
+escena5 = abordar perla holandes
+
+historia_perla_negra = atacar_ciudad escena1 port_royal
+
+historia_holandes_errante = atacar_ciudad escena3 carmen_de_patagones
+
+pelicula = abordar historia_perla_negra historia_holandes_errante
