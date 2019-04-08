@@ -238,11 +238,12 @@ atacar_ciudad barco ciudad
 saquear_ciudad :: Barco -> Ciudad -> Barco
 saquear_ciudad barco ciudad =
   Barco
-    (map
-       (tomar_si_le_interesa (forma_saqueo barco))
-       (zip (tripulacion barco) (tesoros_disponibles ciudad)))
+    (obtener_tesoros_por_tripulante (forma_saqueo barco) (tripulacion barco) (tesoros_disponibles ciudad) )
     (nombreBarco barco)
     (forma_saqueo barco)
+
+obtener_tesoros_por_tripulante :: (Tesoro -> Bool) -> [Pirata] -> [Tesoro] -> [Pirata]
+obtener_tesoros_por_tripulante forma tripulacion tesoros = map (tomar_si_le_interesa (forma)) (zip tripulacion tesoros)
 
 tomar_si_le_interesa :: (Tesoro -> Bool) -> (Pirata, Tesoro) -> Pirata
 tomar_si_le_interesa forma (pirata, tesoro) = saquear pirata forma tesoro
@@ -259,27 +260,24 @@ mas_tesoros_que_tripulantes tesoros tripulantes =
   (length tesoros) >= (length tripulantes)
 
 abordar :: Barco -> Barco -> (Barco, Barco)
-abordar barco1 barco2 = (quien_gana barco1 barco2)
-
-quien_gana :: Barco -> Barco -> (Barco, Barco)
-quien_gana barco1 barco2
-  | length (tripulacion barco1) >= length (tripulacion barco2) =
-    sacarle_todos_los_tesoros barco1 barco2
-  | length (tripulacion barco1) < length (tripulacion barco2) =
-    sacarle_todos_los_tesoros barco2 barco1
+abordar barco1 barco2 
+  | length (tripulacion barco1) >= length (tripulacion barco2) = sacarle_todos_los_tesoros barco1 barco2
+  | otherwise = sacarle_todos_los_tesoros barco2 barco1
 
 sacarle_todos_los_tesoros :: Barco -> Barco -> (Barco, Barco)
 sacarle_todos_los_tesoros ganador perdedor =
   ( Barco
-      (map
-         (tomar_si_le_interesa (forma_saqueo ganador))
-         (zip (tripulacion ganador) (concat (map botin (tripulacion perdedor)))))
+      (obtener_tesoros_por_tripulante (forma_saqueo ganador) (tripulacion ganador) (todos_los_tesoros (tripulacion perdedor)) )
       (nombreBarco ganador)
       (forma_saqueo ganador)
   , Barco
       (map perder_tesoros_valiosos (tripulacion perdedor))
       (nombreBarco perdedor)
       (forma_saqueo perdedor))
+
+
+todos_los_tesoros :: [Pirata] -> [Tesoro]      
+todos_los_tesoros tripulacion = concat (map botin tripulacion)
 
 escena1 = anclar_en_isla perla isla_ron
 
