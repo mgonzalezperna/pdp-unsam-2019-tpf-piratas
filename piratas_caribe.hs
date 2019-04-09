@@ -69,6 +69,9 @@ oro = Tesoro {nombreTesoro = "Oro", valor = 75000}
 ron :: Tesoro
 ron = Tesoro {nombreTesoro = "Ron", valor = 25}
 
+media_sucia :: Tesoro
+    media_sucia = Tesoro {nombreTesoro = "Media sucia", valor = 10}
+
 --PIRATAS
 viotti :: Pirata
 viotti =
@@ -202,3 +205,53 @@ repartir_tesoros [] forma_saqueo (tesoro:tesoros) = []
 repartir_tesoros (pirata:piratas) forma_saqueo [] = []
 --condicion de corte si hay igual cantidad de piratas que tesoros
 repartir_tesoros [] forma_saqueo [] = []
+
+
+
+
+--HISTORIA
+comenzar_historia :: IO (String) 
+comenzar_historia = do
+    putStrLn("Ahoy novato! Estas aqui para convertirte en un nuevo poderoso pirata!")
+    putStrLn("Es hora de comenzar tu aventura! Pero antes...")
+    protagonista <- crear_pirata
+    putStrLn("Ahora es hora de salir a navegar los 7 mares! Tu historia comienza en la isla Tortuga.")
+    resultado_historia <- menu_historia_sin_barco protagonista
+    return resultado_historia
+
+crear_pirata :: IO (Pirata)
+crear_pirata = do    
+    putStrLn("Cual es tu nombre?")
+    nombreProtagonista <- getLine
+    putStrLn("Bienvenido " ++ nombreProtagonista ++ "!")
+    putStrLn("Ahora que ya tienes un nombre, solo te hace falta un botin...")
+    putStrLn("... tienes un botin, verdad?")
+    putStrLn("Agh... no tienes botin... bueno, entonces tu botin inicial consiste en una media sucia.")
+    putStrLn("Si te quedas sin botin, seras expulsado de la vida pirata!")
+    putStrLn("Y recuerda que el coseno del valor de tus tesoros determina tu fortaleza en combate.")
+    return Pirata {nombrePirata = nombreProtagonista, botin = [media_sucia]}
+
+menu_historia_sin_barco :: Pirata -> IO (String)
+menu_historia_sin_barco protagonista = do
+    putStrLn("Que deseas realizar a continuacion?")
+    putStrLn("(1)-ROBAR UN BARCO")
+    putStrLn("(2)-SAQUEAR UNA ISLA")
+    putStrLn("(3)-ATACAR UNA CIUDAD")
+    putStrLn("(4)-RETIRARSE DE LA PIRATERIA")
+    desarrollar_historia_sin_barco protagonista
+    
+desarrollar_historia_sin_barco :: Pirata -> Pirata
+desarrollar_historia_sin_barco protagonista
+  | 1 = robar_barco protagonista
+  | 2 = saquear_isla protagonista
+  | 3 = atacar_ciudad protagonista
+  | 4 = retirarse protagonista
+  | otherwise = opcion_incorrecta protagonista 
+
+robar_barco :: Pirata -> Barco
+robar_barco protagonista = do
+    putStrLn("Solo hay un velero triste anclado en el muelle...")
+    putStrLn("Pero... que va, lo tomas y zarpas. Enhorabuena! Ahora es tuyo. Que nombre le pondras?")
+    nombreVelero <- getLine
+    return Barco { tripulacion = [protagonista] , nombreBarco = nombreVelero}
+
