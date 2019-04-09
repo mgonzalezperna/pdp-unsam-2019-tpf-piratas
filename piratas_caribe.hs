@@ -279,18 +279,20 @@ sacarle_todos_los_tesoros ganador perdedor =
 todos_los_tesoros :: [Pirata] -> [Tesoro]      
 todos_los_tesoros tripulacion = concat (map botin tripulacion)
 
+
+-- HACETE TODA LA PELÍCULA
+
+escena1 :: Barco
 escena1 = anclar_en_isla perla isla_ron
 
-escena2 = atacar_ciudad perla port_royal
-
+escena2 :: Barco
 escena3 = anclar_en_isla holandes isla_tortuga
 
-escena4 = atacar_ciudad holandes carmen_de_patagones
-
-escena5 = abordar perla holandes
-
+historia_perla_negra :: Barco
 historia_perla_negra = atacar_ciudad escena1 port_royal
 
-historia_holandes_errante = atacar_ciudad escena3 carmen_de_patagones
+historia_holandes_errante :: Barco
+historia_holandes_errante = atacar_ciudad escena2 carmen_de_patagones
 
+pelicula :: (Barco, Barco)
 pelicula = abordar historia_perla_negra historia_holandes_errante
