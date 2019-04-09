@@ -267,7 +267,7 @@ abordar barco1 barco2
 sacarle_todos_los_tesoros :: Barco -> Barco -> (Barco, Barco)
 sacarle_todos_los_tesoros ganador perdedor =
   ( Barco
-      (obtener_tesoros_por_tripulante (forma_saqueo ganador) (tripulacion ganador) (todos_los_tesoros (tripulacion perdedor)) )
+      (obtener_tesoros_por_tripulante (solo_tesoros_valiosos) (tripulacion ganador) (todos_los_tesoros (tripulacion perdedor)) )
       (nombreBarco ganador)
       (forma_saqueo ganador)
   , Barco
