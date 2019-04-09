@@ -134,7 +134,7 @@ carmen_de_patagones =
 
 --TESOROS PIRATAS
 cantidad_tesoros :: Pirata -> Int
-cantidad_tesoros pirata = length (botin pirata)
+cantidad_tesoros = length . botin
 
 es_afortunado :: Pirata -> Bool
 es_afortunado = (> 10000) . sum . valores_tesoros
@@ -146,34 +146,35 @@ comparar_nombres_tesoros :: Tesoro -> Tesoro -> Bool
 comparar_nombres_tesoros tesoro_1 tesoro_2 =
   nombreTesoro tesoro_1 == nombreTesoro tesoro_2
 
-comparar_valores_tesoros :: Tesoro -> Tesoro -> Bool
-comparar_valores_tesoros tesoro_1 tesoro_2 = valor tesoro_1 /= valor tesoro_2
+valores_distintos_tesoros :: Tesoro -> Tesoro -> Bool
+valores_distintos_tesoros tesoro_1 tesoro_2 = valor tesoro_1 /= valor tesoro_2
 
-comparar_valores_de_nombres_iguales :: Tesoro -> Tesoro -> Bool
-comparar_valores_de_nombres_iguales tesoro_1 tesoro_2 =
+nombres_iguales_y_valores_distintos :: Tesoro -> Tesoro -> Bool
+nombres_iguales_y_valores_distintos tesoro_1 tesoro_2 =
   comparar_nombres_tesoros tesoro_1 tesoro_2 &&
-  comparar_valores_tesoros tesoro_1 tesoro_2
+  valores_distintos_tesoros tesoro_1 tesoro_2
 
-cumpleCondicion :: [Tesoro] -> Tesoro -> Bool
-cumpleCondicion botin tesoro =
-  any (comparar_valores_de_nombres_iguales tesoro) botin
+alguno_cumple_nombres_iguales_valores_distintos :: [Tesoro] -> Tesoro -> Bool
+alguno_cumple_nombres_iguales_valores_distintos botin tesoro =
+  any (nombres_iguales_y_valores_distintos tesoro) botin
 
 tienen_mismo_tesoro_y_valor_diferente :: Pirata -> Pirata -> Bool
 tienen_mismo_tesoro_y_valor_diferente pirata =
-  any (cumpleCondicion (botin pirata)) . botin
+  any (alguno_cumple_nombres_iguales_valores_distintos (botin pirata)) . botin
 
 valor_tesoro_mas_valioso :: Pirata -> Integer
 valor_tesoro_mas_valioso = maximum . valores_tesoros
 
 adquirir_tesoro :: Pirata -> Tesoro -> Pirata
 adquirir_tesoro pirata tesoro =
-  Pirata (nombrePirata pirata) (tesoro : (botin pirata))
+  -- Pirata (nombrePirata pirata) (tesoro : (botin pirata))
+  pirata{botin = tesoro: botin pirata}
 
-perder_tesoros_valiosos :: Pirata -> Pirata
+perder_tesoros_valiosos :: Pirata -> Pirata -- se puede delegar qué cosa es un tesoro valioso, y usarlo acá
 perder_tesoros_valiosos pirata =
   Pirata (nombrePirata pirata) (filter ((< 100) . valor) (botin pirata))
 
-perder_tesoros_con_nombre :: String -> Pirata -> Pirata
+perder_tesoros_con_nombre :: String -> Pirata -> Pirata -- tesoros con nombre = tesoros específicos
 perder_tesoros_con_nombre nombre pirata =
   Pirata
     (nombrePirata pirata)
@@ -185,10 +186,10 @@ saquear pirata forma tesoro
   | forma tesoro = adquirir_tesoro pirata tesoro
   | otherwise = pirata
 
-solo_tesoros_valiosos :: Tesoro -> Bool
+solo_tesoros_valiosos :: Tesoro -> Bool -- y reutilizar tesoro valioso acá.
 solo_tesoros_valiosos = (> 100) . valor
 
-solo_tesoros_especificos :: String -> Tesoro -> Bool
+solo_tesoros_especificos :: String -> Tesoro -> Bool -- tesoros con nombre = tesoros específicos
 solo_tesoros_especificos clave = (== clave) . nombreTesoro
 
 pirata_con_corazon :: Tesoro -> Bool
@@ -203,25 +204,25 @@ forma_compleja formas tesoro = any (evaluar tesoro) formas
 
 -- NAVEGANDO LOS SIETE MARES
 incorporar_a_tripulacion :: Pirata -> Barco -> Barco
-incorporar_a_tripulacion pirata barco =
-  Barco
-    ((tripulacion barco) ++ [pirata])
-    (nombreBarco barco)
-    (forma_saqueo barco)
+incorporar_a_tripulacion pirata barco = barco {tripulacion= (tripulacion barco) ++ [pirata]}
+  -- Barco
+  --   ((tripulacion barco) ++ [pirata])
+  --   (nombreBarco barco)
+  --   (forma_saqueo barco)
 
 abandonar_tripulacion :: Pirata -> Barco -> Barco
-abandonar_tripulacion pirata barco =
-  Barco
-    (delete pirata (tripulacion barco))
-    (nombreBarco barco)
-    (forma_saqueo barco)
+abandonar_tripulacion pirata barco = barco {tripulacion=delete pirata (tripulacion barco)}
+  -- Barco
+  --   (delete pirata (tripulacion barco))
+  --   (nombreBarco barco)
+  --   (forma_saqueo barco)
 
 anclar_en_isla :: Barco -> Isla -> Barco
-anclar_en_isla barco isla =
-  Barco
-    (tomar_tesoros (tripulacion barco) (elemento_tipico isla))
-    (nombreBarco barco)
-    (forma_saqueo barco)
+anclar_en_isla barco isla = barco { tripulacion = tomar_tesoros (tripulacion barco) (elemento_tipico isla) }
+  -- Barco
+  --   (tomar_tesoros (tripulacion barco) (elemento_tipico isla))
+  --   (nombreBarco barco)
+  --   (forma_saqueo barco)
 
 tomar_tesoros :: [Pirata] -> Tesoro -> [Pirata]
 tomar_tesoros tripulacion tesoro = map (flip adquirir_tesoro tesoro) tripulacion
@@ -235,6 +236,9 @@ atacar_ciudad barco ciudad
       (echar_piratas barco (length (tesoros_disponibles ciudad)))
       ciudad
 
+--saquear_con_zipWith :: Barco -> Ciudad -> Barco
+--saquear_con_zipWith barco ciudad = barco {tripulacion = zipWith (saquear (forma_saqueo barco)) (tripulacion barco) (tesoros_disponibles ciudad)}
+
 saquear_ciudad :: Barco -> Ciudad -> Barco
 saquear_ciudad barco ciudad =
   Barco
@@ -243,7 +247,7 @@ saquear_ciudad barco ciudad =
     (forma_saqueo barco)
 
 obtener_tesoros_por_tripulante :: (Tesoro -> Bool) -> [Pirata] -> [Tesoro] -> [Pirata]
-obtener_tesoros_por_tripulante forma tripulacion tesoros = map (tomar_si_le_interesa (forma)) (zip tripulacion tesoros)
+obtener_tesoros_por_tripulante formaRobarGanador tripulacionGanador tesorosPerdedor = map (tomar_si_le_interesa (formaRobarGanador)) (zip tripulacionGanador tesorosPerdedor)
 
 tomar_si_le_interesa :: (Tesoro -> Bool) -> (Pirata, Tesoro) -> Pirata
 tomar_si_le_interesa forma (pirata, tesoro) = saquear pirata forma tesoro
@@ -286,7 +290,7 @@ escena1 :: Barco
 escena1 = anclar_en_isla perla isla_ron
 
 escena2 :: Barco
-escena3 = anclar_en_isla holandes isla_tortuga
+escena2 = anclar_en_isla holandes isla_tortuga
 
 historia_perla_negra :: Barco
 historia_perla_negra = atacar_ciudad escena1 port_royal
@@ -296,3 +300,7 @@ historia_holandes_errante = atacar_ciudad escena2 carmen_de_patagones
 
 pelicula :: (Barco, Barco)
 pelicula = abordar historia_perla_negra historia_holandes_errante
+
+
+
+super_pelicula barco barco2 isla isla2 ciudad ciudad2 = abordar (atacar_ciudad (anclar_en_isla barco isla) ciudad) (atacar_ciudad(anclar_en_isla barco2 isla2) ciudad2)
