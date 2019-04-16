@@ -172,13 +172,14 @@ adquirir_tesoro pirata tesoro =
 
 perder_tesoros_valiosos :: Pirata -> Pirata -- se puede delegar qué cosa es un tesoro valioso, y usarlo acá
 perder_tesoros_valiosos pirata =
-  Pirata (nombrePirata pirata) (filter ((< 100) . valor) (botin pirata))
+  -- Pirata (nombrePirata pirata) (filter ((< 100) . valor) (botin pirata))
+  pirata { botin = (filter ((< 100) . valor) (botin pirata)) }
 
 perder_tesoros_con_nombre :: String -> Pirata -> Pirata -- tesoros con nombre = tesoros específicos
-perder_tesoros_con_nombre nombre pirata =
-  Pirata
-    (nombrePirata pirata)
-    (filter ((/= nombre) . nombreTesoro) (botin pirata))
+perder_tesoros_con_nombre nombre pirata = pirata { botin = (filter ((/= nombre) . nombreTesoro) (botin pirata)) }
+  -- Pirata
+  --   (nombrePirata pirata)
+  --   (filter ((/= nombre) . nombreTesoro) (botin pirata))
 
 --TEMPORADA DE SAQUEOS
 saquear :: Pirata -> (Tesoro -> Bool) -> Tesoro -> Pirata
@@ -204,14 +205,14 @@ forma_compleja formas tesoro = any (evaluar tesoro) formas
 
 -- NAVEGANDO LOS SIETE MARES
 incorporar_a_tripulacion :: Pirata -> Barco -> Barco
-incorporar_a_tripulacion pirata barco = barco {tripulacion= (tripulacion barco) ++ [pirata]}
+incorporar_a_tripulacion pirata barco = barco { tripulacion = (tripulacion barco) ++ [pirata] }
   -- Barco
   --   ((tripulacion barco) ++ [pirata])
   --   (nombreBarco barco)
   --   (forma_saqueo barco)
 
 abandonar_tripulacion :: Pirata -> Barco -> Barco
-abandonar_tripulacion pirata barco = barco {tripulacion=delete pirata (tripulacion barco)}
+abandonar_tripulacion pirata barco = barco { tripulacion = delete pirata (tripulacion barco) }
   -- Barco
   --   (delete pirata (tripulacion barco))
   --   (nombreBarco barco)
@@ -240,11 +241,11 @@ atacar_ciudad barco ciudad
 --saquear_con_zipWith barco ciudad = barco {tripulacion = zipWith (saquear (forma_saqueo barco)) (tripulacion barco) (tesoros_disponibles ciudad)}
 
 saquear_ciudad :: Barco -> Ciudad -> Barco
-saquear_ciudad barco ciudad =
-  Barco
-    (obtener_tesoros_por_tripulante (forma_saqueo barco) (tripulacion barco) (tesoros_disponibles ciudad) )
-    (nombreBarco barco)
-    (forma_saqueo barco)
+saquear_ciudad barco ciudad = barco { tripulacion = (obtener_tesoros_por_tripulante (forma_saqueo barco) (tripulacion barco) (tesoros_disponibles ciudad)) }
+  -- Barco
+  --   (obtener_tesoros_por_tripulante (forma_saqueo barco) (tripulacion barco) (tesoros_disponibles ciudad) )
+  --   (nombreBarco barco)
+  --   (forma_saqueo barco)
 
 obtener_tesoros_por_tripulante :: (Tesoro -> Bool) -> [Pirata] -> [Tesoro] -> [Pirata]
 obtener_tesoros_por_tripulante formaRobarGanador tripulacionGanador tesorosPerdedor = map (tomar_si_le_interesa (formaRobarGanador)) (zip tripulacionGanador tesorosPerdedor)
@@ -253,11 +254,11 @@ tomar_si_le_interesa :: (Tesoro -> Bool) -> (Pirata, Tesoro) -> Pirata
 tomar_si_le_interesa forma (pirata, tesoro) = saquear pirata forma tesoro
 
 echar_piratas :: Barco -> Int -> Barco
-echar_piratas barco quedan =
-  Barco
-    (take quedan (tripulacion barco))
-    (nombreBarco barco)
-    (forma_saqueo barco)
+echar_piratas barco quedan = barco { tripulacion = (take quedan (tripulacion barco)) }
+  -- Barco
+  --   (take quedan (tripulacion barco))
+  --   (nombreBarco barco)
+  --   (forma_saqueo barco)
 
 mas_tesoros_que_tripulantes :: [Tesoro] -> [Pirata] -> Bool
 mas_tesoros_que_tripulantes tesoros tripulantes =
@@ -269,15 +270,18 @@ abordar barco1 barco2
   | otherwise = sacarle_todos_los_tesoros barco2 barco1
 
 sacarle_todos_los_tesoros :: Barco -> Barco -> (Barco, Barco)
-sacarle_todos_los_tesoros ganador perdedor =
-  ( Barco
-      (obtener_tesoros_por_tripulante (solo_tesoros_valiosos) (tripulacion ganador) (todos_los_tesoros (tripulacion perdedor)) )
-      (nombreBarco ganador)
-      (forma_saqueo ganador)
-  , Barco
-      (map perder_tesoros_valiosos (tripulacion perdedor))
-      (nombreBarco perdedor)
-      (forma_saqueo perdedor))
+sacarle_todos_los_tesoros ganador perdedor = 
+  (ganador { tripulacion = (obtener_tesoros_por_tripulante (solo_tesoros_valiosos) (tripulacion ganador) (todos_los_tesoros (tripulacion perdedor))) }
+  ,perdedor { tripulacion = (map perder_tesoros_valiosos (tripulacion perdedor)) })
+
+  -- ( Barco
+  --     (obtener_tesoros_por_tripulante (solo_tesoros_valiosos) (tripulacion ganador) (todos_los_tesoros (tripulacion perdedor)) )
+  --     (nombreBarco ganador)
+  --     (forma_saqueo ganador)
+  -- , Barco
+  --     (map perder_tesoros_valiosos (tripulacion perdedor))
+  --     (nombreBarco perdedor)
+  --     (forma_saqueo perdedor))
 
 
 todos_los_tesoros :: [Pirata] -> [Tesoro]      
@@ -301,6 +305,5 @@ historia_holandes_errante = atacar_ciudad escena2 carmen_de_patagones
 pelicula :: (Barco, Barco)
 pelicula = abordar historia_perla_negra historia_holandes_errante
 
-
-
+super_pelicula :: Barco -> Barco -> Isla -> Isla -> Ciudad -> Ciudad -> (Barco, Barco)
 super_pelicula barco barco2 isla isla2 ciudad ciudad2 = abordar (atacar_ciudad (anclar_en_isla barco isla) ciudad) (atacar_ciudad(anclar_en_isla barco2 isla2) ciudad2)
