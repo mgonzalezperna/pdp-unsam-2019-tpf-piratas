@@ -253,8 +253,8 @@ menu_historia_con_barco barco = do
 desarrollar_historia :: Integer -> Pirata -> IO String 
 desarrollar_historia opcion protagonista = case opcion of
      1 -> robar_barco protagonista
---     2 -> saquear_ciudad protagonista
---     3 -> retirarse protagonista
+     2 -> saquear_ciudad protagonista
+     3 -> retirarse protagonista
      _ -> menu_historia protagonista
 
 desarrollar_historia_en_barco :: Integer -> Barco -> IO String
@@ -273,7 +273,6 @@ robar_barco protagonista = do
     putStrLn("Pero... que va, lo tomas y zarpas. Enhorabuena! Ahora es tuyo. Que nombre le pondras?")
     nombreVelero <- getLine
     menu_historia_con_barco Barco { tripulacion = [protagonista] , nombreBarco = nombreVelero}
-
 
 
 --- FUNCIONES AUXILIARES
