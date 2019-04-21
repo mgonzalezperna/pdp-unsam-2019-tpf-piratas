@@ -286,6 +286,6 @@ confirmar mensaje_a_confirmar = do
 
 procesar_confirmacion :: String -> IO Bool
 procesar_confirmacion confirmacion 
-  | any (==confirmacion) ["s", "S"] = return True
-  | any (==confirmacion) ["n", "N"] = return False
+  | elem confirmacion ["s", "S"] = return True
+  | elem confirmacion ["n", "N"] = return False
   | otherwise = confirmar "Ha ingresado una opcion incorrecta. Por favor, ingrese"
