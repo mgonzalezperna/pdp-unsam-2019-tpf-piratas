@@ -282,9 +282,10 @@ confirmar mensaje_a_confirmar = do
     putStrLn (mensaje_a_confirmar)
     putStrLn ("(s)i/(n)o")
     confirmacion <- getLine
-    if any (==confirmacion) ["s", "S"] then
-        return True
-    else if any (==confirmacion) ["n", "N"] then
-        return False
-    else 
-        confirmar "Ha ingresado una opcion incorrecta. Por favor, ingrese"
+    procesar_confirmacion confirmacion
+
+procesar_confirmacion :: String -> IO Bool
+procesar_confirmacion confirmacion 
+  | any (==confirmacion) ["s", "S"] = return True
+  | any (==confirmacion) ["n", "N"] = return False
+  | otherwise = confirmar "Ha ingresado una opcion incorrecta. Por favor, ingrese"
