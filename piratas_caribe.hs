@@ -2,6 +2,7 @@ import Data.List
 import System.Random
 import Data.Time.Clock
 import System.IO.Unsafe
+import Control.Concurrent
 
 data Pirata = Pirata
   { nombrePirata :: String
@@ -73,7 +74,7 @@ ron :: Tesoro
 ron = Tesoro {nombreTesoro = "Ron", valor = 25}
 
 media_sucia :: Tesoro
-media_sucia = Tesoro {nombreTesoro = "Media sucia", valor = 10}
+media_sucia = Tesoro {nombreTesoro = "Media sucia", valor = 1}
 
 --PIRATAS
 viotti :: Pirata
@@ -107,6 +108,9 @@ piratas = [viotti, dini, jackSparrow, davidJones, anneBonny, elizabethSwann]
 --BARCOS
 perla = Barco { tripulacion = [jackSparrow, anneBonny] , nombreBarco = "Perla Negra"}
 holandes = Barco { tripulacion = [davidJones]  , nombreBarco = "Holandes Errante"}
+
+barcos :: [Barco]
+barcos = [perla, holandes]
 
 --ISLAS
 isla_tortuga = Isla { elemento_tipico = frascoAnne, nombreIsla = "Isla Tortuga" }
@@ -224,8 +228,9 @@ repartir_tesoros [] forma_saqueo [] = []
 --HISTORIA
 comenzar_historia :: IO (String) 
 comenzar_historia = do
-    putStrLn("Ahoy novato! Estas aqui para convertirte en un nuevo poderoso pirata!")
+    putStrLn("Ahoy novato! Estas aqui para convertirte en un poderoso pirata!")
     putStrLn("Es hora de comenzar tu aventura! Pero antes...")
+    suspenso 1 
     protagonista <- crear_pirata
     putStrLn("Ahora es hora de salir a navegar los 7 mares! Tu historia comienza en la isla Tortuga.")
     resultado_historia <- menu_historia protagonista
@@ -237,10 +242,17 @@ crear_pirata = do
     nombreProtagonista <- getLine
     putStrLn("Bienvenido " ++ nombreProtagonista ++ "!")
     putStrLn("Ahora que ya tienes un nombre, solo te hace falta un botin...")
+    suspenso 1 
     putStrLn("... tienes un botin, verdad?")
-    putStrLn("Agh... no tienes botin... bueno, entonces tu botin inicial consiste en una media sucia.")
+    suspenso 2
+    putStrLn("Agh... bueno, en este caso, tu botin inicial consiste en... una media sucia!")
+    putStrLn("Tomala!")
+    suspenso 2
     putStrLn("Si te quedas sin botin, seras expulsado de la vida pirata!")
+    suspenso 2
     putStrLn("Y recuerda que el valor de tus tesoros determina tu fortaleza en combate.")
+    suspenso 2
+    putStrLn("\n")
     return Pirata {nombrePirata = nombreProtagonista, botin = [media_sucia]}
 
 menu_historia :: Pirata -> IO String
@@ -279,7 +291,7 @@ desarrollar_historia_en_barco opcion barco = case opcion of
 --    3 -> atacar_ciudad barco
 --    4 -> retirarse protagonista
       5 -> ver_estado (head (tripulacion barco))
-      _ -> desarrollar_historia_en_barco opcion barco
+      _ -> menu_historia_con_barco barco
 
 
 -- ACCIONES POSIBLES
@@ -293,30 +305,36 @@ robar_barco protagonista = do
 
 anclar_en_isla_cercana :: Barco -> IO String
 anclar_en_isla_cercana barco = do
+    --pirata <- (head (tripulacion barco))
+    isla <- islaAleatoria
     putStrLn("Los vientos de los siete mares te arrastran hacia la isla mas cercana.")
-    putStrLn("En el horizonte se vislumbra el contorno de la isla " ++ (nombreIsla (unsafePerformIO islaAleatoria)))
-    return "fin"
+    putStrLn("En el horizonte se vislumbra el contorno de la isla " ++ (nombreIsla isla))
+    putStrLn("Cuando desbarcan, ven un enorme deposito de " ++ nombreTesoro(elemento_tipico isla))
+    putStrLn("Añades el tesoro a tu botin y retomas tu aventura, a la espera de que la proxima vez hagas algo mas emocionante...")
+    menu_historia_con_barco $ anclar_en_isla barco isla
+
+
 
 elegir_ciudad_a_saquear :: Pirata -> IO String
 elegir_ciudad_a_saquear protagonista = do
     putStrLn("\nQue ciudad deseas saquear?")
-    putStrLn("(1)-Port Royal")
+    putStrLn("(1)-Port Royal") --MMMMMMMMMMMMMMMMMMMMMMMMMMMMMM, MIEDO
     putStrLn("(2)-New Providence")
     eleccion <- getLine
     procesar_eleccion_ciudad eleccion protagonista
 
 saquear_ciudad :: Pirata -> Ciudad -> IO String
 saquear_ciudad protagonista ciudad = do
-    putStrLn(concat ["\nEntras a " , (nombreCiudad ciudad) , " y te pinta el saqueo!!"])
-    putStrLn("Te detienen unos guardias con cara de pocos amigos. Te piden que te retires... Que decisión tomas?\n")
-    putStrLn("(1)-COIMEAR A LOS GUARDIAS PARA QUE TE DEN ALGUNOS TESOROS")
-    putStrLn("(2)-COMBATIR CON LOS GUARDIAS\n")
+    putStrLn(concat ["Te dirijes con paso firme a la ciudad de " , (nombreCiudad ciudad) , " dispuesto a llevarte todos sus tesoros!!"])
+    putStrLn("Pero en la entrada te detienen unos guardias con cara de pocos amigos. Te piden que te retires... Que decisión tomas?\n")
+    putStrLn("(1)-SOBORNAR A LOS GUARDIAS PARA QUE TE DEN ALGUNOS TESOROS")
+    putStrLn("(2)-COMBATIR CONTRA LOS GUARDIAS\n")
     eleccion <- getLine
     elegir_tipo_saqueo eleccion protagonista ciudad
 
 coimear_guardias :: Pirata -> Ciudad -> IO String
 coimear_guardias protagonista ciudad = do
-    putStrLn("\nLe ofreces un tesoro como coima a los guardias...")
+    putStrLn("Ofreces un tesoro como coima a los guardias.")
     putStrLn("Estos aceptan y te dan tesoros a cambio\n")
     menu_historia (protagonista {botin = (realizar_intercambio protagonista (tesorosSaqueables ciudad))})
 
@@ -377,7 +395,10 @@ entregar_tesoro tesoros = delete (unsafePerformIO (tesoroAleatorio tesoros)) tes
 
 ver_estado :: Pirata -> IO String
 ver_estado protagonista = do
-  putStrLn("\n")
-  putStrLn(show protagonista)
-  putStrLn("\n")
-  menu_historia protagonista
+    putStrLn("\n")
+    putStrLn(show protagonista)
+    putStrLn("\n")
+    menu_historia protagonista
+
+suspenso :: Int -> IO () 
+suspenso segundos = threadDelay (1000000 * segundos)
