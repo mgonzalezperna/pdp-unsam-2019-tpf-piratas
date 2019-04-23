@@ -265,17 +265,17 @@ menu_historia_con_barco barco = do
 desarrollar_historia :: Integer -> Pirata -> IO String 
 desarrollar_historia opcion protagonista = case opcion of
      1 -> robar_barco protagonista
---     2 -> saquear_ciudad protagonista
+     2 -> elegir_ciudad_a_saquear protagonista
 --     3 -> retirarse protagonista
      _ -> menu_historia protagonista
 
 desarrollar_historia_en_barco :: Integer -> Barco -> IO String
 desarrollar_historia_en_barco opcion barco = case opcion of
 --    1 -> atacar_barco protagonista
-  2 -> anclar_en_isla_cercana barco 
+      2 -> anclar_en_isla_cercana barco 
 --    3 -> atacar_ciudad barco
 --    4 -> retirarse protagonista
-  _ -> desarrollar_historia_en_barco opcion barco
+      _ -> desarrollar_historia_en_barco opcion barco
 
 
 -- ACCIONES POSIBLES
@@ -293,9 +293,36 @@ anclar_en_isla_cercana barco = do
     putStrLn("En el horizonte se vislumbra el contorno de la isla " ++ (nombreIsla (unsafePerformIO islaAleatoria)))
     return "fin"
 
+elegir_ciudad_a_saquear :: Pirata -> IO String
+elegir_ciudad_a_saquear protagonista = do
+    putStrLn("\nQue ciudad deseas saquear?")
+    putStrLn("(1)-Port Royal")
+    putStrLn("(2)-New Providence")
+    eleccion <- getLine
+    procesar_eleccion_ciudad eleccion protagonista
 
+saquear_ciudad :: Pirata -> Ciudad -> IO String
+saquear_ciudad protagonista ciudad = do
+    putStrLn(concat ["\nEntras a " , (nombreCiudad ciudad) , " y te pinta el saqueo!!"])
+    putStrLn("Te detienen unos guardias con cara de pocos amigos. Te piden que te retires... Que decisión tomas?\n")
+    putStrLn("(1)-COIMEAR A LOS GUARDIAS PARA QUE TE DEN ALGUNOS TESOROS")
+    putStrLn("(2)-COMBATIR CON LOS GUARDIAS\n")
+    eleccion <- getLine
+    elegir_tipo_saqueo eleccion protagonista ciudad
+
+coimear_guardias :: Pirata -> Ciudad -> IO String
+coimear_guardias protagonista ciudad = do
+    putStrLn("\nLe ofreces un tesoro como coima a los guardias...")
+    putStrLn("Estos aceptan y te dan tesoros a cambio\n")
+    menu_historia (protagonista {botin = (realizar_intercambio protagonista (tesorosSaqueables ciudad))})
 
 --- FUNCIONES AUXILIARES
+
+tesoroAleatorio :: [Tesoro] -> IO Tesoro 
+tesoroAleatorio tesoros = valorAleatorio tesoros
+
+tesorosAleatorios :: [Tesoro] -> IO [Tesoro] 
+tesorosAleatorios tesoros = valoresAleatorios tesoros
 
 islaAleatoria :: IO Isla 
 islaAleatoria =  valorAleatorio islas
@@ -304,6 +331,11 @@ valorAleatorio :: [a] -> IO a
 valorAleatorio list = do
     i <- getStdRandom (randomR (0, length list - 1)) 
     return $ list !! i
+
+valoresAleatorios :: [a] -> IO [a]
+valoresAleatorios list = do
+    i <- getStdRandom (randomR (0, length list - 1)) 
+    return $ take i list 
 
 confirmar :: String -> IO Bool
 confirmar mensaje_a_confirmar = do
@@ -317,3 +349,24 @@ procesar_confirmacion confirmacion
   | elem confirmacion ["s", "S"] = return True
   | elem confirmacion ["n", "N"] = return False
   | otherwise = confirmar "Ha ingresado una opcion incorrecta. Por favor, ingrese"
+
+procesar_eleccion_ciudad :: String -> Pirata -> IO String    
+procesar_eleccion_ciudad eleccion protagonista
+  | eleccion == "1" = saquear_ciudad protagonista port_royal
+  | eleccion == "2" = saquear_ciudad protagonista new_providence
+  | otherwise = elegir_ciudad_a_saquear protagonista
+
+realizar_intercambio :: Pirata -> [Tesoro] -> [Tesoro]    
+realizar_intercambio protagonista tesorosSaqueables =  recibir_tesoros (entregar_tesoro (botin protagonista)) tesorosSaqueables
+
+elegir_tipo_saqueo :: String -> Pirata -> Ciudad -> IO String 
+elegir_tipo_saqueo eleccion protagonista ciudad
+  | eleccion == "1" = coimear_guardias protagonista ciudad
+  -- | decision == "2" = combate protagonista
+  | otherwise = saquear_ciudad protagonista ciudad
+
+recibir_tesoros :: [Tesoro] -> [Tesoro] -> [Tesoro]
+recibir_tesoros botin tesorosSaqueables = botin ++ (unsafePerformIO (tesorosAleatorios tesorosSaqueables))
+
+entregar_tesoro :: [Tesoro] -> [Tesoro]
+entregar_tesoro tesoros = delete (unsafePerformIO (tesoroAleatorio tesoros)) tesoros
