@@ -249,6 +249,7 @@ menu_historia protagonista = do
     putStrLn("(1)-ROBAR UN BARCO")
     putStrLn("(2)-SAQUEAR CIUDAD")
     putStrLn("(3)-RETIRARSE DE LA PIRATERIA")
+    putStrLn("(4)-VER MI ESTADO")
     opcion <- getLine
     desarrollar_historia (read opcion :: Integer) protagonista 
 
@@ -259,6 +260,7 @@ menu_historia_con_barco barco = do
     putStrLn("(2)-ANCLAR EN UNA ISLA CERCANA")
     putStrLn("(3)-ATACAR UNA CIUDAD")
     putStrLn("(4)-RETIRARSE DE LA PIRATERIA")
+    putStrLn("(5)-VER MI ESTADO")
     opcion <- getLine
     desarrollar_historia_en_barco (read opcion :: Integer) barco
 
@@ -267,6 +269,7 @@ desarrollar_historia opcion protagonista = case opcion of
      1 -> robar_barco protagonista
      2 -> elegir_ciudad_a_saquear protagonista
 --     3 -> retirarse protagonista
+     4 -> ver_estado protagonista
      _ -> menu_historia protagonista
 
 desarrollar_historia_en_barco :: Integer -> Barco -> IO String
@@ -275,6 +278,7 @@ desarrollar_historia_en_barco opcion barco = case opcion of
       2 -> anclar_en_isla_cercana barco 
 --    3 -> atacar_ciudad barco
 --    4 -> retirarse protagonista
+      5 -> ver_estado (head (tripulacion barco))
       _ -> desarrollar_historia_en_barco opcion barco
 
 
@@ -370,3 +374,10 @@ recibir_tesoros botin tesorosSaqueables = botin ++ (unsafePerformIO (tesorosAlea
 
 entregar_tesoro :: [Tesoro] -> [Tesoro]
 entregar_tesoro tesoros = delete (unsafePerformIO (tesoroAleatorio tesoros)) tesoros
+
+ver_estado :: Pirata -> IO String
+ver_estado protagonista = do
+  putStrLn("\n")
+  putStrLn(show protagonista)
+  putStrLn("\n")
+  menu_historia protagonista
