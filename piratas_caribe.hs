@@ -1,4 +1,7 @@
 import Data.List
+import System.Random
+import Data.Time.Clock
+import System.IO.Unsafe
 
 data Pirata = Pirata
   { nombrePirata :: String
@@ -98,6 +101,9 @@ anneBonny = Pirata {nombrePirata = "Anne Bonny", botin = [doblones, frascoAnne]}
 elizabethSwann :: Pirata
 elizabethSwann = Pirata {nombrePirata = "Elizabeth Swann", botin = [moneda, espada]}
 
+piratas :: [Pirata]
+piratas = [viotti, dini, jackSparrow, davidJones, anneBonny, elizabethSwann]
+
 --BARCOS
 perla = Barco { tripulacion = [jackSparrow, anneBonny] , nombreBarco = "Perla Negra"}
 holandes = Barco { tripulacion = [davidJones]  , nombreBarco = "Holandes Errante"}
@@ -106,9 +112,15 @@ holandes = Barco { tripulacion = [davidJones]  , nombreBarco = "Holandes Errante
 isla_tortuga = Isla { elemento_tipico = frascoAnne, nombreIsla = "Isla Tortuga" }
 isla_ron = Isla { elemento_tipico = ron, nombreIsla = "Isla del Ron" }
 
+islas :: [Isla]
+islas = [isla_tortuga, isla_ron]
+
 --CIUDADES
 port_royal = Ciudad { nombreCiudad = "Port Royal", tesorosSaqueables = [brujula] }
 new_providence = Ciudad { nombreCiudad = "Nueva Providencia", tesorosSaqueables = [oro, ron, doblones] }
+
+ciudades :: [Ciudad]
+ciudades = [port_royal, new_providence]
 
 --TESOROS PIRATAS
 cantidad_tesoros :: Pirata -> Int
@@ -244,7 +256,7 @@ menu_historia_con_barco :: Barco -> IO String
 menu_historia_con_barco barco = do
     putStrLn("Que deseas realizar a continuacion?")
     putStrLn("(1)-ATACAR UN BARCO")
-    putStrLn("(2)-ANCLAR EN UNA ISLA")
+    putStrLn("(2)-ANCLAR EN UNA ISLA CERCANA")
     putStrLn("(3)-ATACAR UNA CIUDAD")
     putStrLn("(4)-RETIRARSE DE LA PIRATERIA")
     opcion <- getLine
@@ -253,15 +265,16 @@ menu_historia_con_barco barco = do
 desarrollar_historia :: Integer -> Pirata -> IO String 
 desarrollar_historia opcion protagonista = case opcion of
      1 -> robar_barco protagonista
-     2 -> saquear_ciudad protagonista
-     3 -> retirarse protagonista
+--     2 -> saquear_ciudad protagonista
+--     3 -> retirarse protagonista
      _ -> menu_historia protagonista
 
 desarrollar_historia_en_barco :: Integer -> Barco -> IO String
 desarrollar_historia_en_barco opcion barco = case opcion of
---  | 1 = atacar_barco protagonista
---  | 2 = anclar_en_isla barco protagonista
---  | 3 = retirarse protagonista
+--    1 -> atacar_barco protagonista
+  2 -> anclar_en_isla_cercana barco 
+--    3 -> atacar_ciudad barco
+--    4 -> retirarse protagonista
   _ -> desarrollar_historia_en_barco opcion barco
 
 
@@ -274,8 +287,23 @@ robar_barco protagonista = do
     nombreVelero <- getLine
     menu_historia_con_barco Barco { tripulacion = [protagonista] , nombreBarco = nombreVelero}
 
+anclar_en_isla_cercana :: Barco -> IO String
+anclar_en_isla_cercana barco = do
+    putStrLn("Los vientos de los siete mares te arrastran hacia la isla mas cercana.")
+    putStrLn("En el horizonte se vislumbra el contorno de la isla " ++ (nombreIsla (unsafePerformIO islaAleatoria)))
+    return "fin"
+
+
 
 --- FUNCIONES AUXILIARES
+
+islaAleatoria :: IO Isla 
+islaAleatoria =  valorAleatorio islas
+
+valorAleatorio :: [a] -> IO a
+valorAleatorio list = do
+    i <- getStdRandom (randomR (0, length list - 1)) 
+    return $ list !! i
 
 confirmar :: String -> IO Bool
 confirmar mensaje_a_confirmar = do
