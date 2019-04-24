@@ -351,12 +351,12 @@ islaAleatoria =  valorAleatorio islas
 
 valorAleatorio :: [a] -> IO a
 valorAleatorio list = do
-    i <- getStdRandom (randomR (0, length list - 1)) 
+    i <- getStdRandom (randomR (0, length list)) 
     return $ list !! i
 
 valoresAleatorios :: [a] -> IO [a]
 valoresAleatorios list = do
-    i <- getStdRandom (randomR (0, length list - 1)) 
+    i <- getStdRandom (randomR (0, length list)) 
     return $ take i list 
 
 confirmar :: String -> IO Bool
