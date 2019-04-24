@@ -334,9 +334,10 @@ saquear_ciudad protagonista ciudad = do
 
 coimear_guardias :: Pirata -> Ciudad -> IO String
 coimear_guardias protagonista ciudad = do
-    putStrLn("Ofreces un tesoro como coima a los guardias.")
+    let tesoroAEntregar = unsafePerformIO (tesoroAleatorio (botin protagonista))
+    putStrLn(concat["Tesoro que le das a los guardias:  ", (nombreTesoro tesoroAEntregar)])
     putStrLn("Estos aceptan y te dan tesoros a cambio\n")
-    menu_historia (protagonista {botin = (realizar_intercambio protagonista (tesorosSaqueables ciudad))})
+    menu_historia (protagonista {botin = (realizar_intercambio protagonista tesoroAEntregar (tesorosSaqueables ciudad))})
 
 --- FUNCIONES AUXILIARES
 
@@ -378,8 +379,8 @@ procesar_eleccion_ciudad eleccion protagonista
   | eleccion == "2" = saquear_ciudad protagonista new_providence
   | otherwise = elegir_ciudad_a_saquear protagonista
 
-realizar_intercambio :: Pirata -> [Tesoro] -> [Tesoro]    
-realizar_intercambio protagonista tesorosSaqueables =  recibir_tesoros (entregar_tesoro (botin protagonista)) tesorosSaqueables
+realizar_intercambio :: Pirata -> Tesoro -> [Tesoro] -> [Tesoro]    
+realizar_intercambio protagonista tesoroAEntregar tesorosSaqueables =  recibir_tesoros (entregar_tesoro (botin protagonista) tesoroAEntregar) tesorosSaqueables
 
 elegir_tipo_saqueo :: String -> Pirata -> Ciudad -> IO String 
 elegir_tipo_saqueo eleccion protagonista ciudad
@@ -390,8 +391,8 @@ elegir_tipo_saqueo eleccion protagonista ciudad
 recibir_tesoros :: [Tesoro] -> [Tesoro] -> [Tesoro]
 recibir_tesoros botin tesorosSaqueables = botin ++ (unsafePerformIO (tesorosAleatorios tesorosSaqueables))
 
-entregar_tesoro :: [Tesoro] -> [Tesoro]
-entregar_tesoro tesoros = delete (unsafePerformIO (tesoroAleatorio tesoros)) tesoros
+entregar_tesoro :: [Tesoro] -> Tesoro -> [Tesoro]
+entregar_tesoro tesoros tesoroAEntregar = delete tesoroAEntregar tesoros
 
 ver_estado :: Pirata -> IO String
 ver_estado protagonista = do
