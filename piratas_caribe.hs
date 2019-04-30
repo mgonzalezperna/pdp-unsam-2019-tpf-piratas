@@ -313,8 +313,6 @@ anclar_en_isla_cercana barco = do
     putStrLn("Añades el tesoro a tu botin y retomas tu aventura, a la espera de que la proxima vez hagas algo mas emocionante...")
     menu_historia_con_barco $ anclar_en_isla barco isla
 
-
-
 elegir_ciudad_a_saquear :: Pirata -> IO String
 elegir_ciudad_a_saquear protagonista = do
     putStrLn("\nQue ciudad deseas saquear?")
@@ -332,11 +330,11 @@ saquear_ciudad protagonista ciudad = do
     eleccion <- getLine
     elegir_tipo_saqueo eleccion protagonista ciudad
 
-coimear_guardias :: Pirata -> Ciudad -> IO String
-coimear_guardias protagonista ciudad = do
+sobornar_guardias :: Pirata -> Ciudad -> IO String
+sobornar_guardias protagonista ciudad = do
     let tesoroAEntregar = unsafePerformIO (tesoroAleatorio (botin protagonista))
-    putStrLn(concat["Tesoro que le das a los guardias:  ", (nombreTesoro tesoroAEntregar)])
-    putStrLn("Estos aceptan y te dan tesoros a cambio\n")
+    putStrLn("Ofreces uno de tus tesoros a los guardias. \nEllos eligen " ++ nombreTesoro tesoroAEntregar)
+    putStrLn("Lo entregas y te dan acceso a la boveda de los tesoros a cambio\n")
     menu_historia (protagonista {botin = (realizar_intercambio protagonista tesoroAEntregar (tesorosSaqueables ciudad))})
 
 --- FUNCIONES AUXILIARES
@@ -371,7 +369,7 @@ procesar_confirmacion :: String -> IO Bool
 procesar_confirmacion confirmacion 
   | elem confirmacion ["s", "S"] = return True
   | elem confirmacion ["n", "N"] = return False
-  | otherwise = confirmar "Ha ingresado una opcion incorrecta. Por favor, ingrese"
+  | otherwise = confirmar "Has ingresado una opcion incorrecta. Por favor, ingrese"
 
 procesar_eleccion_ciudad :: String -> Pirata -> IO String    
 procesar_eleccion_ciudad eleccion protagonista
@@ -384,7 +382,7 @@ realizar_intercambio protagonista tesoroAEntregar tesorosSaqueables =  recibir_t
 
 elegir_tipo_saqueo :: String -> Pirata -> Ciudad -> IO String 
 elegir_tipo_saqueo eleccion protagonista ciudad
-  | eleccion == "1" = coimear_guardias protagonista ciudad
+  | eleccion == "1" = sobornar_guardias protagonista ciudad
   -- | decision == "2" = combate protagonista
   | otherwise = saquear_ciudad protagonista ciudad
 
