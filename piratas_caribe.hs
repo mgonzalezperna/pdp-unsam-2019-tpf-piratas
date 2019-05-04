@@ -8,7 +8,7 @@ data Pirata = Pirata
 
 data Tesoro = Tesoro
   { nombreTesoro :: String
-  , valor        :: Integer
+  , valor        :: Double 
   } deriving (Show, Eq)
 
 data Barco = Barco
@@ -70,6 +70,19 @@ oro = Tesoro {nombreTesoro = "Oro", valor = 750}
 
 ron :: Tesoro
 ron = Tesoro {nombreTesoro = "Ron", valor = 25}
+
+minima_cotizacion :: Double
+minima_cotizacion = 2000
+
+maxima_cotizacion :: Double
+maxima_cotizacion = 5000
+
+bonos_en_dafault :: Tesoro
+bonos_en_dafault = Tesoro { nombreTesoro = "Bono", valor = valor_bono minima_cotizacion maxima_cotizacion}
+
+valor_bono :: Double -> Double -> Double
+valor_bono minima_cotizacion maxima_cotizacion = (1.5 *) $(abs((-) minima_cotizacion maxima_cotizacion))
+
 
 --PIRATAS
 viotti :: Pirata
@@ -139,7 +152,7 @@ cantidad_tesoros = length . botin
 es_afortunado :: Pirata -> Bool
 es_afortunado = (> 10000) . sum . valores_tesoros
 
-valores_tesoros :: Pirata -> [Integer]
+valores_tesoros :: Pirata -> [Double]
 valores_tesoros pirata = map valor (botin pirata)
 
 comparar_nombres_tesoros :: Tesoro -> Tesoro -> Bool
@@ -162,7 +175,7 @@ tienen_mismo_tesoro_y_valor_diferente :: Pirata -> Pirata -> Bool
 tienen_mismo_tesoro_y_valor_diferente pirata =
   any (alguno_cumple_nombres_iguales_valores_distintos (botin pirata)) . botin
 
-valor_tesoro_mas_valioso :: Pirata -> Integer
+valor_tesoro_mas_valioso :: Pirata -> Double 
 valor_tesoro_mas_valioso = maximum . valores_tesoros
 
 adquirir_tesoro :: Pirata -> Tesoro -> Pirata
@@ -307,3 +320,6 @@ pelicula = abordar historia_perla_negra historia_holandes_errante
 
 super_pelicula :: Barco -> Barco -> Isla -> Isla -> Ciudad -> Ciudad -> (Barco, Barco)
 super_pelicula barco barco2 isla isla2 ciudad ciudad2 = abordar (atacar_ciudad (anclar_en_isla barco isla) ciudad) (atacar_ciudad(anclar_en_isla barco2 isla2) ciudad2)
+
+
+
