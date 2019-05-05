@@ -107,9 +107,15 @@ valor_letras valor_nominal nombre_pais =
 
 tasa_del_pais :: String -> Double
 tasa_del_pais nombre_pais
-  | elem nombre_pais (map (nombre_del_pais) paises) =
-    tasa_segun_pais (head (filter (coinciden_nombres nombre_pais) paises))
+  | existe_pais nombre_pais =
+    tasa_segun_pais (buscar_pais nombre_pais)
   | otherwise = 0
+
+existe_pais :: String -> Bool 
+existe_pais nombre_pais = elem nombre_pais (map (nombre_del_pais) paises)
+
+buscar_pais :: String -> Pais
+buscar_pais nombre_pais = head (filter (coinciden_nombres nombre_pais) paises)
 
 coinciden_nombres :: String -> Pais -> Bool
 coinciden_nombres nombre pais = nombre == (nombre_del_pais pais)
