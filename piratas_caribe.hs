@@ -1,10 +1,14 @@
 import           Data.List
+import qualified Data.Set            as Set
 import           Text.Show.Functions
 
 data Pirata = Pirata
   { nombrePirata :: String
   , botin        :: [Tesoro]
-  } deriving (Show, Eq)
+  } deriving (Show)
+
+instance Eq Pirata where
+  pirata1 == pirata2 = (nombrePirata pirata1) == (nombrePirata pirata2)
 
 data Tesoro
   = Tesoro { nombreTesoro :: String
@@ -25,6 +29,18 @@ data Barco = Barco
   , forma_saqueo    :: FormaSaqueo
   , forma_contraria :: FormaSaqueo
   } deriving (Show)
+
+instance Eq Barco where
+  barco1 == barco2 =
+    (compara_nombres barco1 barco2) && (compara_cantidad_tripulantes barco1 barco2)
+
+compara_nombres :: Barco -> Barco -> Bool
+compara_nombres barco1 barco2 = Set.fromList (map nombrePirata (tripulacion barco1)) ==
+    Set.fromList (map nombrePirata (tripulacion barco2)) 
+
+compara_cantidad_tripulantes :: Barco -> Barco -> Bool
+compara_cantidad_tripulantes barco1 barco2 = length (tripulacion barco1) == length (tripulacion barco2)
+
 
 data Isla = Isla
   { elemento_tipico :: Tesoro
@@ -389,15 +405,17 @@ incorporar_a_tripulacion pirata barco =
 
 tripulacion_infinita :: Barco -> Barco
 tripulacion_infinita barco =
-      barco
-          { tripulacion =
-                      map (generar_pirata_distinto Pirata {nombrePirata = "Lucas", botin = [ron]}) [1..] 
-              }
+  barco
+    { tripulacion =
+        map
+          (generar_pirata_distinto
+             Pirata {nombrePirata = "Lucas", botin = [ron]})
+          [1 ..]
+    }
 
 generar_pirata_distinto :: Pirata -> Double -> Pirata
 generar_pirata_distinto pirata_modelo numero =
-      pirata_modelo { nombrePirata = "Lucas " ++ show numero }
-       }}
+  pirata_modelo {nombrePirata = "Lucas " ++ show numero}
 
 abandonar_tripulacion :: Pirata -> Barco -> Barco
 abandonar_tripulacion pirata barco =
@@ -538,3 +556,18 @@ historia barco lista_situaciones =
 
 aplicar_situacion :: Barco -> Situacion -> Barco
 aplicar_situacion barco situacion = situacion barco
+
+aplicar_situaciones :: [Situacion] -> Barco -> Barco
+aplicar_situaciones situaciones barco =
+  foldl aplicar_situacion barco situaciones
+
+historia_inofensiva_para :: [Situacion] -> [Barco] -> [Barco]
+historia_inofensiva_para situaciones barcos =
+  map
+    (fst)
+    (filter
+       (quedo_igual)
+       (zip barcos (map (aplicar_situaciones situaciones) barcos)))
+
+quedo_igual :: (Barco, Barco) -> Bool       
+quedo_igual (barco_antes, barco_despues) = barco_antes == barco_despues
