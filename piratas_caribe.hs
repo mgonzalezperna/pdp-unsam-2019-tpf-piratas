@@ -32,15 +32,17 @@ data Barco = Barco
 
 instance Eq Barco where
   barco1 == barco2 =
-    (compara_nombres barco1 barco2) && (compara_cantidad_tripulantes barco1 barco2)
+    (compara_nombres barco1 barco2) &&
+    (compara_cantidad_tripulantes barco1 barco2)
 
 compara_nombres :: Barco -> Barco -> Bool
-compara_nombres barco1 barco2 = Set.fromList (map nombrePirata (tripulacion barco1)) ==
-    Set.fromList (map nombrePirata (tripulacion barco2)) 
+compara_nombres barco1 barco2 =
+  Set.fromList (map nombrePirata (tripulacion barco1)) ==
+  Set.fromList (map nombrePirata (tripulacion barco2))
 
 compara_cantidad_tripulantes :: Barco -> Barco -> Bool
-compara_cantidad_tripulantes barco1 barco2 = length (tripulacion barco1) == length (tripulacion barco2)
-
+compara_cantidad_tripulantes barco1 barco2 =
+  length (tripulacion barco1) == length (tripulacion barco2)
 
 data Isla = Isla
   { elemento_tipico :: Tesoro
@@ -377,7 +379,7 @@ pirata_con_corazon tesoro = False
 roba_todos :: Tesoro -> Bool
 roba_todos tesoro = True
 
--- Saqueos sofisticados
+-- Saqueos sofistica
 --Buitres: Permite elegir cualquier tesoro que sea un bono en dafault.
 saqueo_buitre :: Tesoro -> Bool
 saqueo_buitre tesoro = "Bono" == (nombreTesoro tesoro)
@@ -409,7 +411,7 @@ tripulacion_infinita barco =
     { tripulacion =
         map
           (generar_pirata_distinto
-             Pirata {nombrePirata = "Lucas", botin = [ron]})
+             Pirata {nombrePirata = "semilla", botin = [ron]})
           [1 ..]
     }
 
@@ -569,5 +571,18 @@ historia_inofensiva_para situaciones barcos =
        (quedo_igual)
        (zip barcos (map (aplicar_situaciones situaciones) barcos)))
 
-quedo_igual :: (Barco, Barco) -> Bool       
+quedo_igual :: (Barco, Barco) -> Bool
 quedo_igual (barco_antes, barco_despues) = barco_antes == barco_despues
+
+mas_tripulantes_despues_de_historia :: [Situacion] -> [Barco] -> Barco
+mas_tripulantes_despues_de_historia situaciones barcos =  barco_mas_numeroso (map (aplicar_situaciones situaciones) barcos)
+
+barco_mas_numeroso :: [Barco] -> Barco
+barco_mas_numeroso barcos = last (sortBy mayor_cantidad_tripulantes barcos)
+
+mayor_cantidad_tripulantes :: Barco -> Barco -> Ordering
+mayor_cantidad_tripulantes barco1 barco2 
+  | (length (tripulacion barco1)) > (length (tripulacion barco2)) = GT
+  | (length (tripulacion barco1)) < (length (tripulacion barco2)) = LT
+  | otherwise = EQ
+  
