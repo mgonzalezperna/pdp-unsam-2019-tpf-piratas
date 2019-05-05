@@ -88,8 +88,10 @@ bonos_en_dafault list_cotizaciones =
     }
 
 valor_bono :: [Double] -> Double
-valor_bono list_cotizaciones =
-  (1.5 *) $(abs ((-) (minimum list_cotizaciones) (maximum list_cotizaciones)))
+valor_bono = (1.5*) . diferencia_cotizaciones
+
+diferencia_cotizaciones :: [Double] -> Double
+diferencia_cotizaciones list_cotizaciones = abs (minimum list_cotizaciones - maximum list_cotizaciones)
 
 --TESORO Letras de liquidez
 letras_de_liquidez :: Double -> String -> Tesoro
