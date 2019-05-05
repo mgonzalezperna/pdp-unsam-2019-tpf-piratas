@@ -14,11 +14,16 @@ data Tesoro
          , cotizaciones :: [Double] }
   deriving (Show, Eq)
 
+data FormaSaqueo = FormaSaqueo
+  { forma  :: Tesoro -> Bool
+  , nombre :: String
+  } deriving (Show)
+
 data Barco = Barco
-  { tripulacion  :: [Pirata]
-  , nombreBarco  :: String
-  , forma_saqueo :: Tesoro -> Bool
-  , objeto       :: String
+  { tripulacion     :: [Pirata]
+  , nombreBarco     :: String
+  , forma_saqueo    :: FormaSaqueo
+  , forma_contraria :: FormaSaqueo
   } deriving (Show)
 
 data Isla = Isla
@@ -42,22 +47,16 @@ data Universidad = Universidad
 
 type Perfil = Barco -> Barco
 
+instance Eq FormaSaqueo where
+  forma1 == forma2 = (nombre forma1) == (nombre forma2)
+
 -- Universidades
 universidad_anti_dictaminante :: Universidad
 universidad_anti_dictaminante =
   Universidad {perfil_academico = perfil_anti_dictaminante}
 
 perfil_anti_dictaminante :: Barco -> Barco
-perfil_anti_dictaminante barco
-  | (forma_saqueo barco) == pirata_con_corazon =
-    barco {forma_saqueo = roba_todos}
-  | (forma_saqueo barco) == roba_todos =
-    barco {forma_saqueo = pirata_con_corazon}
-  | (forma_saqueo barco) == solo_tesoros_especificos (objeto barco) =
-    barco {forma_saqueo = saqueo_fobico (objeto barco)}
-  | (forma_saqueo barco) == saqueo_fobico (objeto barco) =
-    barco {forma_saqueo = solo_tesoros_especificos (objeto barco)}
-  | otherwise = barco
+perfil_anti_dictaminante barco = barco {forma_saqueo = forma_contraria barco}
 
 universidad_buitres_alternativos :: Universidad
 universidad_buitres_alternativos =
@@ -67,8 +66,8 @@ perfil_buitre_alternativo :: Barco -> Barco
 perfil_buitre_alternativo barco =
   barco
     { forma_saqueo =
-        forma_compleja
-          [forma_saqueo barco, solo_tesoros_valiosos, saqueo_buitre]
+        compleja
+          [forma (forma_saqueo barco), solo_tesoros_valiosos, saqueo_buitre]
     }
 
 universidad_atlantica_inofensiva :: Universidad
@@ -88,10 +87,11 @@ bonos_en_dafault list_cotizaciones =
     }
 
 valor_bono :: [Double] -> Double
-valor_bono = (1.5*) . diferencia_cotizaciones
+valor_bono = (1.5 *) . diferencia_cotizaciones
 
 diferencia_cotizaciones :: [Double] -> Double
-diferencia_cotizaciones list_cotizaciones = abs (minimum list_cotizaciones - maximum list_cotizaciones)
+diferencia_cotizaciones list_cotizaciones =
+  abs (minimum list_cotizaciones - maximum list_cotizaciones)
 
 --TESORO Letras de liquidez
 letras_de_liquidez :: Double -> String -> Tesoro
@@ -107,11 +107,10 @@ valor_letras valor_nominal nombre_pais =
 
 tasa_del_pais :: String -> Double
 tasa_del_pais nombre_pais
-  | existe_pais nombre_pais =
-    tasa_segun_pais (buscar_pais nombre_pais)
+  | existe_pais nombre_pais = tasa_segun_pais (buscar_pais nombre_pais)
   | otherwise = 0
 
-existe_pais :: String -> Bool 
+existe_pais :: String -> Bool
 existe_pais nombre_pais = elem nombre_pais (map (nombre_del_pais) paises)
 
 buscar_pais :: String -> Pais
@@ -230,14 +229,16 @@ perla =
   Barco
     { tripulacion = [jackSparrow, anneBonny]
     , nombreBarco = "Perla Negra"
-    , forma_saqueo = solo_tesoros_valiosos
+    , forma_saqueo = tesorosValiosos
+    , forma_contraria = tesorosBaratos
     }
 
 holandes =
   Barco
     { tripulacion = [davidJones]
     , nombreBarco = "Holandes Errante"
-    , forma_saqueo = solo_tesoros_valiosos
+    , forma_saqueo = tesorosValiosos
+    , forma_contraria = tesorosBaratos
     }
 
 venganza_reina_ana =
@@ -245,9 +246,8 @@ venganza_reina_ana =
     { tripulacion = [viotti, dini]
     , nombreBarco = "Venganza de la Reina Ana"
     , forma_saqueo =
-        forma_compleja
-          [saqueo_fobico "oro", saqueo_buitre, solo_tesoros_valiosos]
-    , objeto = "oro"
+        compleja [saqueo_fobico "oro", saqueo_buitre, solo_tesoros_valiosos]
+    , forma_contraria = tesorosBaratos
     }
 
 --ISLAS
@@ -320,6 +320,25 @@ perder_tesoros_con_nombre nombre pirata =
 
 --TEMPORADA DE SAQUEOS
 --FORMAS SAQUEO
+tesorosValiosos =
+  FormaSaqueo {forma = solo_tesoros_valiosos, nombre = "Solo Valiosos"}
+
+tesorosBaratos =
+  FormaSaqueo {forma = solo_tesoros_baratos, nombre = "Solo Baratos"}
+
+conCorazon = FormaSaqueo {forma = pirata_con_corazon, nombre = "Con corazón"}
+
+tesorosEspecificos cosa =
+  FormaSaqueo
+    {forma = solo_tesoros_especificos cosa, nombre = "Solo Específicos"}
+
+fobico cosa = FormaSaqueo {forma = saqueo_fobico cosa, nombre = "Saqueo Fóbico"}
+
+buitre = FormaSaqueo {forma = saqueo_buitre, nombre = "Saqueo Buitre"}
+
+compleja formas =
+  FormaSaqueo {forma = forma_compleja formas, nombre = "Forma Compleja"}
+
 saquear :: Pirata -> (Tesoro -> Bool) -> Tesoro -> Pirata
 saquear pirata forma tesoro
   | forma tesoro = adquirir_tesoro pirata tesoro
@@ -327,6 +346,9 @@ saquear pirata forma tesoro
 
 solo_tesoros_valiosos :: Tesoro -> Bool -- y reutilizar tesoro valioso acá.
 solo_tesoros_valiosos = (> 100) . valor
+
+solo_tesoros_baratos :: Tesoro -> Bool -- y reutilizar tesoro valioso acá.
+solo_tesoros_baratos = not . solo_tesoros_valiosos
 
 solo_tesoros_especificos :: String -> Tesoro -> Bool -- tesoros con nombre = tesoros específicos
 solo_tesoros_especificos clave = (== clave) . nombreTesoro
@@ -344,7 +366,8 @@ saqueo_buitre tesoro = "Bono" == (nombreTesoro tesoro)
 
 --Permite tomar cualquier tesoro, excepto los que su nombre sea una palabra dada, que representa la cosa a la que se le tiene fobia
 saqueo_fobico :: String -> Tesoro -> Bool
-saqueo_fobico fobia tesoro = fobia /= (nombreTesoro tesoro)
+-- saqueo_fobico fobia tesoro = fobia /= (nombreTesoro tesoro)
+saqueo_fobico fobia = not . (solo_tesoros_especificos fobia)
 
 --Condicion de cumplimiento del any
 evaluar :: Tesoro -> (Tesoro -> Bool) -> Bool
@@ -362,26 +385,23 @@ incorporar_a_tripulacion pirata barco =
   --   (nombreBarco barco)
   --   (forma_saqueo barco)
 
-tripulacion_infinita :: Barco -> Barco
-tripulacion_infinita barco =
-  barco
-    { tripulacion =
-        iterate
-          (generar_pirata_distinto)
-          Pirata {nombrePirata = "Lucas 1", botin = [ron]}
-    }
-
-generar_pirata_distinto :: Pirata -> Pirata
-generar_pirata_distinto pirata_modelo =
-  Pirata
-    { nombrePirata = posible_nombre_pirata (nombrePirata pirata_modelo)
-    , botin = posible_tesoro_pirata (botin pirata_modelo)
-    }
-
-posible_nombre_pirata :: String -> String
-posible_nombre_pirata nombre_anterior =
-  "Lucas " ++ ((recuperar_numero nombre_anterior) + 1)
-
+-- tripulacion_infinita :: Barco -> Barco
+-- tripulacion_infinita barco =
+--   barco
+--     { tripulacion =
+--         iterate
+--           (generar_pirata_distinto)
+--           Pirata {nombrePirata = "Lucas 1", botin = [ron]}
+--     }
+-- generar_pirata_distinto :: Pirata -> Pirata
+-- generar_pirata_distinto pirata_modelo =
+--   Pirata
+--     { nombrePirata = posible_nombre_pirata (nombrePirata pirata_modelo)
+--     , botin = posible_tesoro_pirata (botin pirata_modelo)
+--     }
+-- posible_nombre_pirata :: String -> String
+-- posible_nombre_pirata nombre_anterior =
+--   "Lucas " ++ ((recuperar_numero nombre_anterior) + 1)
 recuperar_numero :: String -> Int
 recuperar_numero nombre_anterior =
   read
@@ -437,14 +457,15 @@ saquear_ciudad barco ciudad =
   --   (forma_saqueo barco)
 
 obtener_tesoros_por_tripulante ::
-     (Tesoro -> Bool) -> [Pirata] -> [Tesoro] -> [Pirata]
+     FormaSaqueo -> [Pirata] -> [Tesoro] -> [Pirata]
 obtener_tesoros_por_tripulante formaRobarGanador tripulacionGanador tesorosPerdedor =
   map
     (tomar_si_le_interesa (formaRobarGanador))
     (zip tripulacionGanador tesorosPerdedor)
 
-tomar_si_le_interesa :: (Tesoro -> Bool) -> (Pirata, Tesoro) -> Pirata
-tomar_si_le_interesa forma (pirata, tesoro) = saquear pirata forma tesoro
+tomar_si_le_interesa :: FormaSaqueo -> (Pirata, Tesoro) -> Pirata
+tomar_si_le_interesa forma_saqueo (pirata, tesoro) =
+  saquear pirata (forma forma_saqueo) tesoro
 
 echar_piratas :: Barco -> Int -> Barco
 echar_piratas barco quedan =
@@ -469,7 +490,7 @@ sacarle_todos_los_tesoros ganador perdedor =
   ( ganador
       { tripulacion =
           (obtener_tesoros_por_tripulante
-             (solo_tesoros_valiosos)
+             (tesorosValiosos)
              (tripulacion ganador)
              (todos_los_tesoros (tripulacion perdedor)))
       }
