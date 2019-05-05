@@ -98,6 +98,19 @@ bonos_en_dafault minima_cotizacion maxima_cotizacion = Tesoro { nombreTesoro = "
 valor_bono :: Double -> Double -> Double
 valor_bono minima_cotizacion maxima_cotizacion = (1.5 *) $(abs((-) minima_cotizacion maxima_cotizacion))
 
+--TESORO Letras de liquidez
+
+letras_de_liquidez :: Double -> String ->Tesoro
+letras_de_liquidez valor_nominal nombre_pais = Tesoro { nombreTesoro = "LeLiq " + nombre_pais, valor = valor_letras valor_nominal nombre_pais}
+
+valor_letras :: Double -> String -> Double
+valor_letras valor_nominal nombre_pais = (tasa_del_pais nombre_pais) * valor_nominal
+
+tasa_del_pais :: String -> Double
+tasa_del_pais nombre
+  | elem nombre (map(nombre_pais) paises) = tasa_segun_pais(filter (==nombre)(map(nombre_pais) paises))
+  | otherwise = -1
+
 --PIRATAS
 viotti :: Pirata
 viotti =
