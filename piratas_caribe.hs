@@ -596,3 +596,11 @@ mayor_cantidad_tripulantes barco1 barco2
   | (length (tripulacion barco1)) < (length (tripulacion barco2)) = LT
   | otherwise = EQ
   
+
+-- anclar_en_isla => itera para siempre
+-- incorporar_a_tripulacion => no alcanza a incorporar el pirata nuevo (la función lo agrega al final)
+-- abandonar_tripulacion => funciona - abandonar_tripulacion ((tripulacion mary_celeste) !! 1) mary_celeste
+-- atacar_ciudad => cuelga
+-- echar_piratas => funciona OK
+-- abordar => falla
+-- sacarle_todos_los_tesoros => si el infinito es ganador, funciona. Si es el perdedor, itera para siempre
