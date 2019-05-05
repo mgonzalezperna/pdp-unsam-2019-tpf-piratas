@@ -35,6 +35,11 @@ data Pais = Pais
   , tasa_segun_pais :: Double
   }
 
+data Universidad = Universidad
+  { perfil_academico :: Barco -> Barco }
+
+type Perfil 
+
 --TESORO Bonos en dafault
 bonos_en_dafault :: [Double] -> Tesoro
 bonos_en_dafault list_cotizaciones =
@@ -194,6 +199,13 @@ holandes =
     , forma_saqueo = solo_tesoros_valiosos
     }
 
+venganza_reina_ana =
+  Barco
+    { tripulacion = []
+    , nombreBarco = "Venganza de la Reina Ana" 
+    , forma_saqueo = forma_compleja [saqueo_fobico "oro", saqueo_buitre, solo_tesoros_valiosos]            
+    }
+
 --ISLAS
 isla_tortuga = Isla {elemento_tipico = frascoAnne, nombreIsla = "Isla Tortuga"}
 
@@ -207,7 +219,7 @@ port_royal =
     }
 
 carmen_de_patagones =
-  Ciudad {tesoros_disponibles = [oro], nombreCiudad = "Carmen de Patagones"}
+  Ciudad {tesoros_disponibles = [oro, bono_cavallo, leliq_brasilero ], nombreCiudad = "Carmen de Patagones"}
 
 --TESOROS PIRATAS
 cantidad_tesoros :: Pirata -> Int
@@ -417,3 +429,13 @@ super_pelicula barco barco2 isla isla2 ciudad ciudad2 =
   abordar
     (atacar_ciudad (anclar_en_isla barco isla) ciudad)
     (atacar_ciudad (anclar_en_isla barco2 isla2) ciudad2)
+
+
+
+    -- Existen universidades cuya misión es desarrollar las habilidades de saqueo piratas. Cuando un barco va al laboratorio de una universidad, su forma de saqueo se ve alterada de acuerdo al perfil académico de dicha institución. Se tiene conocimiento de los siguientes perfiels, pero podría haber más:
+    -- Universidad Anti Dictaminante de Estilos: Provoca que el barco tenga la forma de saque inversa a la que tenía. Por ejemplo si era "de corazón", ahora saquea todo; si era de objeto específico, se vuelve fóbica de dicho objeto y así sucesivamente.
+    -- Universidad de Buitres Alternativos: Hace que el barco quede con una forma de saqueo compleja, donde una de las alternativas es la que el barco ya tenía, y se le agrega la forma "buitre" y la de cosas valiosas. 
+    -- Universidad Atlantica Inofensiva: No le afecta en absoluto.  
+    
+ingresar_a_laboratorio :: Universidad -> Barco -> Barco
+ingresar_a_laboratorio universidad barco = 
