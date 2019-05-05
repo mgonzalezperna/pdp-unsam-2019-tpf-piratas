@@ -8,7 +8,7 @@ data Pirata = Pirata
 
 data Tesoro = Tesoro
   { nombreTesoro :: String
-  , valor        :: Double 
+  , valor        :: Double
   } deriving (Show, Eq)
 
 data Barco = Barco
@@ -28,9 +28,9 @@ data Ciudad = Ciudad
   } deriving (Show, Eq)
 
 data Pais = Pais
-    { nombre_pais :: String
-    , tasa_segun_pais :: Double
-    }
+  { nombre_del_pais :: String
+  , tasa_segun_pais :: Double
+  }
 
 --TESOROS
 auricularesChetos :: Tesoro
@@ -77,39 +77,50 @@ ron :: Tesoro
 ron = Tesoro {nombreTesoro = "Ron", valor = 25}
 
 --PAISES
-
 argentina :: Pais
-argentina = Pais {nombre_pais = "Argentina", tasa_segun_pais = 0.74}
+argentina = Pais {nombre_del_pais = "Argentina", tasa_segun_pais = 1.74}
 
-mexico :: Pais 
-mexico = Pais {nombre_pais = "Mexico", tasa_segun_pais = 0.34}
+mexico :: Pais
+mexico = Pais {nombre_del_pais = "Mexico", tasa_segun_pais = 1.34}
 
 brasil :: Pais
-brasil = Pais {nombre_pais = "Brasil", tasa_segun_pais = 0.12}
+brasil = Pais {nombre_del_pais = "Brasil", tasa_segun_pais = 1.12}
 
 paises :: [Pais]
 paises = [argentina, mexico, brasil]
 
 --TESORO Bonos en dafault
-
-bonos_en_dafault :: Double -> Double -> Tesoro
-bonos_en_dafault minima_cotizacion maxima_cotizacion = Tesoro { nombreTesoro = "Bono", valor = valor_bono minima_cotizacion maxima_cotizacion}
+bonos_en_dafault :: [Double] -> Tesoro
+bonos_en_dafault =
+  Tesoro
+    { nombreTesoro = "Bono"
+    , valor = valor_bono minima_cotizacion maxima_cotizacion
+    }
 
 valor_bono :: Double -> Double -> Double
-valor_bono minima_cotizacion maxima_cotizacion = (1.5 *) $(abs((-) minima_cotizacion maxima_cotizacion))
+valor_bono minima_cotizacion maxima_cotizacion =
+  (1.5 *) $(abs ((-) minima_cotizacion maxima_cotizacion))
 
 --TESORO Letras de liquidez
-
-letras_de_liquidez :: Double -> String ->Tesoro
-letras_de_liquidez valor_nominal nombre_pais = Tesoro { nombreTesoro = "LeLiq " + nombre_pais, valor = valor_letras valor_nominal nombre_pais}
+letras_de_liquidez :: Double -> String -> Tesoro
+letras_de_liquidez valor_nominal nombre_pais =
+  Tesoro
+    { nombreTesoro = "LeLiq " ++ nombre_pais
+    , valor = valor_letras valor_nominal nombre_pais
+    }
 
 valor_letras :: Double -> String -> Double
-valor_letras valor_nominal nombre_pais = (tasa_del_pais nombre_pais) * valor_nominal
+valor_letras valor_nominal nombre_pais =
+  (tasa_del_pais nombre_pais) * valor_nominal
 
 tasa_del_pais :: String -> Double
-tasa_del_pais nombre
-  | elem nombre (map(nombre_pais) paises) = tasa_segun_pais(filter (==nombre)(map(nombre_pais) paises))
-  | otherwise = -1
+tasa_del_pais nombre_pais
+  | elem nombre_pais (map (nombre_del_pais) paises) =
+    tasa_segun_pais (head (filter (coinciden_nombres nombre_pais) paises))
+  | otherwise = 0
+
+coinciden_nombres :: String -> Pais -> Bool
+coinciden_nombres nombre pais = nombre == (nombre_del_pais pais)
 
 --PIRATAS
 viotti :: Pirata
@@ -202,26 +213,28 @@ tienen_mismo_tesoro_y_valor_diferente :: Pirata -> Pirata -> Bool
 tienen_mismo_tesoro_y_valor_diferente pirata =
   any (alguno_cumple_nombres_iguales_valores_distintos (botin pirata)) . botin
 
-valor_tesoro_mas_valioso :: Pirata -> Double 
+valor_tesoro_mas_valioso :: Pirata -> Double
 valor_tesoro_mas_valioso = maximum . valores_tesoros
 
 adquirir_tesoro :: Pirata -> Tesoro -> Pirata
-adquirir_tesoro pirata tesoro =
+adquirir_tesoro pirata tesoro
   -- Pirata (nombrePirata pirata) (tesoro : (botin pirata))
-  pirata{botin = tesoro: botin pirata}
+ = pirata {botin = tesoro : botin pirata}
 
 perder_tesoros_valiosos :: Pirata -> Pirata -- se puede delegar qué cosa es un tesoro valioso, y usarlo acá
-perder_tesoros_valiosos pirata =
+perder_tesoros_valiosos pirata
   -- Pirata (nombrePirata pirata) (filter ((< 100) . valor) (botin pirata))
-  pirata { botin = (filter ((< 100) . valor) (botin pirata)) }
+ = pirata {botin = (filter ((< 100) . valor) (botin pirata))}
 
 perder_tesoros_con_nombre :: String -> Pirata -> Pirata -- tesoros con nombre = tesoros específicos
-perder_tesoros_con_nombre nombre pirata = pirata { botin = (filter ((/= nombre) . nombreTesoro) (botin pirata)) }
+perder_tesoros_con_nombre nombre pirata =
+  pirata {botin = (filter ((/= nombre) . nombreTesoro) (botin pirata))}
   -- Pirata
   --   (nombrePirata pirata)
   --   (filter ((/= nombre) . nombreTesoro) (botin pirata))
 
 --TEMPORADA DE SAQUEOS
+--FORMAS SAQUEO
 saquear :: Pirata -> (Tesoro -> Bool) -> Tesoro -> Pirata
 saquear pirata forma tesoro
   | forma tesoro = adquirir_tesoro pirata tesoro
@@ -236,6 +249,15 @@ solo_tesoros_especificos clave = (== clave) . nombreTesoro
 pirata_con_corazon :: Tesoro -> Bool
 pirata_con_corazon tesoro = False
 
+-- Saqueos sofisticados
+--Buitres: Permite elegir cualquier tesoro que sea un bono en dafault.
+saqueo_buitre :: Tesoro -> Bool
+saqueo_buitre tesoro = "Bono" == (nombreTesoro tesoro)
+
+--Permite tomar cualquier tesoro, excepto los que su nombre sea una palabra dada, que representa la cosa a la que se le tiene fobia
+saqueo_fobico :: String -> Tesoro -> Bool
+saqueo_fobico fobia tesoro = fobia /= (nombreTesoro tesoro)
+
 --Condicion de cumplimiento del any
 evaluar :: Tesoro -> (Tesoro -> Bool) -> Bool
 evaluar tesoro forma = forma tesoro
@@ -245,21 +267,24 @@ forma_compleja formas tesoro = any (evaluar tesoro) formas
 
 -- NAVEGANDO LOS SIETE MARES
 incorporar_a_tripulacion :: Pirata -> Barco -> Barco
-incorporar_a_tripulacion pirata barco = barco { tripulacion = (tripulacion barco) ++ [pirata] }
+incorporar_a_tripulacion pirata barco =
+  barco {tripulacion = (tripulacion barco) ++ [pirata]}
   -- Barco
   --   ((tripulacion barco) ++ [pirata])
   --   (nombreBarco barco)
   --   (forma_saqueo barco)
 
 abandonar_tripulacion :: Pirata -> Barco -> Barco
-abandonar_tripulacion pirata barco = barco { tripulacion = delete pirata (tripulacion barco) }
+abandonar_tripulacion pirata barco =
+  barco {tripulacion = delete pirata (tripulacion barco)}
   -- Barco
   --   (delete pirata (tripulacion barco))
   --   (nombreBarco barco)
   --   (forma_saqueo barco)
 
 anclar_en_isla :: Barco -> Isla -> Barco
-anclar_en_isla barco isla = barco { tripulacion = tomar_tesoros (tripulacion barco) (elemento_tipico isla) }
+anclar_en_isla barco isla =
+  barco {tripulacion = tomar_tesoros (tripulacion barco) (elemento_tipico isla)}
   -- Barco
   --   (tomar_tesoros (tripulacion barco) (elemento_tipico isla))
   --   (nombreBarco barco)
@@ -279,22 +304,33 @@ atacar_ciudad barco ciudad
 
 --saquear_con_zipWith :: Barco -> Ciudad -> Barco
 --saquear_con_zipWith barco ciudad = barco {tripulacion = zipWith (saquear (forma_saqueo barco)) (tripulacion barco) (tesoros_disponibles ciudad)}
-
 saquear_ciudad :: Barco -> Ciudad -> Barco
-saquear_ciudad barco ciudad = barco { tripulacion = (obtener_tesoros_por_tripulante (forma_saqueo barco) (tripulacion barco) (tesoros_disponibles ciudad)) }
+saquear_ciudad barco ciudad =
+  barco
+    { tripulacion =
+        (obtener_tesoros_por_tripulante
+           (forma_saqueo barco)
+           (tripulacion barco)
+           (tesoros_disponibles ciudad))
+    }
   -- Barco
   --   (obtener_tesoros_por_tripulante (forma_saqueo barco) (tripulacion barco) (tesoros_disponibles ciudad) )
   --   (nombreBarco barco)
   --   (forma_saqueo barco)
 
-obtener_tesoros_por_tripulante :: (Tesoro -> Bool) -> [Pirata] -> [Tesoro] -> [Pirata]
-obtener_tesoros_por_tripulante formaRobarGanador tripulacionGanador tesorosPerdedor = map (tomar_si_le_interesa (formaRobarGanador)) (zip tripulacionGanador tesorosPerdedor)
+obtener_tesoros_por_tripulante ::
+     (Tesoro -> Bool) -> [Pirata] -> [Tesoro] -> [Pirata]
+obtener_tesoros_por_tripulante formaRobarGanador tripulacionGanador tesorosPerdedor =
+  map
+    (tomar_si_le_interesa (formaRobarGanador))
+    (zip tripulacionGanador tesorosPerdedor)
 
 tomar_si_le_interesa :: (Tesoro -> Bool) -> (Pirata, Tesoro) -> Pirata
 tomar_si_le_interesa forma (pirata, tesoro) = saquear pirata forma tesoro
 
 echar_piratas :: Barco -> Int -> Barco
-echar_piratas barco quedan = barco { tripulacion = (take quedan (tripulacion barco)) }
+echar_piratas barco quedan =
+  barco {tripulacion = (take quedan (tripulacion barco))}
   -- Barco
   --   (take quedan (tripulacion barco))
   --   (nombreBarco barco)
@@ -305,15 +341,22 @@ mas_tesoros_que_tripulantes tesoros tripulantes =
   (length tesoros) >= (length tripulantes)
 
 abordar :: Barco -> Barco -> (Barco, Barco)
-abordar barco1 barco2 
-  | length (tripulacion barco1) >= length (tripulacion barco2) = sacarle_todos_los_tesoros barco1 barco2
+abordar barco1 barco2
+  | length (tripulacion barco1) >= length (tripulacion barco2) =
+    sacarle_todos_los_tesoros barco1 barco2
   | otherwise = sacarle_todos_los_tesoros barco2 barco1
 
 sacarle_todos_los_tesoros :: Barco -> Barco -> (Barco, Barco)
-sacarle_todos_los_tesoros ganador perdedor = 
-  (ganador { tripulacion = (obtener_tesoros_por_tripulante (solo_tesoros_valiosos) (tripulacion ganador) (todos_los_tesoros (tripulacion perdedor))) }
-  ,perdedor { tripulacion = (map perder_tesoros_valiosos (tripulacion perdedor)) })
-
+sacarle_todos_los_tesoros ganador perdedor =
+  ( ganador
+      { tripulacion =
+          (obtener_tesoros_por_tripulante
+             (solo_tesoros_valiosos)
+             (tripulacion ganador)
+             (todos_los_tesoros (tripulacion perdedor)))
+      }
+  , perdedor
+      {tripulacion = (map perder_tesoros_valiosos (tripulacion perdedor))})
   -- ( Barco
   --     (obtener_tesoros_por_tripulante (solo_tesoros_valiosos) (tripulacion ganador) (todos_los_tesoros (tripulacion perdedor)) )
   --     (nombreBarco ganador)
@@ -323,13 +366,10 @@ sacarle_todos_los_tesoros ganador perdedor =
   --     (nombreBarco perdedor)
   --     (forma_saqueo perdedor))
 
-
-todos_los_tesoros :: [Pirata] -> [Tesoro]      
+todos_los_tesoros :: [Pirata] -> [Tesoro]
 todos_los_tesoros tripulacion = concat (map botin tripulacion)
 
-
 -- HACETE TODA LA PELÍCULA
-
 escena1 :: Barco
 escena1 = anclar_en_isla perla isla_ron
 
@@ -345,8 +385,9 @@ historia_holandes_errante = atacar_ciudad escena2 carmen_de_patagones
 pelicula :: (Barco, Barco)
 pelicula = abordar historia_perla_negra historia_holandes_errante
 
-super_pelicula :: Barco -> Barco -> Isla -> Isla -> Ciudad -> Ciudad -> (Barco, Barco)
-super_pelicula barco barco2 isla isla2 ciudad ciudad2 = abordar (atacar_ciudad (anclar_en_isla barco isla) ciudad) (atacar_ciudad(anclar_en_isla barco2 isla2) ciudad2)
-
-
-
+super_pelicula ::
+     Barco -> Barco -> Isla -> Isla -> Ciudad -> Ciudad -> (Barco, Barco)
+super_pelicula barco barco2 isla isla2 ciudad ciudad2 =
+  abordar
+    (atacar_ciudad (anclar_en_isla barco isla) ciudad)
+    (atacar_ciudad (anclar_en_isla barco2 isla2) ciudad2)
