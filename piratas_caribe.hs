@@ -18,6 +18,7 @@ data Barco = Barco
   { tripulacion  :: [Pirata]
   , nombreBarco  :: String
   , forma_saqueo :: Tesoro -> Bool
+  , objeto       :: String
   } deriving (Show)
 
 data Isla = Isla
@@ -36,9 +37,46 @@ data Pais = Pais
   }
 
 data Universidad = Universidad
-  { perfil_academico :: Barco -> Barco }
+  { perfil_academico :: Perfil
+  }
 
-type Perfil 
+type Perfil = Barco -> Barco
+
+-- Universidades
+universidad_anti_dictaminante :: Universidad
+universidad_anti_dictaminante =
+  Universidad {perfil_academico = perfil_anti_dictaminante}
+
+perfil_anti_dictaminante :: Barco -> Barco
+perfil_anti_dictaminante barco
+  | (forma_saqueo barco) == pirata_con_corazon =
+    barco {forma_saqueo = roba_todos}
+  | (forma_saqueo barco) == roba_todos =
+    barco {forma_saqueo = pirata_con_corazon}
+  | (forma_saqueo barco) == solo_tesoros_especificos (objeto barco) =
+    barco {forma_saqueo = saqueo_fobico (objeto barco)}
+  | (forma_saqueo barco) == saqueo_fobico (objeto barco) =
+    barco {forma_saqueo = solo_tesoros_especificos (objeto barco)}
+  | otherwise = barco
+
+universidad_buitres_alternativos :: Universidad
+universidad_buitres_alternativos =
+  Universidad {perfil_academico = perfil_buitre_alternativo}
+
+perfil_buitre_alternativo :: Barco -> Barco
+perfil_buitre_alternativo barco =
+  barco
+    { forma_saqueo =
+        forma_compleja
+          [forma_saqueo barco, solo_tesoros_valiosos, saqueo_buitre]
+    }
+
+universidad_atlantica_inofensiva :: Universidad
+universidad_atlantica_inofensiva =
+  Universidad {perfil_academico = perfil_inofensivo}
+
+perfil_inofensivo :: Barco -> Barco
+perfil_inofensivo barco = barco
 
 --TESORO Bonos en dafault
 bonos_en_dafault :: [Double] -> Tesoro
@@ -73,9 +111,6 @@ tasa_del_pais nombre_pais
 
 coinciden_nombres :: String -> Pais -> Bool
 coinciden_nombres nombre pais = nombre == (nombre_del_pais pais)
-
-
-
 
 --TESOROS
 auricularesChetos :: Tesoro
@@ -122,7 +157,6 @@ ron :: Tesoro
 ron = Tesoro {nombreTesoro = "Ron", valor = 25}
 
 --Bonos
-
 bono_cavallo :: Tesoro
 bono_cavallo = bonos_en_dafault [2000, 3000, 9000, 5000]
 
@@ -130,7 +164,6 @@ bono_u2 :: Tesoro
 bono_u2 = bonos_en_dafault [300, 900, 700]
 
 --LeLiq
-
 leliq_argentino :: Tesoro
 leliq_argentino = letras_de_liquidez 10000 "Argentina"
 
@@ -201,9 +234,12 @@ holandes =
 
 venganza_reina_ana =
   Barco
-    { tripulacion = []
-    , nombreBarco = "Venganza de la Reina Ana" 
-    , forma_saqueo = forma_compleja [saqueo_fobico "oro", saqueo_buitre, solo_tesoros_valiosos]            
+    { tripulacion = [viotti, dini]
+    , nombreBarco = "Venganza de la Reina Ana"
+    , forma_saqueo =
+        forma_compleja
+          [saqueo_fobico "oro", saqueo_buitre, solo_tesoros_valiosos]
+    , objeto = "oro"
     }
 
 --ISLAS
@@ -219,7 +255,10 @@ port_royal =
     }
 
 carmen_de_patagones =
-  Ciudad {tesoros_disponibles = [oro, bono_cavallo, leliq_brasilero ], nombreCiudad = "Carmen de Patagones"}
+  Ciudad
+    { tesoros_disponibles = [oro, bono_cavallo, leliq_brasilero]
+    , nombreCiudad = "Carmen de Patagones"
+    }
 
 --TESOROS PIRATAS
 cantidad_tesoros :: Pirata -> Int
@@ -287,6 +326,9 @@ solo_tesoros_especificos clave = (== clave) . nombreTesoro
 pirata_con_corazon :: Tesoro -> Bool
 pirata_con_corazon tesoro = False
 
+roba_todos :: Tesoro -> Bool
+roba_todos tesoro = True
+
 -- Saqueos sofisticados
 --Buitres: Permite elegir cualquier tesoro que sea un bono en dafault.
 saqueo_buitre :: Tesoro -> Bool
@@ -311,6 +353,36 @@ incorporar_a_tripulacion pirata barco =
   --   ((tripulacion barco) ++ [pirata])
   --   (nombreBarco barco)
   --   (forma_saqueo barco)
+
+tripulacion_infinita :: Barco -> Barco
+tripulacion_infinita barco =
+  barco
+    { tripulacion =
+        iterate
+          (generar_pirata_distinto)
+          Pirata {nombrePirata = "Lucas 1", botin = [ron]}
+    }
+
+generar_pirata_distinto :: Pirata -> Pirata
+generar_pirata_distinto pirata_modelo =
+  Pirata
+    { nombrePirata = posible_nombre_pirata (nombrePirata pirata_modelo)
+    , botin = posible_tesoro_pirata (botin pirata_modelo)
+    }
+
+posible_nombre_pirata :: String -> String
+posible_nombre_pirata nombre_anterior =
+  "Lucas " ++ ((recuperar_numero nombre_anterior) + 1)
+
+recuperar_numero :: String -> Int
+recuperar_numero nombre_anterior =
+  read
+    (take
+       (length nombre_anterior - length "Lucas")
+       (drop (length "Lucas") nombre_anterior)) :: Int
+
+posible_tesoro_pirata :: [Tesoro] -> [Tesoro]
+posible_tesoro_pirata tesoros_anteriores = [ron]
 
 abandonar_tripulacion :: Pirata -> Barco -> Barco
 abandonar_tripulacion pirata barco =
@@ -429,13 +501,10 @@ super_pelicula barco barco2 isla isla2 ciudad ciudad2 =
   abordar
     (atacar_ciudad (anclar_en_isla barco isla) ciudad)
     (atacar_ciudad (anclar_en_isla barco2 isla2) ciudad2)
-
-
-
     -- Existen universidades cuya misión es desarrollar las habilidades de saqueo piratas. Cuando un barco va al laboratorio de una universidad, su forma de saqueo se ve alterada de acuerdo al perfil académico de dicha institución. Se tiene conocimiento de los siguientes perfiels, pero podría haber más:
     -- Universidad Anti Dictaminante de Estilos: Provoca que el barco tenga la forma de saque inversa a la que tenía. Por ejemplo si era "de corazón", ahora saquea todo; si era de objeto específico, se vuelve fóbica de dicho objeto y así sucesivamente.
-    -- Universidad de Buitres Alternativos: Hace que el barco quede con una forma de saqueo compleja, donde una de las alternativas es la que el barco ya tenía, y se le agrega la forma "buitre" y la de cosas valiosas. 
-    -- Universidad Atlantica Inofensiva: No le afecta en absoluto.  
-    
+    -- Universidad de Buitres Alternativos: Hace que el barco quede con una forma de saqueo compleja, donde una de las alternativas es la que el barco ya tenía, y se le agrega la forma "buitre" y la de cosas valiosas.
+    -- Universidad Atlantica Inofensiva: No le afecta en absoluto.
+
 ingresar_a_laboratorio :: Universidad -> Barco -> Barco
-ingresar_a_laboratorio universidad barco = 
+ingresar_a_laboratorio universidad barco = (perfil_academico universidad) barco
