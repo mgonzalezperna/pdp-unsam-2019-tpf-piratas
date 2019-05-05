@@ -9,7 +9,13 @@ data Pirata = Pirata
 data Tesoro = Tesoro
   { nombreTesoro :: String
   , valor        :: Double
-  } deriving (Show, Eq)
+  }
+  | Bono
+  { nombreTesoro :: String
+  , valor :: Double
+  , cotizaciones :: [Double]
+  }
+  deriving (Show, Eq)
 
 data Barco = Barco
   { tripulacion  :: [Pirata]
@@ -91,15 +97,16 @@ paises = [argentina, mexico, brasil]
 
 --TESORO Bonos en dafault
 bonos_en_dafault :: [Double] -> Tesoro
-bonos_en_dafault =
-  Tesoro
+bonos_en_dafault list_cotizaciones =
+  Bono
     { nombreTesoro = "Bono"
-    , valor = valor_bono minima_cotizacion maxima_cotizacion
+    , valor = valor_bono list_cotizaciones 
+    , cotizaciones = list_cotizaciones
     }
 
-valor_bono :: Double -> Double -> Double
-valor_bono minima_cotizacion maxima_cotizacion =
-  (1.5 *) $(abs ((-) minima_cotizacion maxima_cotizacion))
+valor_bono :: [Double] -> Double
+valor_bono list_cotizaciones =
+  (1.5 *) $(abs ((-) (minimum list_cotizaciones) (maximum list_cotizaciones)))
 
 --TESORO Letras de liquidez
 letras_de_liquidez :: Double -> String -> Tesoro
