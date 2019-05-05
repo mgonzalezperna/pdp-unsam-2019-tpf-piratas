@@ -270,6 +270,14 @@ venganza_reina_ana =
     , forma_contraria = tesorosBaratos
     }
 
+mary_celeste = 
+  Barco
+    { tripulacion = generar_tripulacion_infinita 
+    , nombreBarco = "Mary Celeste"
+    , forma_saqueo = tesorosValiosos
+    , forma_contraria = tesorosBaratos
+    }
+
 --ISLAS
 isla_tortuga = Isla {elemento_tipico = frascoAnne, nombreIsla = "Isla Tortuga"}
 
@@ -414,6 +422,8 @@ tripulacion_infinita barco =
              Pirata {nombrePirata = "semilla", botin = [ron]})
           [1 ..]
     }
+generar_tripulacion_infinita :: [Pirata]
+generar_tripulacion_infinita = map (generar_pirata_distinto Pirata {nombrePirata = "Lucas", botin = [ron]}) [1 ..]
 
 generar_pirata_distinto :: Pirata -> Double -> Pirata
 generar_pirata_distinto pirata_modelo numero =
