@@ -387,32 +387,17 @@ incorporar_a_tripulacion pirata barco =
   --   (nombreBarco barco)
   --   (forma_saqueo barco)
 
--- tripulacion_infinita :: Barco -> Barco
--- tripulacion_infinita barco =
---   barco
---     { tripulacion =
---         iterate
---           (generar_pirata_distinto)
---           Pirata {nombrePirata = "Lucas 1", botin = [ron]}
---     }
--- generar_pirata_distinto :: Pirata -> Pirata
--- generar_pirata_distinto pirata_modelo =
---   Pirata
---     { nombrePirata = posible_nombre_pirata (nombrePirata pirata_modelo)
---     , botin = posible_tesoro_pirata (botin pirata_modelo)
---     }
--- posible_nombre_pirata :: String -> String
--- posible_nombre_pirata nombre_anterior =
---   "Lucas " ++ ((recuperar_numero nombre_anterior) + 1)
-recuperar_numero :: String -> Int
-recuperar_numero nombre_anterior =
-  read
-    (take
-       (length nombre_anterior - length "Lucas")
-       (drop (length "Lucas") nombre_anterior)) :: Int
+tripulacion_infinita :: Barco -> Barco
+tripulacion_infinita barco =
+      barco
+          { tripulacion =
+                      map (generar_pirata_distinto Pirata {nombrePirata = "Lucas", botin = [ron]}) [1..] 
+              }
 
-posible_tesoro_pirata :: [Tesoro] -> [Tesoro]
-posible_tesoro_pirata tesoros_anteriores = [ron]
+generar_pirata_distinto :: Pirata -> Double -> Pirata
+generar_pirata_distinto pirata_modelo numero =
+      pirata_modelo { nombrePirata = "Lucas " ++ show numero }
+       }}
 
 abandonar_tripulacion :: Pirata -> Barco -> Barco
 abandonar_tripulacion pirata barco =
