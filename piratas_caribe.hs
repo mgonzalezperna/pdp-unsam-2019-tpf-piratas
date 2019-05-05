@@ -47,6 +47,8 @@ data Universidad = Universidad
 
 type Perfil = Barco -> Barco
 
+type Situacion = (Barco -> Barco)
+
 instance Eq FormaSaqueo where
   forma1 == forma2 = (nombre forma1) == (nombre forma2)
 
@@ -537,3 +539,17 @@ super_pelicula barco barco2 isla isla2 ciudad ciudad2 =
 
 ingresar_a_laboratorio :: Universidad -> Barco -> Barco
 ingresar_a_laboratorio universidad barco = (perfil_academico universidad) barco
+
+-- Historias de Barcos
+una_lista_de_situaciones =
+  [ incorporar_a_tripulacion dini
+  , (fst . (flip abordar holandes))
+  , flip atacar_ciudad port_royal
+  ]
+
+historia :: Barco -> [Situacion] -> Barco
+historia barco lista_situaciones =
+  foldl (aplicar_situacion) barco lista_situaciones
+
+aplicar_situacion :: Barco -> Situacion -> Barco
+aplicar_situacion barco situacion = situacion barco
