@@ -6,15 +6,12 @@ data Pirata = Pirata
   , botin        :: [Tesoro]
   } deriving (Show, Eq)
 
-data Tesoro = Tesoro
-  { nombreTesoro :: String
-  , valor        :: Double
-  }
-  | Bono
-  { nombreTesoro :: String
-  , valor :: Double
-  , cotizaciones :: [Double]
-  }
+data Tesoro
+  = Tesoro { nombreTesoro :: String
+           , valor        :: Double }
+  | Bono { nombreTesoro :: String
+         , valor        :: Double
+         , cotizaciones :: [Double] }
   deriving (Show, Eq)
 
 data Barco = Barco
@@ -100,7 +97,7 @@ bonos_en_dafault :: [Double] -> Tesoro
 bonos_en_dafault list_cotizaciones =
   Bono
     { nombreTesoro = "Bono"
-    , valor = valor_bono list_cotizaciones 
+    , valor = valor_bono list_cotizaciones
     , cotizaciones = list_cotizaciones
     }
 
