@@ -35,6 +35,43 @@ data Pais = Pais
   , tasa_segun_pais :: Double
   }
 
+--TESORO Bonos en dafault
+bonos_en_dafault :: [Double] -> Tesoro
+bonos_en_dafault list_cotizaciones =
+  Bono
+    { nombreTesoro = "Bono"
+    , valor = valor_bono list_cotizaciones
+    , cotizaciones = list_cotizaciones
+    }
+
+valor_bono :: [Double] -> Double
+valor_bono list_cotizaciones =
+  (1.5 *) $(abs ((-) (minimum list_cotizaciones) (maximum list_cotizaciones)))
+
+--TESORO Letras de liquidez
+letras_de_liquidez :: Double -> String -> Tesoro
+letras_de_liquidez valor_nominal nombre_pais =
+  Tesoro
+    { nombreTesoro = "LeLiq " ++ nombre_pais
+    , valor = valor_letras valor_nominal nombre_pais
+    }
+
+valor_letras :: Double -> String -> Double
+valor_letras valor_nominal nombre_pais =
+  (tasa_del_pais nombre_pais) * valor_nominal
+
+tasa_del_pais :: String -> Double
+tasa_del_pais nombre_pais
+  | elem nombre_pais (map (nombre_del_pais) paises) =
+    tasa_segun_pais (head (filter (coinciden_nombres nombre_pais) paises))
+  | otherwise = 0
+
+coinciden_nombres :: String -> Pais -> Bool
+coinciden_nombres nombre pais = nombre == (nombre_del_pais pais)
+
+
+
+
 --TESOROS
 auricularesChetos :: Tesoro
 auricularesChetos =
@@ -79,6 +116,25 @@ oro = Tesoro {nombreTesoro = "Oro", valor = 750}
 ron :: Tesoro
 ron = Tesoro {nombreTesoro = "Ron", valor = 25}
 
+--Bonos
+
+bono_cavallo :: Tesoro
+bono_cavallo = bonos_en_dafault [2000, 3000, 9000, 5000]
+
+bono_u2 :: Tesoro
+bono_u2 = bonos_en_dafault [300, 900, 700]
+
+--LeLiq
+
+leliq_argentino :: Tesoro
+leliq_argentino = letras_de_liquidez 10000 "Argentina"
+
+leliq_brasilero :: Tesoro
+leliq_brasilero = letras_de_liquidez 400 "Brasil"
+
+leliq_jamaiquino :: Tesoro
+leliq_jamaiquino = letras_de_liquidez 9000 "Jamaica"
+
 --PAISES
 argentina :: Pais
 argentina = Pais {nombre_del_pais = "Argentina", tasa_segun_pais = 1.74}
@@ -91,40 +147,6 @@ brasil = Pais {nombre_del_pais = "Brasil", tasa_segun_pais = 1.12}
 
 paises :: [Pais]
 paises = [argentina, mexico, brasil]
-
---TESORO Bonos en dafault
-bonos_en_dafault :: [Double] -> Tesoro
-bonos_en_dafault list_cotizaciones =
-  Bono
-    { nombreTesoro = "Bono"
-    , valor = valor_bono list_cotizaciones
-    , cotizaciones = list_cotizaciones
-    }
-
-valor_bono :: [Double] -> Double
-valor_bono list_cotizaciones =
-  (1.5 *) $(abs ((-) (minimum list_cotizaciones) (maximum list_cotizaciones)))
-
---TESORO Letras de liquidez
-letras_de_liquidez :: Double -> String -> Tesoro
-letras_de_liquidez valor_nominal nombre_pais =
-  Tesoro
-    { nombreTesoro = "LeLiq " ++ nombre_pais
-    , valor = valor_letras valor_nominal nombre_pais
-    }
-
-valor_letras :: Double -> String -> Double
-valor_letras valor_nominal nombre_pais =
-  (tasa_del_pais nombre_pais) * valor_nominal
-
-tasa_del_pais :: String -> Double
-tasa_del_pais nombre_pais
-  | elem nombre_pais (map (nombre_del_pais) paises) =
-    tasa_segun_pais (head (filter (coinciden_nombres nombre_pais) paises))
-  | otherwise = 0
-
-coinciden_nombres :: String -> Pais -> Bool
-coinciden_nombres nombre pais = nombre == (nombre_del_pais pais)
 
 --PIRATAS
 viotti :: Pirata
