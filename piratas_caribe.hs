@@ -27,6 +27,11 @@ data Ciudad = Ciudad
   , nombreCiudad        :: String
   } deriving (Show, Eq)
 
+data Pais = Pais
+    { nombre_pais :: String
+    , tasa_segun_pais :: Double
+    }
+
 --TESOROS
 auricularesChetos :: Tesoro
 auricularesChetos =
@@ -71,18 +76,27 @@ oro = Tesoro {nombreTesoro = "Oro", valor = 750}
 ron :: Tesoro
 ron = Tesoro {nombreTesoro = "Ron", valor = 25}
 
-minima_cotizacion :: Double
-minima_cotizacion = 2000
+--PAISES
 
-maxima_cotizacion :: Double
-maxima_cotizacion = 5000
+argentina :: Pais
+argentina = Pais {nombre_pais = "Argentina", tasa_segun_pais = 0.74}
 
-bonos_en_dafault :: Tesoro
-bonos_en_dafault = Tesoro { nombreTesoro = "Bono", valor = valor_bono minima_cotizacion maxima_cotizacion}
+mexico :: Pais 
+mexico = Pais {nombre_pais = "Mexico", tasa_segun_pais = 0.34}
+
+brasil :: Pais
+brasil = Pais {nombre_pais = "Brasil", tasa_segun_pais = 0.12}
+
+paises :: [Pais]
+paises = [argentina, mexico, brasil]
+
+--TESORO Bonos en dafault
+
+bonos_en_dafault :: Double -> Double -> Tesoro
+bonos_en_dafault minima_cotizacion maxima_cotizacion = Tesoro { nombreTesoro = "Bono", valor = valor_bono minima_cotizacion maxima_cotizacion}
 
 valor_bono :: Double -> Double -> Double
 valor_bono minima_cotizacion maxima_cotizacion = (1.5 *) $(abs((-) minima_cotizacion maxima_cotizacion))
-
 
 --PIRATAS
 viotti :: Pirata
