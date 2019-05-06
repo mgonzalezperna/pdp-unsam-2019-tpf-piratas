@@ -373,41 +373,41 @@ buitre = FormaSaqueo {forma = saqueo_buitre, nombre = "Saqueo Buitre"}
 compleja formas =
   FormaSaqueo {forma = forma_compleja formas, nombre = "Forma Compleja"}
 
-saquear :: Pirata -> (Tesoro -> Bool) -> Tesoro -> Pirata
+saquear :: Pirata -> CondicionDeSaqueo -> Tesoro -> Pirata
 saquear pirata forma tesoro
   | forma tesoro = adquirir_tesoro pirata tesoro
   | otherwise = pirata
 
-solo_tesoros_valiosos :: Tesoro -> Bool -- y reutilizar tesoro valioso acá.
+solo_tesoros_valiosos :: CondicionDeSaqueo -- y reutilizar tesoro valioso acá.
 solo_tesoros_valiosos = (> 100) . valor
 
-solo_tesoros_baratos :: Tesoro -> Bool -- y reutilizar tesoro valioso acá.
+solo_tesoros_baratos :: CondicionDeSaqueo -- y reutilizar tesoro valioso acá.
 solo_tesoros_baratos = not . solo_tesoros_valiosos
 
-solo_tesoros_especificos :: String -> Tesoro -> Bool -- tesoros con nombre = tesoros específicos
+solo_tesoros_especificos :: String -> CondicionDeSaqueo -- tesoros con nombre = tesoros específicos
 solo_tesoros_especificos clave = (== clave) . nombreTesoro
 
-pirata_con_corazon :: Tesoro -> Bool
+pirata_con_corazon :: CondicionDeSaqueo
 pirata_con_corazon tesoro = False
 
-roba_todos :: Tesoro -> Bool
+roba_todos :: CondicionDeSaqueo
 roba_todos tesoro = True
 
 -- Saqueos sofistica
 --Buitres: Permite elegir cualquier tesoro que sea un bono en dafault.
-saqueo_buitre :: Tesoro -> Bool
+saqueo_buitre :: CondicionDeSaqueo
 saqueo_buitre tesoro = "Bono" == (nombreTesoro tesoro)
 
 --Permite tomar cualquier tesoro, excepto los que su nombre sea una palabra dada, que representa la cosa a la que se le tiene fobia
-saqueo_fobico :: String -> Tesoro -> Bool
+saqueo_fobico :: String -> CondicionDeSaqueo
 -- saqueo_fobico fobia tesoro = fobia /= (nombreTesoro tesoro)
 saqueo_fobico fobia = not . (solo_tesoros_especificos fobia)
 
 --Condicion de cumplimiento del any
-evaluar :: Tesoro -> (Tesoro -> Bool) -> Bool
+evaluar :: Tesoro -> CondicionDeSaqueo -> Bool
 evaluar tesoro forma = forma tesoro
 
-forma_compleja :: [(Tesoro -> Bool)] -> Tesoro -> Bool
+forma_compleja :: [CondicionDeSaqueo] -> Tesoro -> Bool
 forma_compleja formas tesoro = any (evaluar tesoro) formas
 
 -- NAVEGANDO LOS SIETE MARES
