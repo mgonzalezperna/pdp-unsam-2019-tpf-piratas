@@ -15,16 +15,16 @@ data Tesoro
            , valor        :: Double }
   | Bono { nombreTesoro :: String
          , valor        :: Double
-         , cotizaciones :: [Double] }
+         , cotizaciones :: [Cotizacion] }
   deriving (Show, Eq)
 
 data FormaSaqueo = FormaSaqueo
-  { forma  :: Tesoro -> Bool
+  { forma  :: CondicionDeSaqueo
   , nombre :: String
   } deriving (Show)
 
 data Barco = Barco
-  { tripulacion     :: [Pirata]
+  { tripulacion     :: Tripulacion
   , nombreBarco     :: String
   , forma_saqueo    :: FormaSaqueo
   , forma_contraria :: FormaSaqueo
@@ -63,6 +63,12 @@ data Universidad = Universidad
   { perfil_academico :: Perfil
   }
 
+type Tripulacion = [Pirata]
+
+type Cotizacion = Double
+
+type CondicionDeSaqueo = Tesoro -> Bool
+
 type Perfil = Barco -> Barco
 
 type Situacion = (Barco -> Barco)
@@ -98,7 +104,7 @@ perfil_inofensivo :: Barco -> Barco
 perfil_inofensivo barco = barco
 
 --TESORO Bonos en dafault
-bonos_en_dafault :: [Double] -> Tesoro
+bonos_en_dafault :: [Cotizacion] -> Tesoro
 bonos_en_dafault list_cotizaciones =
   Bono
     { nombreTesoro = "Bono"
@@ -106,10 +112,10 @@ bonos_en_dafault list_cotizaciones =
     , cotizaciones = list_cotizaciones
     }
 
-valor_bono :: [Double] -> Double
+valor_bono :: [Cotizacion] -> Double
 valor_bono = (1.5 *) . diferencia_cotizaciones
 
-diferencia_cotizaciones :: [Double] -> Double
+diferencia_cotizaciones :: [Cotizacion] -> Double
 diferencia_cotizaciones list_cotizaciones =
   abs (minimum list_cotizaciones - maximum list_cotizaciones)
 
@@ -422,7 +428,7 @@ tripulacion_infinita barco =
              Pirata {nombrePirata = "semilla", botin = [ron]})
           [1 ..]
     }
-generar_tripulacion_infinita :: [Pirata]
+generar_tripulacion_infinita :: Tripulacion
 generar_tripulacion_infinita = map (generar_pirata_distinto Pirata {nombrePirata = "Lucas", botin = [ron]}) [1 ..]
 
 generar_pirata_distinto :: Pirata -> Double -> Pirata
@@ -445,7 +451,7 @@ anclar_en_isla barco isla =
   --   (nombreBarco barco)
   --   (forma_saqueo barco)
 
-tomar_tesoros :: [Pirata] -> Tesoro -> [Pirata]
+tomar_tesoros :: Tripulacion -> Tesoro -> Tripulacion
 tomar_tesoros tripulacion tesoro = map (flip adquirir_tesoro tesoro) tripulacion
 
 atacar_ciudad :: Barco -> Ciudad -> Barco
@@ -474,7 +480,7 @@ saquear_ciudad barco ciudad =
   --   (forma_saqueo barco)
 
 obtener_tesoros_por_tripulante ::
-     FormaSaqueo -> [Pirata] -> [Tesoro] -> [Pirata]
+     FormaSaqueo -> Tripulacion -> [Tesoro] -> Tripulacion
 obtener_tesoros_por_tripulante formaRobarGanador tripulacionGanador tesorosPerdedor =
   map
     (tomar_si_le_interesa (formaRobarGanador))
@@ -492,7 +498,7 @@ echar_piratas barco quedan =
   --   (nombreBarco barco)
   --   (forma_saqueo barco)
 
-mas_tesoros_que_tripulantes :: [Tesoro] -> [Pirata] -> Bool
+mas_tesoros_que_tripulantes :: [Tesoro] -> Tripulacion -> Bool
 mas_tesoros_que_tripulantes tesoros tripulantes =
   (length tesoros) >= (length tripulantes)
 
@@ -522,7 +528,7 @@ sacarle_todos_los_tesoros ganador perdedor =
   --     (nombreBarco perdedor)
   --     (forma_saqueo perdedor))
 
-todos_los_tesoros :: [Pirata] -> [Tesoro]
+todos_los_tesoros :: Tripulacion -> [Tesoro]
 todos_los_tesoros tripulacion = concat (map botin tripulacion)
 
 -- HACETE TODA LA PELÍCULA
