@@ -568,10 +568,6 @@ una_lista_de_situaciones =
   , flip atacar_ciudad port_royal
   ]
 
-historia :: Barco -> [Situacion] -> Barco
-historia barco lista_situaciones =
-  foldl (aplicar_situacion) barco lista_situaciones
-
 aplicar_situacion :: Barco -> Situacion -> Barco
 aplicar_situacion barco situacion = situacion barco
 
