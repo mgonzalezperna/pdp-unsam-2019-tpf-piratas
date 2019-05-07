@@ -569,10 +569,10 @@ mas_tripulantes_despues_de_historia :: [Situacion] -> [Barco] -> Barco
 mas_tripulantes_despues_de_historia situaciones barcos =  barco_mas_numeroso (map (aplicar_situaciones situaciones) barcos)
 
 barco_mas_numeroso :: [Barco] -> Barco
-barco_mas_numeroso barcos = last (sortBy mayor_cantidad_tripulantes barcos)
+barco_mas_numeroso barcos = last (sortBy comparar_cantidad_tripulantes barcos)
 
-mayor_cantidad_tripulantes :: Barco -> Barco -> Ordering
-mayor_cantidad_tripulantes barco1 barco2 
+comparar_cantidad_tripulantes :: Barco -> Barco -> Ordering
+comparar_cantidad_tripulantes barco1 barco2 
   | (length (tripulacion barco1)) > (length (tripulacion barco2)) = GT
   | (length (tripulacion barco1)) < (length (tripulacion barco2)) = LT
   | otherwise = EQ
