@@ -65,7 +65,7 @@ type Cotizacion = Double
 
 type Perfil = Barco -> Barco
 
-type Situacion = (Barco -> Barco)
+type Situacion = Barco -> Barco
 
 
 -- Universidades
@@ -539,18 +539,19 @@ aplicar_situaciones situaciones barco =
   foldl aplicar_situacion barco situaciones
 
 historia_inofensiva_para :: [Situacion] -> [Barco] -> [Barco]
-historia_inofensiva_para situaciones barcos =
-  map
-    (fst)
-    (filter
-       (quedo_igual)
-       (zip barcos (map (aplicar_situaciones situaciones) barcos)))
+historia_inofensiva_para situaciones barcos = map fst (filter quedo_igual (barcos_antes_y_despues barcos situaciones))
+
+barcos_antes_y_despues :: [Barco] -> [Situacion] -> [(Barco, Barco)]
+barcos_antes_y_despues barcos situaciones = zip barcos (barcos_despues_de_situaciones barcos situaciones)
+
+barcos_despues_de_situaciones :: [Barco] -> [Situacion] -> [Barco]
+barcos_despues_de_situaciones barcos situaciones = map (aplicar_situaciones situaciones) barcos
 
 quedo_igual :: (Barco, Barco) -> Bool
 quedo_igual (barco_antes, barco_despues) = barco_antes == barco_despues
 
 mas_tripulantes_despues_de_historia :: [Situacion] -> [Barco] -> Barco
-mas_tripulantes_despues_de_historia situaciones barcos =  barco_mas_numeroso (map (aplicar_situaciones situaciones) barcos)
+mas_tripulantes_despues_de_historia situaciones barcos =  barco_mas_numeroso (barcos_despues_de_situaciones barcos situaciones)
 
 barco_mas_numeroso :: [Barco] -> Barco
 barco_mas_numeroso barcos = last (sortBy comparar_cantidad_tripulantes barcos)
