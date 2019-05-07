@@ -22,7 +22,6 @@ data Barco = Barco
   { tripulacion     :: Tripulacion
   , nombreBarco     :: String
   , forma_saqueo    :: FormaSaqueo
-  , forma_contraria :: FormaSaqueo
   } deriving (Show)
 
 instance Eq Barco where
@@ -75,7 +74,7 @@ universidad_anti_dictaminante =
   Universidad {perfil_academico = perfil_anti_dictaminante}
 
 perfil_anti_dictaminante :: Barco -> Barco
-perfil_anti_dictaminante barco = barco {forma_saqueo = forma_contraria barco}
+perfil_anti_dictaminante barco = barco {forma_saqueo = not .(forma_saqueo barco)}
 
 universidad_buitres_alternativos :: Universidad
 universidad_buitres_alternativos =
@@ -249,7 +248,6 @@ perla =
     { tripulacion = [jackSparrow, anneBonny]
     , nombreBarco = "Perla Negra"
     , forma_saqueo = solo_tesoros_valiosos
-    , forma_contraria = solo_tesoros_baratos
     }
 
 holandes =
@@ -257,18 +255,14 @@ holandes =
     { tripulacion = [davidJones]
     , nombreBarco = "Holandes Errante"
     , forma_saqueo = solo_tesoros_valiosos
-    , forma_contraria = solo_tesoros_baratos
     }
-
-formas_de_saqueo_reina_ana = [saqueo_fobico "oro", saqueo_buitre, solo_tesoros_valiosos]
 
 venganza_reina_ana =
   Barco
     { tripulacion = [viotti, dini]
     , nombreBarco = "Venganza de la Reina Ana"
     , forma_saqueo =
-        forma_compleja formas_de_saqueo_reina_ana 
-    , forma_contraria = forma_simple formas_de_saqueo_reina_ana 
+        forma_compleja [saqueo_fobico "oro", saqueo_buitre, solo_tesoros_valiosos]
     }
 
 mary_celeste = 
@@ -276,7 +270,6 @@ mary_celeste =
     { tripulacion = generar_tripulacion_infinita 
     , nombreBarco = "Mary Celeste"
     , forma_saqueo = solo_tesoros_valiosos
-    , forma_contraria = solo_tesoros_baratos
     }
 
 --ISLAS
@@ -357,17 +350,11 @@ saquear pirata forma tesoro
 solo_tesoros_valiosos :: FormaSaqueo -- y reutilizar tesoro valioso acá.
 solo_tesoros_valiosos = (> 100) . valor
 
-solo_tesoros_baratos :: FormaSaqueo -- y reutilizar tesoro valioso acá.
-solo_tesoros_baratos = not . solo_tesoros_valiosos
-
 solo_tesoros_especificos :: String -> FormaSaqueo -- tesoros con nombre = tesoros específicos
 solo_tesoros_especificos clave = (== clave) . nombreTesoro
 
 pirata_con_corazon :: FormaSaqueo
 pirata_con_corazon tesoro = False
-
-roba_todos :: FormaSaqueo
-roba_todos = not . pirata_con_corazon
 
 -- Saqueos sofisticados
 --Buitres: Permite elegir cualquier tesoro que sea un bono en dafault.
@@ -385,9 +372,6 @@ evaluar tesoro forma = forma tesoro
 
 forma_compleja :: [FormaSaqueo] -> Tesoro -> Bool
 forma_compleja formas tesoro = any (evaluar tesoro) formas
-
-forma_simple :: [FormaSaqueo] -> Tesoro -> Bool
-forma_simple formas = not . (forma_compleja formas)
 
 -- NAVEGANDO LOS SIETE MARES
 incorporar_a_tripulacion :: Pirata -> Barco -> Barco
