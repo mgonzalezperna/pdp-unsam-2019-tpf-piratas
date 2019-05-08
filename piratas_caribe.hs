@@ -10,6 +10,9 @@ data Pirata = Pirata
 instance Eq Pirata where
   pirata1 == pirata2 = (nombrePirata pirata1) == (nombrePirata pirata2)
 
+instance Ord Pirata where
+  pirata1 <= pirata2 = (nombrePirata pirata1) <= (nombrePirata pirata2)
+
 data Tesoro
   = Tesoro { nombreTesoro :: String
            , valor        :: Double }
@@ -18,12 +21,14 @@ data Tesoro
             , pais_emisor :: Pais }
   deriving (Show, Eq)
 
-nombreTesoro :: Tesoro -> String
-nombreTesoro (Bono _) = "Bono"
-nombreTesoro (Leliq _ pais) = "Leliq " ++ nombre_del_pais
+nombre_tesoro :: Tesoro -> String
+nombre_tesoro (Tesoro nombre _) = nombre
+nombre_tesoro (Bono _) = "Bono"
+nombre_tesoro (Leliq _ pais) = "Leliq " ++ (nombre_del_pais pais)
 
-valor (Bono cotizaciones) = valor_bono cotizaciones
-valor (Leliq importe pais) = (tasa_segun_pais pais) * valor_nominal
+valor_tesoro :: Tesoro -> Double
+valor_tesoro (Bono cotizaciones) = valor_bono cotizaciones
+valor_tesoro (Leliq importe pais) = (tasa_segun_pais pais) * importe
 
 data Barco = Barco
   { tripulacion     :: Tripulacion
@@ -41,8 +46,8 @@ instance Eq Barco where
 
 compara_nombres :: Barco -> Barco -> Bool
 compara_nombres barco1 barco2 =
-  Set.fromList ( (tripulacion barco1)) ==
-  Set.fromList ( (tripulacion barco2))
+  Set.fromList (tripulacion barco1) ==
+  Set.fromList (tripulacion barco2)
 
 compara_cantidad_tripulantes :: Barco -> Barco -> Bool
 compara_cantidad_tripulantes barco1 barco2 =
@@ -61,11 +66,7 @@ data Ciudad = Ciudad
 data Pais = Pais
   { nombre_del_pais :: String
   , tasa_segun_pais :: Double
-  }
-
--- data Universidad = Universidad
---   { perfil_academico :: Perfil
---   }
+  } deriving (Show, Eq)
 
 type Tripulacion = [Pirata]
 
@@ -78,17 +79,9 @@ type Perfil = Barco -> Barco
 type Situacion = Barco -> Barco
 
 
--- Universidades
--- universidad_anti_dictaminante :: Universidad
--- universidad_anti_dictaminante =
---   Universidad {perfil_academico = perfil_anti_dictaminante}
-
 universidad_anti_dictaminante :: Barco -> Barco
 universidad_anti_dictaminante barco = barco {forma_saqueo = not .(forma_saqueo barco)}
 
--- universidad_buitres_alternativos :: Universidad
--- universidad_buitres_alternativos =
---   Universidad {perfil_academico = perfil_buitre_alternativo}
 
 universidad_buitres_alternativos :: Barco -> Barco
 universidad_buitres_alternativos barco =
@@ -98,21 +91,8 @@ universidad_buitres_alternativos barco =
           [forma_saqueo barco, solo_tesoros_valiosos, saqueo_buitre]
     }
 
--- universidad_atlantica_inofensiva :: Universidad
--- universidad_atlantica_inofensiva =
---   Universidad {perfil_academico = perfil_inofensivo}
-
 universidad_atlantica_inofensiva :: Barco -> Barco
 universidad_atlantica_inofensiva = id
-
---TESORO Bonos en dafault
--- bonos_en_dafault :: [Cotizacion] -> Tesoro
--- bonos_en_dafault list_cotizaciones =
---   Bono
---     { nombreTesoro = "Bono"
---     , valor = valor_bono list_cotizaciones
---     , cotizaciones = list_cotizaciones
---     }
 
 valor_bono :: [Cotizacion] -> Double
 valor_bono = (1.5 *) . diferencia_cotizaciones
@@ -120,32 +100,6 @@ valor_bono = (1.5 *) . diferencia_cotizaciones
 diferencia_cotizaciones :: [Cotizacion] -> Double
 diferencia_cotizaciones list_cotizaciones =
   abs (minimum list_cotizaciones - maximum list_cotizaciones)
-
---TESORO Letras de liquidez
--- letras_de_liquidez :: Double -> String -> Tesoro
--- letras_de_liquidez valor_nominal nombre_pais =
---   Tesoro
---     { nombreTesoro = "LeLiq " ++ nombre_pais
---     , valor = valor_letras valor_nominal nombre_pais
---     }
-
--- valor_letras :: Double -> String -> Double
--- valor_letras valor_nominal nombre_pais =
---   (tasa_del_pais nombre_pais) * valor_nominal
-
--- tasa_del_pais :: String -> Double
--- tasa_del_pais nombre_pais
---   | existe_pais nombre_pais = tasa_segun_pais (buscar_pais nombre_pais)
---   | otherwise = 0
-
--- existe_pais :: String -> Bool
--- existe_pais nombre_pais = elem nombre_pais (map (nombre_del_pais) paises)
-
--- buscar_pais :: String -> Pais
--- buscar_pais nombre_pais = head (filter (coinciden_nombres nombre_pais) paises)
-
--- coinciden_nombres :: String -> Pais -> Bool
--- coinciden_nombres nombre pais = nombre == (nombre_del_pais pais)
 
 --TESOROS
 auricularesChetos :: Tesoro
@@ -191,22 +145,37 @@ oro = Tesoro {nombreTesoro = "Oro", valor = 750}
 ron :: Tesoro
 ron = Tesoro {nombreTesoro = "Ron", valor = 25}
 
+-- data Tesoro
+--   = Tesoro { nombre :: String
+--            , valor        :: Double }
+--   | Bono { cotizaciones :: [Cotizacion] }
+--   | Leliq { importe_nominal :: Double
+--             , pais_emisor :: Pais }
+--   deriving (Show, Eq)
+
+--  Barco
+--     { tripulacion = generar_tripulacion_infinita 
+--     , nombreBarco = "Mary Celeste"
+--     , forma_saqueo = solo_tesoros_valiosos
+--     }
+
 --Bonos
 bono_cavallo :: Tesoro
-bono_cavallo = bonos_en_dafault [2000, 3000, 9000, 5000]
+bono_cavallo = Bono ([2000, 3000, 9000, 5000])
 
 bono_u2 :: Tesoro
-bono_u2 = bonos_en_dafault [300, 900, 700]
+bono_u2 = Bono ([300, 900, 700])
 
 --LeLiq
 leliq_argentino :: Tesoro
-leliq_argentino = letras_de_liquidez 10000 "Argentina"
+leliq_argentino = Leliq { importe_nominal = 10000, pais_emisor = argentina}
 
 leliq_brasilero :: Tesoro
-leliq_brasilero = letras_de_liquidez 400 "Brasil"
+leliq_brasilero = Leliq { importe_nominal = 400, pais_emisor = brasil}
 
-leliq_jamaiquino :: Tesoro
-leliq_jamaiquino = letras_de_liquidez 9000 "Jamaica"
+leliq_mexicano :: Tesoro
+leliq_mexicano = Leliq { importe_nominal = 9000, pais_emisor = mexico}
+
 
 --PAISES
 argentina :: Pais
@@ -531,7 +500,7 @@ super_pelicula barco barco2 isla isla2 ciudad ciudad2 =
     -- Universidad de Buitres Alternativos: Hace que el barco quede con una forma de saqueo compleja, donde una de las alternativas es la que el barco ya tenía, y se le agrega la forma "buitre" y la de cosas valiosas.
     -- Universidad Atlantica Inofensiva: No le afecta en absoluto.
 
-ingresar_a_laboratorio :: (Barco -> Barco) -> Barco
+ingresar_a_laboratorio :: (Barco -> Barco) -> Barco -> Barco
 ingresar_a_laboratorio universidad barco = universidad barco
 
 -- Historias de Barcos
@@ -548,20 +517,11 @@ aplicar_situaciones :: [Situacion] -> Barco -> Barco
 aplicar_situaciones situaciones barco =
   foldl aplicar_situacion barco situaciones
 
--- historia_inofensiva_para :: [Situacion] -> [Barco] -> [Barco]
---historia_inofensiva_para situaciones barcos = map fst (filter quedo_igual (barcos_antes_y_despues barcos situaciones))
-
 historia_inofensiva_para :: [Situacion] -> [Barco] -> [Barco]
 historia_inofensiva_para situaciones barcos = filter (quedo_igual situaciones) barcos
 
-quedo_igual :: [Situacion] -> [Barco] -> Bool
-quedo_igual situaciones barco = barco == aplicar_situaciones situaciones barco  
-
--- barcos_antes_y_despues :: [Barco] -> [Situacion] -> [(Barco, Barco)]
--- barcos_antes_y_despues barcos situaciones = zip barcos (barcos_despues_de_situaciones barcos situaciones)
-
--- quedo_igual :: (Barco, Barco) -> Bool
--- quedo_igual (barco_antes, barco_despues) = barco_antes == barco_despues
+quedo_igual :: [Situacion] -> Barco -> Bool
+quedo_igual situaciones barco = barco == (aplicar_situaciones situaciones barco)  
 
 barcos_despues_de_situaciones :: [Barco] -> [Situacion] -> [Barco]
 barcos_despues_de_situaciones barcos situaciones = map (aplicar_situaciones situaciones) barcos
@@ -571,13 +531,6 @@ mas_tripulantes_despues_de_historia situaciones barcos =  barco_mas_numeroso (ba
 
 barco_mas_numeroso :: [Barco] -> Barco
 barco_mas_numeroso barcos = maximum barcos
-
--- comparar_cantidad_tripulantes :: Barco -> Barco -> Ordering
--- comparar_cantidad_tripulantes barco1 barco2 
---   | (length (tripulacion barco1)) > (length (tripulacion barco2)) = GT
---   | (length (tripulacion barco1)) < (length (tripulacion barco2)) = LT
---   | otherwise = EQ
-  
 
 -- anclar_en_isla => itera para siempre
 -- incorporar_a_tripulacion => no alcanza a incorporar el pirata nuevo (la función lo agrega al final)
