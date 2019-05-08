@@ -13,16 +13,26 @@ instance Eq Pirata where
 data Tesoro
   = Tesoro { nombreTesoro :: String
            , valor        :: Double }
-  | Bono { nombreTesoro :: String
-         , valor        :: Double
-         , cotizaciones :: [Cotizacion] }
+  | Bono { cotizaciones :: [Cotizacion] }
+  | Leliq { importe_nominal :: Double
+            , pais_emisor :: Pais }
   deriving (Show, Eq)
+
+nombreTesoro :: Tesoro -> String
+nombreTesoro (Bono _) = "Bono"
+nombreTesoro (Leliq _ pais) = "Leliq " ++ nombre_del_pais
+
+valor (Bono cotizaciones) = valor_bono cotizaciones
+valor (Leliq importe pais) = (tasa_segun_pais pais) * valor_nominal
 
 data Barco = Barco
   { tripulacion     :: Tripulacion
   , nombreBarco     :: String
   , forma_saqueo    :: FormaSaqueo
   } deriving (Show)
+
+instance Ord Barco where
+  barco1 <= barco2 = (length (tripulacion barco1)) <= (length (tripulacion barco2))
 
 instance Eq Barco where
   barco1 == barco2 =
@@ -31,8 +41,8 @@ instance Eq Barco where
 
 compara_nombres :: Barco -> Barco -> Bool
 compara_nombres barco1 barco2 =
-  Set.fromList (map nombrePirata (tripulacion barco1)) ==
-  Set.fromList (map nombrePirata (tripulacion barco2))
+  Set.fromList ( (tripulacion barco1)) ==
+  Set.fromList ( (tripulacion barco2))
 
 compara_cantidad_tripulantes :: Barco -> Barco -> Bool
 compara_cantidad_tripulantes barco1 barco2 =
@@ -53,9 +63,9 @@ data Pais = Pais
   , tasa_segun_pais :: Double
   }
 
-data Universidad = Universidad
-  { perfil_academico :: Perfil
-  }
+-- data Universidad = Universidad
+--   { perfil_academico :: Perfil
+--   }
 
 type Tripulacion = [Pirata]
 
@@ -69,40 +79,40 @@ type Situacion = Barco -> Barco
 
 
 -- Universidades
-universidad_anti_dictaminante :: Universidad
-universidad_anti_dictaminante =
-  Universidad {perfil_academico = perfil_anti_dictaminante}
+-- universidad_anti_dictaminante :: Universidad
+-- universidad_anti_dictaminante =
+--   Universidad {perfil_academico = perfil_anti_dictaminante}
 
-perfil_anti_dictaminante :: Barco -> Barco
-perfil_anti_dictaminante barco = barco {forma_saqueo = not .(forma_saqueo barco)}
+universidad_anti_dictaminante :: Barco -> Barco
+universidad_anti_dictaminante barco = barco {forma_saqueo = not .(forma_saqueo barco)}
 
-universidad_buitres_alternativos :: Universidad
-universidad_buitres_alternativos =
-  Universidad {perfil_academico = perfil_buitre_alternativo}
+-- universidad_buitres_alternativos :: Universidad
+-- universidad_buitres_alternativos =
+--   Universidad {perfil_academico = perfil_buitre_alternativo}
 
-perfil_buitre_alternativo :: Barco -> Barco
-perfil_buitre_alternativo barco =
+universidad_buitres_alternativos :: Barco -> Barco
+universidad_buitres_alternativos barco =
   barco
     { forma_saqueo =
         forma_compleja
           [forma_saqueo barco, solo_tesoros_valiosos, saqueo_buitre]
     }
 
-universidad_atlantica_inofensiva :: Universidad
-universidad_atlantica_inofensiva =
-  Universidad {perfil_academico = perfil_inofensivo}
+-- universidad_atlantica_inofensiva :: Universidad
+-- universidad_atlantica_inofensiva =
+--   Universidad {perfil_academico = perfil_inofensivo}
 
-perfil_inofensivo :: Barco -> Barco
-perfil_inofensivo barco = barco
+universidad_atlantica_inofensiva :: Barco -> Barco
+universidad_atlantica_inofensiva = id
 
 --TESORO Bonos en dafault
-bonos_en_dafault :: [Cotizacion] -> Tesoro
-bonos_en_dafault list_cotizaciones =
-  Bono
-    { nombreTesoro = "Bono"
-    , valor = valor_bono list_cotizaciones
-    , cotizaciones = list_cotizaciones
-    }
+-- bonos_en_dafault :: [Cotizacion] -> Tesoro
+-- bonos_en_dafault list_cotizaciones =
+--   Bono
+--     { nombreTesoro = "Bono"
+--     , valor = valor_bono list_cotizaciones
+--     , cotizaciones = list_cotizaciones
+--     }
 
 valor_bono :: [Cotizacion] -> Double
 valor_bono = (1.5 *) . diferencia_cotizaciones
@@ -112,30 +122,30 @@ diferencia_cotizaciones list_cotizaciones =
   abs (minimum list_cotizaciones - maximum list_cotizaciones)
 
 --TESORO Letras de liquidez
-letras_de_liquidez :: Double -> String -> Tesoro
-letras_de_liquidez valor_nominal nombre_pais =
-  Tesoro
-    { nombreTesoro = "LeLiq " ++ nombre_pais
-    , valor = valor_letras valor_nominal nombre_pais
-    }
+-- letras_de_liquidez :: Double -> String -> Tesoro
+-- letras_de_liquidez valor_nominal nombre_pais =
+--   Tesoro
+--     { nombreTesoro = "LeLiq " ++ nombre_pais
+--     , valor = valor_letras valor_nominal nombre_pais
+--     }
 
-valor_letras :: Double -> String -> Double
-valor_letras valor_nominal nombre_pais =
-  (tasa_del_pais nombre_pais) * valor_nominal
+-- valor_letras :: Double -> String -> Double
+-- valor_letras valor_nominal nombre_pais =
+--   (tasa_del_pais nombre_pais) * valor_nominal
 
-tasa_del_pais :: String -> Double
-tasa_del_pais nombre_pais
-  | existe_pais nombre_pais = tasa_segun_pais (buscar_pais nombre_pais)
-  | otherwise = 0
+-- tasa_del_pais :: String -> Double
+-- tasa_del_pais nombre_pais
+--   | existe_pais nombre_pais = tasa_segun_pais (buscar_pais nombre_pais)
+--   | otherwise = 0
 
-existe_pais :: String -> Bool
-existe_pais nombre_pais = elem nombre_pais (map (nombre_del_pais) paises)
+-- existe_pais :: String -> Bool
+-- existe_pais nombre_pais = elem nombre_pais (map (nombre_del_pais) paises)
 
-buscar_pais :: String -> Pais
-buscar_pais nombre_pais = head (filter (coinciden_nombres nombre_pais) paises)
+-- buscar_pais :: String -> Pais
+-- buscar_pais nombre_pais = head (filter (coinciden_nombres nombre_pais) paises)
 
-coinciden_nombres :: String -> Pais -> Bool
-coinciden_nombres nombre pais = nombre == (nombre_del_pais pais)
+-- coinciden_nombres :: String -> Pais -> Bool
+-- coinciden_nombres nombre pais = nombre == (nombre_del_pais pais)
 
 --TESOROS
 auricularesChetos :: Tesoro
@@ -521,8 +531,8 @@ super_pelicula barco barco2 isla isla2 ciudad ciudad2 =
     -- Universidad de Buitres Alternativos: Hace que el barco quede con una forma de saqueo compleja, donde una de las alternativas es la que el barco ya tenía, y se le agrega la forma "buitre" y la de cosas valiosas.
     -- Universidad Atlantica Inofensiva: No le afecta en absoluto.
 
-ingresar_a_laboratorio :: Universidad -> Barco -> Barco
-ingresar_a_laboratorio universidad barco = (perfil_academico universidad) barco
+ingresar_a_laboratorio :: (Barco -> Barco) -> Barco
+ingresar_a_laboratorio universidad barco = universidad barco
 
 -- Historias de Barcos
 una_lista_de_situaciones =
@@ -538,29 +548,35 @@ aplicar_situaciones :: [Situacion] -> Barco -> Barco
 aplicar_situaciones situaciones barco =
   foldl aplicar_situacion barco situaciones
 
-historia_inofensiva_para :: [Situacion] -> [Barco] -> [Barco]
-historia_inofensiva_para situaciones barcos = map fst (filter quedo_igual (barcos_antes_y_despues barcos situaciones))
+-- historia_inofensiva_para :: [Situacion] -> [Barco] -> [Barco]
+--historia_inofensiva_para situaciones barcos = map fst (filter quedo_igual (barcos_antes_y_despues barcos situaciones))
 
-barcos_antes_y_despues :: [Barco] -> [Situacion] -> [(Barco, Barco)]
-barcos_antes_y_despues barcos situaciones = zip barcos (barcos_despues_de_situaciones barcos situaciones)
+historia_inofensiva_para :: [Situacion] -> [Barco] -> [Barco]
+historia_inofensiva_para situaciones barcos = filter (quedo_igual situaciones) barcos
+
+quedo_igual :: [Situacion] -> [Barco] -> Bool
+quedo_igual situaciones barco = barco == aplicar_situaciones situaciones barco  
+
+-- barcos_antes_y_despues :: [Barco] -> [Situacion] -> [(Barco, Barco)]
+-- barcos_antes_y_despues barcos situaciones = zip barcos (barcos_despues_de_situaciones barcos situaciones)
+
+-- quedo_igual :: (Barco, Barco) -> Bool
+-- quedo_igual (barco_antes, barco_despues) = barco_antes == barco_despues
 
 barcos_despues_de_situaciones :: [Barco] -> [Situacion] -> [Barco]
 barcos_despues_de_situaciones barcos situaciones = map (aplicar_situaciones situaciones) barcos
-
-quedo_igual :: (Barco, Barco) -> Bool
-quedo_igual (barco_antes, barco_despues) = barco_antes == barco_despues
 
 mas_tripulantes_despues_de_historia :: [Situacion] -> [Barco] -> Barco
 mas_tripulantes_despues_de_historia situaciones barcos =  barco_mas_numeroso (barcos_despues_de_situaciones barcos situaciones)
 
 barco_mas_numeroso :: [Barco] -> Barco
-barco_mas_numeroso barcos = last (sortBy comparar_cantidad_tripulantes barcos)
+barco_mas_numeroso barcos = maximum barcos
 
-comparar_cantidad_tripulantes :: Barco -> Barco -> Ordering
-comparar_cantidad_tripulantes barco1 barco2 
-  | (length (tripulacion barco1)) > (length (tripulacion barco2)) = GT
-  | (length (tripulacion barco1)) < (length (tripulacion barco2)) = LT
-  | otherwise = EQ
+-- comparar_cantidad_tripulantes :: Barco -> Barco -> Ordering
+-- comparar_cantidad_tripulantes barco1 barco2 
+--   | (length (tripulacion barco1)) > (length (tripulacion barco2)) = GT
+--   | (length (tripulacion barco1)) < (length (tripulacion barco2)) = LT
+--   | otherwise = EQ
   
 
 -- anclar_en_isla => itera para siempre
