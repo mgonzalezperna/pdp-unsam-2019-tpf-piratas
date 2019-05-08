@@ -225,12 +225,12 @@ repartir_tesoros [] forma_saqueo [] = []
 
 
 
+
 --HISTORIA
 comenzar_historia :: IO (String) 
 comenzar_historia = do
     putStrLn("Ahoy novato! Estas aqui para convertirte en un poderoso pirata!")
     putStrLn("Es hora de comenzar tu aventura! Pero antes...")
-    suspenso 1 
     protagonista <- crear_pirata
     putStrLn("Ahora es hora de salir a navegar los 7 mares! Tu historia comienza en la isla Tortuga.")
     resultado_historia <- menu_historia protagonista
@@ -242,16 +242,11 @@ crear_pirata = do
     nombreProtagonista <- getLine
     putStrLn("Bienvenido " ++ nombreProtagonista ++ "!")
     putStrLn("Ahora que ya tienes un nombre, solo te hace falta un botin...")
-    suspenso 1 
     putStrLn("... tienes un botin, verdad?")
-    suspenso 2
     putStrLn("Agh... bueno, en este caso, tu botin inicial consiste en... una media sucia!")
     putStrLn("Tomala!")
-    suspenso 2
     putStrLn("Si te quedas sin botin, seras expulsado de la vida pirata!")
-    suspenso 2
     putStrLn("Y recuerda que el valor de tus tesoros determina tu fortaleza en combate.")
-    suspenso 2
     putStrLn("\n")
     return Pirata {nombrePirata = nombreProtagonista, botin = [media_sucia]}
 
@@ -292,6 +287,9 @@ desarrollar_historia_en_barco opcion barco = case opcion of
 --    4 -> retirarse protagonista
       5 -> ver_estado (head (tripulacion barco))
       _ -> menu_historia_con_barco barco
+
+
+
 
 
 -- ACCIONES POSIBLES
@@ -337,6 +335,40 @@ sobornar_guardias protagonista ciudad = do
     putStrLn("Lo entregas y te dan acceso a la boveda de los tesoros a cambio\n")
     menu_historia (protagonista {botin = (realizar_intercambio protagonista tesoroAEntregar (tesorosSaqueables ciudad))})
 
+combatir_guardias :: Pirata -> Ciudad -> IO String
+combatir_guardias protagonista ciudad = do
+    putStrLn("Ningun guardia en todo el caribe puede ser capaz de extorcionarte sin llevarse su merecido!")
+    putStrLn("Desenvainas tu espada y te preparas para el combate")
+    (resultado_combate_guardias (valorAleatorio [0,1])) protagonista ciudad
+
+resultado_combate_guardias :: IO Int -> (Pirata -> Ciudad -> IO String)
+resultado_combate_guardias resultado
+  | (unsafePerformIO resultado) == 1 = ganar_combate
+  | otherwise = perder_combate
+
+ganar_combate :: Pirata -> Ciudad -> IO String
+ganar_combate protagonista ciudad = do
+    putStrLn("Con un golpe certero del sable desarmas a tus contrincantes, que huyen atemorizados antes tu habilidad. El tesoro queda a tu merced")
+    menu_historia (protagonista { botin = (tesorosSaqueables ciudad) })
+
+perder_combate :: Pirata -> Ciudad -> IO String
+perder_combate protagonista ciudad = do
+  putStrLn ("Sin embargo, tus enemigos son mas habiles de lo que esperabas. Con golpes certeros te desarman y quedas a su merced. Te exigen que entregues todos tus tesoros mas valiosos para dejarte en libertad...")
+  evaluar_si_continua_segun_tesoros (perder_tesoros_valiosos protagonista)
+
+evaluar_si_continua_segun_tesoros :: Pirata -> IO String
+evaluar_si_continua_segun_tesoros protagonista
+  | cantidad_tesoros protagonista > 0 = menu_historia protagonista
+  | otherwise = encarcelamiento protagonista
+
+encarcelamiento :: Pirata -> IO String
+encarcelamiento protagonista = return "Pero no te quedan mas tesoros! Y mientras te arrastran por las mazmorras hasta el calabozo mas lejano, sabes con seguridad que tus dias de pirata han acabado. Quizas tengas mas muerte la proxima vez."
+
+
+
+
+
+
 --- FUNCIONES AUXILIARES
 
 tesoroAleatorio :: [Tesoro] -> IO Tesoro 
@@ -350,7 +382,7 @@ islaAleatoria =  valorAleatorio islas
 
 valorAleatorio :: [a] -> IO a
 valorAleatorio list = do
-    i <- getStdRandom (randomR (0, length list)) 
+    i <- getStdRandom (randomR (0, length list - 1)) 
     return $ list !! i
 
 valoresAleatorios :: [a] -> IO [a]
@@ -380,10 +412,10 @@ procesar_eleccion_ciudad eleccion protagonista
 realizar_intercambio :: Pirata -> Tesoro -> [Tesoro] -> [Tesoro]    
 realizar_intercambio protagonista tesoroAEntregar tesorosSaqueables =  recibir_tesoros (entregar_tesoro (botin protagonista) tesoroAEntregar) tesorosSaqueables
 
-elegir_tipo_saqueo :: String -> Pirata -> Ciudad -> IO String 
+elegir_tipo_saqueo :: String -> Pirata -> Ciudad -> IO String
 elegir_tipo_saqueo eleccion protagonista ciudad
   | eleccion == "1" = sobornar_guardias protagonista ciudad
-  -- | decision == "2" = combate protagonista
+  | eleccion == "2" = combatir_guardias protagonista ciudad
   | otherwise = saquear_ciudad protagonista ciudad
 
 recibir_tesoros :: [Tesoro] -> [Tesoro] -> [Tesoro]
