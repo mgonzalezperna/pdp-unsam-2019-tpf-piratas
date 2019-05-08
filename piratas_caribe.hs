@@ -145,20 +145,6 @@ oro = Tesoro {nombreTesoro = "Oro", valor = 750}
 ron :: Tesoro
 ron = Tesoro {nombreTesoro = "Ron", valor = 25}
 
--- data Tesoro
---   = Tesoro { nombre :: String
---            , valor        :: Double }
---   | Bono { cotizaciones :: [Cotizacion] }
---   | Leliq { importe_nominal :: Double
---             , pais_emisor :: Pais }
---   deriving (Show, Eq)
-
---  Barco
---     { tripulacion = generar_tripulacion_infinita 
---     , nombreBarco = "Mary Celeste"
---     , forma_saqueo = solo_tesoros_valiosos
---     }
-
 --Bonos
 bono_cavallo :: Tesoro
 bono_cavallo = Bono ([2000, 3000, 9000, 5000])
@@ -304,20 +290,15 @@ valor_tesoro_mas_valioso = maximum . valores_tesoros
 
 adquirir_tesoro :: Pirata -> Tesoro -> Pirata
 adquirir_tesoro pirata tesoro
-  -- Pirata (nombrePirata pirata) (tesoro : (botin pirata))
  = pirata {botin = tesoro : botin pirata}
 
 perder_tesoros_valiosos :: Pirata -> Pirata -- se puede delegar qué cosa es un tesoro valioso, y usarlo acá
 perder_tesoros_valiosos pirata
-  -- Pirata (nombrePirata pirata) (filter ((< 100) . valor) (botin pirata))
  = pirata {botin = (filter ((< 100) . valor) (botin pirata))}
 
 perder_tesoros_con_nombre :: String -> Pirata -> Pirata -- tesoros con nombre = tesoros específicos
 perder_tesoros_con_nombre nombre pirata =
   pirata {botin = (filter ((/= nombre) . nombreTesoro) (botin pirata))}
-  -- Pirata
-  --   (nombrePirata pirata)
-  --   (filter ((/= nombre) . nombreTesoro) (botin pirata))
 
 --TEMPORADA DE SAQUEOS
 
@@ -356,10 +337,6 @@ forma_compleja formas tesoro = any (evaluar tesoro) formas
 incorporar_a_tripulacion :: Pirata -> Barco -> Barco
 incorporar_a_tripulacion pirata barco =
   barco {tripulacion = (tripulacion barco) ++ [pirata]}
-  -- Barco
-  --   ((tripulacion barco) ++ [pirata])
-  --   (nombreBarco barco)
-  --   (forma_saqueo barco)
 
 tripulacion_infinita :: Barco -> Barco
 tripulacion_infinita barco =
@@ -380,18 +357,10 @@ generar_pirata_distinto pirata_modelo numero =
 abandonar_tripulacion :: Pirata -> Barco -> Barco
 abandonar_tripulacion pirata barco =
   barco {tripulacion = delete pirata (tripulacion barco)}
-  -- Barco
-  --   (delete pirata (tripulacion barco))
-  --   (nombreBarco barco)
-  --   (forma_saqueo barco)
 
 anclar_en_isla :: Barco -> Isla -> Barco
 anclar_en_isla barco isla =
   barco {tripulacion = tomar_tesoros (tripulacion barco) (elemento_tipico isla)}
-  -- Barco
-  --   (tomar_tesoros (tripulacion barco) (elemento_tipico isla))
-  --   (nombreBarco barco)
-  --   (forma_saqueo barco)
 
 tomar_tesoros :: Tripulacion -> Tesoro -> Tripulacion
 tomar_tesoros tripulacion tesoro = map (flip adquirir_tesoro tesoro) tripulacion
@@ -416,10 +385,6 @@ saquear_ciudad barco ciudad =
            (tripulacion barco)
            (tesoros_disponibles ciudad))
     }
-  -- Barco
-  --   (obtener_tesoros_por_tripulante (forma_saqueo barco) (tripulacion barco) (tesoros_disponibles ciudad) )
-  --   (nombreBarco barco)
-  --   (forma_saqueo barco)
 
 obtener_tesoros_por_tripulante ::
      FormaSaqueo -> Tripulacion -> [Tesoro] -> Tripulacion
@@ -435,10 +400,6 @@ tomar_si_le_interesa forma_saqueo (pirata, tesoro) =
 echar_piratas :: Barco -> Int -> Barco
 echar_piratas barco quedan =
   barco {tripulacion = (take quedan (tripulacion barco))}
-  -- Barco
-  --   (take quedan (tripulacion barco))
-  --   (nombreBarco barco)
-  --   (forma_saqueo barco)
 
 mas_tesoros_que_tripulantes :: [Tesoro] -> Tripulacion -> Bool
 mas_tesoros_que_tripulantes tesoros tripulantes =
@@ -461,14 +422,6 @@ sacarle_todos_los_tesoros ganador perdedor =
       }
   , perdedor
       {tripulacion = (map perder_tesoros_valiosos (tripulacion perdedor))})
-  -- ( Barco
-  --     (obtener_tesoros_por_tripulante (solo_tesoros_valiosos) (tripulacion ganador) (todos_los_tesoros (tripulacion perdedor)) )
-  --     (nombreBarco ganador)
-  --     (forma_saqueo ganador)
-  -- , Barco
-  --     (map perder_tesoros_valiosos (tripulacion perdedor))
-  --     (nombreBarco perdedor)
-  --     (forma_saqueo perdedor))
 
 todos_los_tesoros :: Tripulacion -> [Tesoro]
 todos_los_tesoros tripulacion = concat (map botin tripulacion)
@@ -495,10 +448,6 @@ super_pelicula barco barco2 isla isla2 ciudad ciudad2 =
   abordar
     (atacar_ciudad (anclar_en_isla barco isla) ciudad)
     (atacar_ciudad (anclar_en_isla barco2 isla2) ciudad2)
-    -- Existen universidades cuya misión es desarrollar las habilidades de saqueo piratas. Cuando un barco va al laboratorio de una universidad, su forma de saqueo se ve alterada de acuerdo al perfil académico de dicha institución. Se tiene conocimiento de los siguientes perfiels, pero podría haber más:
-    -- Universidad Anti Dictaminante de Estilos: Provoca que el barco tenga la forma de saque inversa a la que tenía. Por ejemplo si era "de corazón", ahora saquea todo; si era de objeto específico, se vuelve fóbica de dicho objeto y así sucesivamente.
-    -- Universidad de Buitres Alternativos: Hace que el barco quede con una forma de saqueo compleja, donde una de las alternativas es la que el barco ya tenía, y se le agrega la forma "buitre" y la de cosas valiosas.
-    -- Universidad Atlantica Inofensiva: No le afecta en absoluto.
 
 ingresar_a_laboratorio :: (Barco -> Barco) -> Barco -> Barco
 ingresar_a_laboratorio universidad barco = universidad barco
