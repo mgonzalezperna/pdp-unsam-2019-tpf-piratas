@@ -13,14 +13,16 @@ instance Eq Pirata where
 instance Ord Pirata where
   pirata1 <= pirata2 = (nombrePirata pirata1) <= (nombrePirata pirata2)
 
+
 data Tesoro
   = Tesoro { nombreTesoro :: String
            , valor        :: Double }
   | Bono { cotizaciones :: [Cotizacion] }
-  | Leliq { importe_nominal :: Double
+  | Leliq { importe_nominal :: Double        --Correccion: Se agrega constructor de Leliq 
             , pais_emisor :: Pais }
   deriving (Show, Eq)
 
+--Correccion: 'geters' de nombre y valor de tesoros con pattern matching
 nombre_tesoro :: Tesoro -> String
 nombre_tesoro (Tesoro nombre _) = nombre
 nombre_tesoro (Bono _) = "Bono"
@@ -79,9 +81,10 @@ type Perfil = Barco -> Barco
 type Situacion = Barco -> Barco
 
 
+
+--Correccion: Se elimina data 'Universidad' y se reemplaza por funciones.
 universidad_anti_dictaminante :: Barco -> Barco
 universidad_anti_dictaminante barco = barco {forma_saqueo = not .(forma_saqueo barco)}
-
 
 universidad_buitres_alternativos :: Barco -> Barco
 universidad_buitres_alternativos barco =
@@ -466,6 +469,7 @@ aplicar_situaciones :: [Situacion] -> Barco -> Barco
 aplicar_situaciones situaciones barco =
   foldl aplicar_situacion barco situaciones
 
+--Correccion: Refactorización de historia_inofensiva_para
 historia_inofensiva_para :: [Situacion] -> [Barco] -> [Barco]
 historia_inofensiva_para situaciones barcos = filter (quedo_igual situaciones) barcos
 
