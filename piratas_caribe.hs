@@ -29,6 +29,7 @@ nombre_tesoro (Bono _) = "Bono"
 nombre_tesoro (Leliq _ pais) = "Leliq " ++ (nombre_del_pais pais)
 
 valor_tesoro :: Tesoro -> Double
+valor_tesoro (Tesoro _ valor) = valor
 valor_tesoro (Bono cotizaciones) = valor_bono cotizaciones
 valor_tesoro (Leliq importe pais) = (tasa_segun_pais pais) * importe
 
