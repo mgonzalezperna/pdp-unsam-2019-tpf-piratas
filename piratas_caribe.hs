@@ -276,16 +276,16 @@ desarrollar_historia opcion protagonista = case opcion of
      1 -> robar_barco protagonista
      2 -> elegir_ciudad_a_saquear protagonista
 --     3 -> retirarse protagonista
-     4 -> ver_estado protagonista menu_historia 
+     4 ->ver_estado protagonista menu_historia protagonista
      _ -> menu_historia protagonista
 
 desarrollar_historia_en_barco :: Integer -> Barco -> IO String
 desarrollar_historia_en_barco opcion barco = case opcion of
---    1 -> atacar_barco protagonista
+--    1 -> atacar_barco barco 
       2 -> anclar_en_isla_cercana barco 
       3 -> elegir_ciudad_a_asediar barco
 --    4 -> retirarse protagonista
-      5 -> ver_estado (head (tripulacion barco)) menu_historia_con_barco 
+      5 -> ver_estado (head (tripulacion barco)) menu_historia_con_barco barco
       _ -> menu_historia_con_barco barco
 
 
@@ -498,12 +498,13 @@ recibir_tesoros botin tesorosSaqueables = botin ++ (unsafePerformIO (tesorosAlea
 entregar_tesoro :: [Tesoro] -> Tesoro -> [Tesoro]
 entregar_tesoro tesoros tesoroAEntregar = delete tesoroAEntregar tesoros
 
-ver_estado :: Pirata -> ( _ -> IO String)-> IO String
-ver_estado protagonista menu = do
+ver_estado :: Pirata -> (a -> IO String) -> a -> IO String
+ver_estado protagonista menu_opciones argumento = do
     putStrLn("\n")
     putStrLn(show protagonista)
     putStrLn("\n")
-    menu protagonista
+    menu_opciones argumento
+    
 
 cantidad_tesoros_valiosos :: Pirata -> Int 
 cantidad_tesoros_valiosos pirata =
