@@ -429,12 +429,52 @@ encuentro_barco barco = do
     putStrLn("Desde el largavistas alcanzas a vislumbrar la silueta de un barco vulnerable.")
     putStrLn("Es el " ++ nombreBarco barco_adversario ++ "!")
     putStrLn("Te lanzas a su encuentro a toda velocidad, preparando los cañones, listo para abordarlos.")
-    batalla_barcos barco barco_adversario
+    batalla_barcos cantidad_de_turnos barco barco_adversario
 
-batalla_barcos :: Barco -> Barco -> IO String
-batalla_barcos barco barco_adversario = return "Test" 
+cantidad_de_turnos :: [Integer]
+--list que define la cantidad tope de turnos de la batalla, en este caso, 3.
+cantidad_de_turnos = [1,2]
+
+cantidad_de_relatos :: [Integer]
+cantidad_de_relatos = [1,2,3]
+
+relatos_de_la_batalla :: IO Integer -> String
+relatos_de_la_batalla frase = case unsafePerformIO(frase) of
+    1 -> "Trozos de madera cruzan el cielo y se mezclan con las gotas de agua en el fragor de la batalla."
+    2 -> "Grandes volutas de humo se alzan sobre el horizonte mientras las bocas de los barcos vomitan llamas y hierro."
+    3 -> "Pedazos de ambos barcos llenan el aire y golpean duramente contra las olas."
+
+batalla_barcos :: [Integer] -> Barco -> Barco -> IO String
+
+batalla_barcos [] barco barco_adversario = do
+    let contrincantes = [barco, barco_adversario]
+    let en_ventaja = delete (barco_mas_daniado barco barco_adversario) contrincantes 
+    putStrLn ("Los barcos se alinean de cara a lanzarse a las armas una ultima vez. Los tripulantes del " ++ nombreBarco (head en_ventaja) ++ " se ven confiado mientras se preparan para el abordaje.")
+    putStrLn (relatos_de_la_batalla (valorAleatorio cantidad_de_relatos))
+    mock_end
+
+batalla_barcos (head:[]) barco barco_adversario = do
+    let barco_en_peligro = barco_mas_daniado barco barco_adversario
+    putStrLn ("Ambos contricantes recargan sus armas. El " ++ nombreBarco barco_en_peligro ++ " se ve severamente dañado.")
+    putStrLn (relatos_de_la_batalla (valorAleatorio cantidad_de_relatos))
+    batalla_barcos [] barco barco_adversario
+
+batalla_barcos (head:body) barco barco_adversario = do
+    putStrLn ("Los cañones del " ++ nombreBarco barco_adversario ++ " enemigo abren fuego tí y mientras tu y el " ++ nombreBarco barco ++ " responden sin piedad.")
+    putStrLn (relatos_de_la_batalla (valorAleatorio cantidad_de_relatos))
+    batalla_barcos body barco barco_adversario
+
+
+barco_mas_daniado :: Barco -> Barco -> Barco
+barco_mas_daniado barco barco_adversario
+  | length(tripulacion barco) >= length (tripulacion barco_adversario) = barco_adversario
+  | otherwise = barco
+
 
 --- FUNCIONES AUXILIARES
+mock_end :: IO String
+mock_end = return "End"
+
 
 tesoroAleatorio :: [Tesoro] -> IO Tesoro 
 tesoroAleatorio tesoros = valorAleatorio tesoros
@@ -447,6 +487,12 @@ islaAleatoria =  valorAleatorio islas
 
 barcoAleatorio :: IO Barco
 barcoAleatorio = valorAleatorio barcos
+
+tripulantesAleatorios :: [Pirata] -> IO [Pirata]
+tripulantesAleatorios tripulacion = valoresAleatorios tripulacion
+
+contrincanteAleatorio :: [Barco] -> IO Barco
+contrincanteAleatorio contrincantes = valorAleatorio contrincantes
 
 valorAleatorio :: [a] -> IO a
 valorAleatorio list = do
@@ -504,7 +550,6 @@ ver_estado protagonista menu_opciones argumento = do
     putStrLn(show protagonista)
     putStrLn("\n")
     menu_opciones argumento
-    
 
 cantidad_tesoros_valiosos :: Pirata -> Int 
 cantidad_tesoros_valiosos pirata =
