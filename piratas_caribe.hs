@@ -303,7 +303,7 @@ anclar_en_isla_cercana :: Barco -> IO String
 anclar_en_isla_cercana barco = do
     --pirata <- (head (tripulacion barco))
     isla <- islaAleatoria
-    putStrLn("Los vientos de los siete mares te arrastran hacia la isla mas cercana.")
+    putStrLn("Los vientos de los siete mares te arrastran hacia la isla más cercana.")
     putStrLn("En el horizonte se vislumbra el contorno de la isla " ++ (nombreIsla isla))
     putStrLn("Cuando desbarcan, ven un enorme deposito de " ++ nombreTesoro(elemento_tipico isla))
     putStrLn("Añades el tesoro a tu botín y retomas tu aventura, a la espera de que la proxima vez hagas algo más emocionante...")
