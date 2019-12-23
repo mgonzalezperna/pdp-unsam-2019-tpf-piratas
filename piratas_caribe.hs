@@ -3,6 +3,7 @@ import System.Random
 import Data.Time.Clock
 import System.IO.Unsafe
 import Control.Concurrent
+import Data.Char (toLower)
 
 data Pirata = Pirata
   { nombrePirata :: String
@@ -306,7 +307,7 @@ anclar_en_isla_cercana barco = do
     isla <- islaAleatoria
     putStrLn("Los vientos de los siete mares te arrastran hacia la isla más cercana.")
     putStrLn("En el horizonte se vislumbra el contorno de la isla " ++ (nombreIsla isla))
-    putStrLn("Cuando desbarcan, ven un enorme deposito de " ++ nombreTesoro(elemento_tipico isla))
+    putStrLn("Cuando desbarcan, ven un enorme depósito de " ++ nombrePlural(elemento_tipico isla))
     putStrLn("Añades el tesoro a tu botín y retomas tu aventura, a la espera de que la proxima vez hagas algo más emocionante...")
     menu_historia_con_barco $ anclar_en_isla barco isla
 
@@ -558,3 +559,20 @@ cantidad_tesoros_valiosos pirata =
 
 suspenso :: Int -> IO () 
 suspenso segundos = threadDelay (1000000 * segundos)
+
+--- NOMBRES DE TESOROS - PLURAL
+
+nombrePlural :: Tesoro -> String
+nombrePlural tesoro 
+  | tesoro == biciCopada = "bicicletas GT Avalanche"
+  | tesoro == brujula = "brujulas"
+  | tesoro == frascoJack = "frascos de arena"
+  | tesoro == frascoAnne = "frascos de arena"
+  | tesoro == moneda = "monedas"
+  | tesoro == espada = "espadas"
+  | tesoro == cuchillo = "cuchillos"
+  | tesoro == media_sucia = "medias sucias"
+  | otherwise =  lowerString (nombreTesoro tesoro)
+
+lowerString :: String -> String
+lowerString = map toLower
