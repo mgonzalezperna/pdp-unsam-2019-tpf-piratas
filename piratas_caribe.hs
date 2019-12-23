@@ -307,7 +307,7 @@ anclar_en_isla_cercana barco = do
     isla <- islaAleatoria
     putStrLn("Los vientos de los siete mares te arrastran hacia la isla más cercana.")
     putStrLn("En el horizonte se vislumbra el contorno de la isla " ++ (nombreIsla isla))
-    putStrLn("Cuando desbarcan, ven un enorme depósito de " ++ nombrePlural(elemento_tipico isla))
+    putStrLn("Cuando desbarcan, ven un enorme depósito de " ++ nombre_plural(elemento_tipico isla) ++ ".")
     putStrLn("Añades el tesoro a tu botín y retomas tu aventura, a la espera de que la proxima vez hagas algo más emocionante...")
     menu_historia_con_barco $ anclar_en_isla barco isla
 
@@ -339,7 +339,7 @@ sobornar_guardias protagonista ciudad
 soborno_exitoso :: Pirata -> Ciudad -> IO String
 soborno_exitoso protagonista ciudad = do
     let tesoroAEntregar = unsafePerformIO (tesoroAleatorio (botin protagonista))
-    putStrLn("Ofreces uno de tus tesoros a los guardias. \nEllos eligen " ++ nombreTesoro tesoroAEntregar)
+    putStrLn("Ofreces uno de tus tesoros a los guardias. \nEllos eligen " ++ nombre_con_articulo tesoroAEntregar)
     putStrLn("Lo entregas y te dan acceso a la boveda de los tesoros a cambio\n")
     menu_historia (protagonista {botin = (realizar_intercambio protagonista tesoroAEntregar (tesorosSaqueables ciudad))})
 
@@ -405,9 +405,9 @@ resultado_asedio resultado_asedio
 
 invadir_ciudad :: Barco -> Ciudad -> IO String
 invadir_ciudad barco ciudad = do
-    putStrLn("Las murallas estallan en pedazos y rapidamente te escabulles dentro del fuerte de la ciudad buscando un botín")
+    putStrLn("Las murallas estallan en pedazos y rapidamente te escabulles dentro del fuerte de la ciudad buscando un botín.")
     botin_adquirido <- tesoroAleatorio( tesorosSaqueables ciudad )
-    putStrLn("Los guardias te persiguen por lo que solo eres capaz de tomar un " ++ nombreTesoro botin_adquirido ++ " antes de volver a embarcar.")
+    putStrLn("Los guardias te persiguen por lo que solo eres capaz de tomar " ++ nombre_con_articulo botin_adquirido ++ " antes de volver a embarcar.")
     let protagonista = head(tripulacion barco)
     let protagonista_con_tesoro = protagonista { botin = botin (protagonista) ++ [botin_adquirido] }
     menu_historia_con_barco (barco { tripulacion = protagonista_con_tesoro:(drop 1 (tripulacion barco))})
@@ -562,8 +562,8 @@ suspenso segundos = threadDelay (1000000 * segundos)
 
 --- NOMBRES DE TESOROS - PLURAL
 
-nombrePlural :: Tesoro -> String
-nombrePlural tesoro 
+nombre_plural :: Tesoro -> String
+nombre_plural tesoro 
   | tesoro == biciCopada = "bicicletas GT Avalanche"
   | tesoro == brujula = "brujulas"
   | tesoro == frascoJack = "frascos de arena"
@@ -572,7 +572,25 @@ nombrePlural tesoro
   | tesoro == espada = "espadas"
   | tesoro == cuchillo = "cuchillos"
   | tesoro == media_sucia = "medias sucias"
-  | otherwise =  lowerString (nombreTesoro tesoro)
+  | otherwise =  nombreEnMinusculas tesoro
+
+--- NOMBRES DE TESOROS - CON ARTICULOS
+
+una = [biciCopada, brujula, cajitaMusical, moneda, espada, media_sucia]
+unas = [zapatillasViotti, zapatillasDini]
+un = [frascoJack, frascoAnne, cuchillo]
+unos = [doblones]
+
+nombre_con_articulo :: Tesoro -> String
+nombre_con_articulo tesoro
+  | elem tesoro unos = "unos " ++ nombreEnMinusculas tesoro
+  | elem tesoro unas  = "unas " ++ nombreEnMinusculas tesoro
+  | elem tesoro una = "una " ++ nombreEnMinusculas tesoro
+  | elem tesoro un = "un " ++ nombreEnMinusculas tesoro
+  | otherwise = nombreEnMinusculas tesoro
+
+nombreEnMinusculas :: Tesoro -> String
+nombreEnMinusculas tesoro = lowerString (nombreTesoro tesoro)
 
 lowerString :: String -> String
 lowerString = map toLower
