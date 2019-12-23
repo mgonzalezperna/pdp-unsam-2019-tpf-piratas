@@ -227,14 +227,16 @@ repartir_tesoros [] forma_saqueo [] = []
 
 
 --HISTORIA
-comenzar_historia :: IO (String) 
+comenzar_historia :: IO () 
 comenzar_historia = do
     putStrLn("Ahoy novato! Estas aquí para convertirte en un poderoso pirata!")
     putStrLn("Es hora de comenzar tu aventura! Pero antes...")
     protagonista <- crear_pirata
     putStrLn("Ahora es hora de salir a navegar los 7 mares! Tu historia comienza en la isla Tortuga.")
     resultado_historia <- menu_historia protagonista
-    return resultado_historia
+    putStrLn(resultado_historia)
+    putStrLn("Fin.")
+    return ()
 
 crear_pirata :: IO (Pirata)
 crear_pirata = do    
@@ -295,7 +297,7 @@ desarrollar_historia_en_barco opcion barco = case opcion of
 robar_barco :: Pirata -> IO String
 robar_barco protagonista = do
     putStrLn("Sólo hay un velero triste anclado en el muelle...")
-    putStrLn("Pero... que va, lo tomas y zarpas. Enhorabuena! Ahora es tuyo. ¿Que nombre le pondrás?")
+    putStrLn("Pero... que va, lo tomas y zarpas. Enhorabuena! Ahora es tuyo. ¿Qué nombre le pondrás?")
     nombreNuevoBarco <- getLine
     menu_historia_con_barco Barco { tripulacion = [protagonista] , nombreBarco = nombreNuevoBarco}
 
@@ -371,7 +373,7 @@ evaluar_si_continua_segun_tesoros protagonista
   | otherwise = encarcelamiento protagonista
 
 encarcelamiento :: Pirata -> IO String
-encarcelamiento protagonista = return "Pero... ya no tienes tesoros que entregar! Los guardias te arrastran a la celda mas lejana de todo el calabozo. Tus días de pirata estan acabados. Quizás tengas más suerte la proxima vez.\nFin."
+encarcelamiento protagonista = return "Pero... ya no tienes tesoros que entregar! Los guardias te arrastran a la celda mas lejana de todo el calabozo. Tus días de pirata estan acabados. Quizás tengas más suerte la proxima vez."
 
 
 --DESDE BARCO
