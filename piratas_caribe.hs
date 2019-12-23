@@ -266,7 +266,7 @@ menu_historia protagonista = do
     putStrLn("(3)-RETIRARSE DE LA PIRATERIA")
     putStrLn("(4)-VER MI ESTADO")
     opcion <- getLine
-    desarrollar_historia (read opcion :: Integer) protagonista 
+    desarrollar_historia opcion protagonista 
 
 menu_historia_con_barco :: Barco -> IO String
 menu_historia_con_barco barco = do
@@ -277,23 +277,23 @@ menu_historia_con_barco barco = do
     putStrLn("(4)-RETIRARSE DE LA PIRATERIA")
     putStrLn("(5)-VER MI ESTADO")
     opcion <- getLine
-    desarrollar_historia_en_barco (read opcion :: Integer) barco
+    desarrollar_historia_en_barco opcion barco
 
-desarrollar_historia :: Integer -> Pirata -> IO String 
+desarrollar_historia :: String -> Pirata -> IO String 
 desarrollar_historia opcion protagonista = case opcion of
-     1 -> robar_barco protagonista
-     2 -> elegir_ciudad_a_saquear protagonista
+     "1" -> robar_barco protagonista
+     "2" -> elegir_ciudad_a_saquear protagonista
 --     3 -> retirarse protagonista
-     4 ->ver_estado protagonista menu_historia protagonista
+     "4" ->ver_estado protagonista menu_historia protagonista
      _ -> menu_historia protagonista
 
-desarrollar_historia_en_barco :: Integer -> Barco -> IO String
+desarrollar_historia_en_barco :: String -> Barco -> IO String
 desarrollar_historia_en_barco opcion barco = case opcion of
 --    1 -> atacar_barco barco 
-      2 -> anclar_en_isla_cercana barco 
-      3 -> elegir_ciudad_a_asediar barco
+      "2" -> anclar_en_isla_cercana barco 
+      "3" -> elegir_ciudad_a_asediar barco
 --    4 -> retirarse protagonista
-      5 -> ver_estado (head (tripulacion barco)) menu_historia_con_barco barco
+      "5" -> ver_estado (head (tripulacion barco)) menu_historia_con_barco barco
       _ -> menu_historia_con_barco barco
 
 
