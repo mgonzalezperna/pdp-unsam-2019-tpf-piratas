@@ -45,7 +45,7 @@ biciCopada :: Tesoro
 biciCopada = Tesoro {nombreTesoro = "Bicicleta GT Avalanche", valor = 25000}
 
 brujula :: Tesoro
-brujula = Tesoro {nombreTesoro = "Brújula", valor = 10000}
+brujula = Tesoro {nombreTesoro = "Brujula", valor = 10000}
 
 frascoJack :: Tesoro
 frascoJack = Tesoro {nombreTesoro = "Frasco de arena", valor = 0}
@@ -108,7 +108,7 @@ piratas = [viotti, dini, jackSparrow, davidJones, anneBonny, elizabethSwann]
 
 --BARCOS
 perla = Barco { tripulacion = [jackSparrow, anneBonny] , nombreBarco = "Perla Negra"}
-holandes = Barco { tripulacion = [davidJones]  , nombreBarco = "Holandés Errante"}
+holandes = Barco { tripulacion = [davidJones]  , nombreBarco = "Holandes Errante"}
 
 barcos :: [Barco]
 barcos = [perla, holandes]
