@@ -8,12 +8,18 @@ import Data.Char (toLower)
 data Pirata = Pirata
   { nombrePirata :: String
   , botin        :: [Tesoro]
-  } deriving (Show, Eq)
+  } deriving (Eq)
+
+instance Show Pirata where
+  show pirata = nombrePirata pirata ++ "\n\nBotin: " ++ show (botin pirata)
 
 data Tesoro = Tesoro
   { nombreTesoro :: String
   , valor        :: Integer
-  } deriving (Show, Eq)
+  } deriving (Eq)
+
+instance Show Tesoro where
+  show tesoro = " " ++ nombreTesoro tesoro ++ ": $" ++ show (valor tesoro) ++ " " 
 
 data Barco = Barco
    { tripulacion :: [Pirata]
