@@ -236,7 +236,6 @@ comenzar_historia = do
     resultado_historia <- menu_historia protagonista
     putStrLn(resultado_historia)
     putStrLn("Fin.")
-    return ()
 
 crear_pirata :: IO (Pirata)
 crear_pirata = do    
