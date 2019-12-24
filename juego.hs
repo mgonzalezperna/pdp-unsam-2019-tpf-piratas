@@ -69,7 +69,7 @@ desarrollar_historia_en_barco opcion barco = case opcion of
       "2" -> anclar_en_isla_cercana barco 
       "3" -> elegir_ciudad_a_asediar barco
 --    4 -> retirarse protagonista
-      "5" -> ver_estado (head (tripulacion barco)) menu_historia_con_barco barco
+      "5" -> ver_estado (get_protagonista barco) menu_historia_con_barco barco
       _ -> menu_historia_con_barco barco
 
 
@@ -190,7 +190,7 @@ invadir_ciudad barco ciudad = do
     putStrLn("Las murallas estallan en pedazos y rapidamente te escabulles dentro del fuerte de la ciudad buscando un botín.")
     botin_adquirido <- tesoroAleatorio( tesorosSaqueables ciudad )
     putStrLn("Los guardias te persiguen por lo que solo eres capaz de tomar " ++ nombre_con_articulo botin_adquirido ++ " antes de volver a embarcar.")
-    let protagonista = head(tripulacion barco)
+    let protagonista = get_protagonista barco
     let protagonista_con_tesoro = protagonista { botin = botin (protagonista) ++ [botin_adquirido] }
     menu_historia_con_barco (barco { tripulacion = protagonista_con_tesoro:(drop 1 (tripulacion barco))})
 
@@ -202,7 +202,7 @@ ser_repelidos_por_ciudad barco ciudad = do
     suspenso(1)
     putStrLn("Quizás hubiese sido buena idea revisar el estado de la polvora antes de atacar...")
     putStrLn("Demasiado tarde! Los cañones del fuerte arrasan con tu nave y de pronto te encuentras escupiendo agua y arena en la playa. El mar te arranco algunos tesoro. Sin embargo, aún puedes asaltar la ciudad a pie...")
-    let protagonista = head (tripulacion barco)
+    let protagonista = get_protagonista barco
     saquear_ciudad (protagonista { botin = unsafePerformIO (tesorosAleatorios (botin (protagonista))) }) ciudad
 
 --- BATALLA MARINA
@@ -254,6 +254,9 @@ barco_mas_daniado barco barco_adversario
   | length(tripulacion barco) >= length (tripulacion barco_adversario) = barco_adversario
   | otherwise = barco
 
+
+get_protagonista :: Barco -> Pirata
+get_protagonista barco = head (tripulacion barco)
 
 --- FUNCIONES AUXILIARES
 mock_end :: IO String
@@ -337,7 +340,7 @@ ver_estado protagonista menu_opciones argumento = do
 
 cantidad_tesoros_valiosos :: Pirata -> Int 
 cantidad_tesoros_valiosos pirata =
-   length (filter ((not . (< 100) . valor)) (botin pirata))
+   length (filter (es_valioso) (botin pirata))
 
 suspenso :: Int -> IO () 
 suspenso segundos = threadDelay (1000000 * segundos)

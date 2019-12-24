@@ -169,13 +169,16 @@ adquirir_tesoro pirata tesoro =
 
 perder_tesoros_valiosos :: Pirata -> Pirata
 perder_tesoros_valiosos pirata =
-  Pirata (nombrePirata pirata) (filter ((< 100) . valor) (botin pirata))
+  Pirata (nombrePirata pirata) (filter (not . es_valioso) (botin pirata))
 
 perder_tesoros_con_nombre :: String -> Pirata -> Pirata
 perder_tesoros_con_nombre nombre pirata =
   Pirata
     (nombrePirata pirata)
     (filter ((/= nombre) . nombreTesoro) (botin pirata))
+
+es_valioso :: Tesoro -> Bool
+es_valioso = (>= 100) . valor
 
 --TEMPORADA DE SAQUEOS
 saquear :: Pirata -> (Tesoro -> Bool) -> Tesoro -> Pirata
