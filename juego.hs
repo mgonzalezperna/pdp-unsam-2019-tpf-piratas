@@ -295,8 +295,14 @@ pelea_mano_a_mano barco barco_adversario = do
 
 resultado_mano_a_mano :: Barco -> Barco -> Pirata -> IO(String)
 resultado_mano_a_mano barco barco_adversario pirata_enfrentado
-  | valor_tesoro_mas_valioso (get_protagonista barco) >= valor (unsafePerformIO(tesoroAleatorio (botin pirata_enfrentado)))  = menu_historia_con_barco (incorporar_tripulantes barco (tripulacion_obtenida barco_adversario pirata_enfrentado))
-  | otherwise = menu_historia(get_protagonista barco)
+  | length (botin pirata_enfrentado) == 0 = ganar_batalla barco barco_adversario
+  | length (botin (get_protagonista barco)) == 0 = perder_batalla barco
+  | otherwise = definicion_mano_a_mano barco barco_adversario pirata_enfrentado
+
+definicion_mano_a_mano :: Barco -> Barco -> Pirata -> IO(String)
+definicion_mano_a_mano barco barco_adversario pirata_enfrentado
+  | valor_tesoro_mas_valioso (get_protagonista barco) >= valor (unsafePerformIO(tesoroAleatorio (botin pirata_enfrentado)))  = continuar_historia_en_barco (incorporar_tripulantes barco (tripulacion_obtenida barco_adversario pirata_enfrentado))
+  | otherwise = perder_batalla barco
 
 
 --- FUNCIONES AUXILIARES
