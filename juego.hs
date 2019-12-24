@@ -123,7 +123,7 @@ soborno_exitoso protagonista ciudad = do
     let tesoroAEntregar = unsafePerformIO (tesoroAleatorio (botin protagonista))
     putStrLn("Ofreces uno de tus tesoros a los guardias. \nEllos eligen " ++ nombre_con_articulo tesoroAEntregar)
     putStrLn("Lo entregas y te dan acceso a la boveda de los tesoros a cambio\n")
-    menu_historia (protagonista {botin = (realizar_intercambio protagonista tesoroAEntregar (tesorosSaqueables ciudad))})
+    menu_historia (realizar_intercambio protagonista tesoroAEntregar (tesorosSaqueables ciudad))
 
 soborno_imposible :: Pirata -> IO String
 soborno_imposible protagonista = return "Pero los guardias se dan cuenta que no tienes ni un doblon de oro. No vacilan en absoluto y te encierran en las mazmorras. Tus días de pirata están acabados."
@@ -313,8 +313,8 @@ procesar_eleccion_ciudad_asedio eleccion barco
   | eleccion == "2" = bombardear_ciudad barco new_providence
   | otherwise = elegir_ciudad_a_asediar barco 
 
-realizar_intercambio :: Pirata -> Tesoro -> [Tesoro] -> [Tesoro]    
-realizar_intercambio protagonista tesoroAEntregar tesorosSaqueables =  recibir_tesoros (entregar_tesoro (botin protagonista) tesoroAEntregar) tesorosSaqueables
+realizar_intercambio :: Pirata -> Tesoro -> [Tesoro] -> Pirata    
+realizar_intercambio protagonista tesoroAEntregar = (entregar_tesoro tesoroAEntregar) . recibir_tesoros protagonista
 
 elegir_tipo_saqueo :: String -> Pirata -> Ciudad -> IO String
 elegir_tipo_saqueo eleccion protagonista ciudad
@@ -322,11 +322,11 @@ elegir_tipo_saqueo eleccion protagonista ciudad
   | eleccion == "2" = combatir_guardias protagonista ciudad
   | otherwise = saquear_ciudad protagonista ciudad
 
-recibir_tesoros :: [Tesoro] -> [Tesoro] -> [Tesoro]
-recibir_tesoros botin tesorosSaqueables = botin ++ (unsafePerformIO (tesorosAleatorios tesorosSaqueables))
+recibir_tesoros :: Pirata -> [Tesoro] -> Pirata
+recibir_tesoros pirata tesorosSaqueables  = pirata { botin = (botin pirata) ++ (unsafePerformIO (tesorosAleatorios tesorosSaqueables)) }
 
-entregar_tesoro :: [Tesoro] -> Tesoro -> [Tesoro]
-entregar_tesoro tesoros tesoroAEntregar = delete tesoroAEntregar tesoros
+entregar_tesoro :: Tesoro -> Pirata -> Pirata
+entregar_tesoro tesoroAEntregar pirata = pirata {botin = delete tesoroAEntregar (botin pirata)} 
 
 ver_estado :: Pirata -> (a -> IO String) -> a -> IO String
 ver_estado protagonista menu_opciones argumento = do
