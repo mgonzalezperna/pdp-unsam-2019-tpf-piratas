@@ -213,7 +213,7 @@ encuentro_barco barco = do
     putStrLn("Desde el largavistas alcanzas a vislumbrar la silueta de un barco vulnerable.")
     putStrLn("Es el " ++ nombreBarco barco_adversario ++ "!")
     putStrLn("Te lanzas a su encuentro a toda velocidad, preparando los cañones, listo para abordarlos.")
-    batalla_barcos cantidad_de_turnos barco barco_adversario
+    batalla_barcos cantidad_de_turnos barco barco_adversario (tesoros_tripulantes barco_adversario)
 
 cantidad_de_turnos :: [Integer]
 --list que define la cantidad tope de turnos de la batalla, en este caso, 3.
@@ -228,50 +228,50 @@ relatos_de_la_batalla frase = case unsafePerformIO(frase) of
     2 -> "Grandes volutas de humo se alzan sobre el horizonte mientras las bocas de los barcos vomitan llamas y hierro."
     3 -> "Pedazos de ambos barcos llenan el aire y golpean duramente contra las olas."
 
-batalla_barcos :: [Integer] -> Barco -> Barco -> IO String
+batalla_barcos :: [Integer] -> Barco -> Barco -> [Tesoro] -> IO String
 
-batalla_barcos [] barco barco_adversario = do
+batalla_barcos [] barco barco_adversario tesoros_adversario = do
     putStrLn ("Luego de una terrible batalla no se sacaron ventajas. Ahora pa' ver quien gana vas a pelear contra algún pirata del otro barco") --TODO!
     pelea_mano_a_mano barco barco_adversario
 
-batalla_barcos [1] barco barco_adversario = do
+batalla_barcos [1] barco barco_adversario tesoros_adversario = do
     let contrincantes = [barco, barco_adversario]
     let en_ventaja = delete (barco_mas_daniado barco barco_adversario) contrincantes 
     putStrLn ("Los barcos se alinean de cara a lanzarse a las armas una última vez. Los tripulantes del " ++ nombreBarco (head en_ventaja) ++ " se ven confiados mientras se preparan para el abordaje.")
     putStrLn (relatos_de_la_batalla (valorAleatorio cantidad_de_relatos))
-    turno [] (perder_tripulantes_protagonista barco) (perder_tripulantes barco_adversario)
+    turno [] (perder_tripulantes_protagonista barco) (perder_tripulantes barco_adversario) tesoros_adversario
 
-batalla_barcos [1,2] barco barco_adversario = do
+batalla_barcos [1,2] barco barco_adversario tesoros_adversario = do
     let barco_en_peligro = barco_mas_daniado barco barco_adversario
     putStrLn ("Ambos contricantes recargan sus armas. El " ++ nombreBarco barco_en_peligro ++ " se ve severamente dañado.")
     putStrLn (relatos_de_la_batalla (valorAleatorio cantidad_de_relatos))
-    turno [1] (perder_tripulantes_protagonista barco) (perder_tripulantes barco_adversario)
+    turno [1] (perder_tripulantes_protagonista barco) (perder_tripulantes barco_adversario) tesoros_adversario
 
-batalla_barcos [1,2,3] barco barco_adversario = do
+batalla_barcos [1,2,3] barco barco_adversario tesoros_adversario = do
     putStrLn ("Los cañones del " ++ nombreBarco barco_adversario ++ " enemigo abren fuego tí y mientras tu y el " ++ nombreBarco barco ++ " responden sin piedad.")
     putStrLn (relatos_de_la_batalla (valorAleatorio cantidad_de_relatos))
-    turno [1,2] (perder_tripulantes_protagonista barco) (perder_tripulantes barco_adversario)
+    turno [1,2] (perder_tripulantes_protagonista barco) (perder_tripulantes barco_adversario) tesoros_adversario
 
 barco_mas_daniado :: Barco -> Barco -> Barco
 barco_mas_daniado barco barco_adversario
   | length(tripulacion barco) >= length (tripulacion barco_adversario) = barco_adversario
   | otherwise = barco
 
-turno :: [Integer] -> Barco -> Barco -> IO(String)
-turno turnos barco barco_adversario 
+turno :: [Integer] -> Barco -> Barco -> [Tesoro] -> IO(String)
+turno turnos barco barco_adversario tesoros_adversario 
   | length (tripulacion barco) == 1 = perder_batalla barco
-  | length (tripulacion barco) > 1 && length (tripulacion barco_adversario) == 0 = ganar_batalla barco barco_adversario
-  | otherwise = batalla_barcos turnos barco barco_adversario
+  | length (tripulacion barco) > 1 && length (tripulacion barco_adversario) == 0 = ganar_batalla barco tesoros_adversario
+  | otherwise = batalla_barcos turnos barco barco_adversario tesoros_adversario
 
 perder_batalla :: Barco -> IO(String)
 perder_batalla barco = do 
   putStrLn("\nQuedaste a pata amigo\n") --TODO
   menu_historia (get_protagonista barco)
 
-ganar_batalla :: Barco -> Barco -> IO(String)
-ganar_batalla barco barco_adversario
+ganar_batalla :: Barco -> [Tesoro] -> IO(String)
+ganar_batalla barco tesoros_adversario
   | unsafePerformIO(pasa_algo_raro) = invocar_a_calypso barco
-  | otherwise = continuar_historia_en_barco (barco {tripulacion =  recibir_tesoro_mas_valioso (get_protagonista barco) barco_adversario : (tail (tripulacion barco))})
+  | otherwise = continuar_historia_en_barco (barco {tripulacion =  recibir_tesoro_mas_valioso (get_protagonista barco) tesoros_adversario : (tail (tripulacion barco))})
 
 pasa_algo_raro :: IO(Bool)  
 pasa_algo_raro = do
