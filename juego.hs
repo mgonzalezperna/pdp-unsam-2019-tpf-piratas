@@ -65,7 +65,7 @@ desarrollar_historia opcion protagonista = case opcion of
 
 desarrollar_historia_en_barco :: String -> Barco -> IO String
 desarrollar_historia_en_barco opcion barco = case opcion of
---    1 -> atacar_barco barco 
+      "1" -> encuentro_barco barco 
       "2" -> anclar_en_isla_cercana barco 
       "3" -> elegir_ciudad_a_asediar barco
 --    4 -> retirarse protagonista
@@ -259,14 +259,9 @@ barco_mas_daniado barco barco_adversario
 
 turno :: [Integer] -> Barco -> Barco -> [Tesoro] -> IO(String)
 turno turnos barco barco_adversario tesoros_adversario 
-  | length (tripulacion barco) == 1 = perder_batalla barco
-  | length (tripulacion barco) > 1 && length (tripulacion barco_adversario) == 0 = ganar_batalla barco tesoros_adversario
+  | length (tripulacion barco) <= 1 && length (tripulacion barco_adversario) > 0 = pelea_mano_a_mano barco barco_adversario
+  | length (tripulacion barco) >= 1 && length (tripulacion barco_adversario) == 0 = ganar_batalla barco tesoros_adversario
   | otherwise = batalla_barcos turnos barco barco_adversario tesoros_adversario
-
-perder_batalla :: Barco -> IO(String)
-perder_batalla barco = do 
-  putStrLn("\nQuedaste a pata amigo\n") --TODO
-  menu_historia (get_protagonista barco)
 
 ganar_batalla :: Barco -> [Tesoro] -> IO(String)
 ganar_batalla barco tesoros_adversario
@@ -281,7 +276,7 @@ pasa_algo_raro = do
 invocar_a_calypso :: Barco -> IO(String)
 invocar_a_calypso barco = do 
   putStrLn("\nSe invocó a Calypso!!\n") --TODO
-  menu_historia (get_protagonista barco)
+  menu_historia (quedar_con_un_tesoro_no_valioso (get_protagonista barco))
   
 continuar_historia_en_barco :: Barco -> IO(String)
 continuar_historia_en_barco barco = do 
@@ -290,19 +285,39 @@ continuar_historia_en_barco barco = do
 
 pelea_mano_a_mano :: Barco -> Barco -> IO(String)
 pelea_mano_a_mano barco barco_adversario = do
+  putStrLn("Pelea mano a mano")
   rival <- tripulanteAleatorio (tripulacion barco_adversario)
   resultado_mano_a_mano barco barco_adversario rival
 
 resultado_mano_a_mano :: Barco -> Barco -> Pirata -> IO(String)
 resultado_mano_a_mano barco barco_adversario pirata_enfrentado
   | length (botin pirata_enfrentado) == 0 = ganar_mano_a_mano barco barco_adversario pirata_enfrentado
-  | length (botin (get_protagonista barco)) == 0 = perder_batalla barco
+  | length (botin (get_protagonista barco)) == 0 = perder_mano_a_mano barco
   | otherwise = definicion_mano_a_mano barco barco_adversario pirata_enfrentado
 
 definicion_mano_a_mano :: Barco -> Barco -> Pirata -> IO(String)
 definicion_mano_a_mano barco barco_adversario pirata_enfrentado
   | valor_tesoro_mas_valioso (get_protagonista barco) >= valor (unsafePerformIO(tesoroAleatorio (botin pirata_enfrentado)))  = ganar_mano_a_mano barco barco_adversario pirata_enfrentado
-  | otherwise = perder_batalla barco
+  | otherwise = perder_mano_a_mano barco
+
+perder_mano_a_mano :: Barco -> IO(String)  
+perder_mano_a_mano barco = do 
+  putStrLn("Perdiste el mano a mano")
+  seguir_a_pie_con_un_tesoro (get_protagonista barco)
+
+seguir_a_pie_con_un_tesoro :: Pirata -> IO(String)  
+seguir_a_pie_con_un_tesoro protagonista 
+  | length (botin protagonista) < 2 = game_over
+  | otherwise = menu_historia(quedar_con_un_tesoro_no_valioso protagonista)
+
+quedar_con_un_tesoro_no_valioso :: Pirata -> Pirata
+quedar_con_un_tesoro_no_valioso = quedar_con_un_tesoro . perder_tesoros_valiosos 
+
+quedar_con_un_tesoro :: Pirata -> Pirata
+quedar_con_un_tesoro pirata = pirata {botin = [unsafePerformIO(tesoroAleatorio (botin pirata))]}
+
+game_over :: IO(String)
+game_over = return "Game Over"
 
 ganar_mano_a_mano :: Barco -> Barco -> Pirata -> IO(String)  
 ganar_mano_a_mano barco barco_adversario pirata_enfrentado = do 
