@@ -331,9 +331,9 @@ recibir_tesoros pirata tesorosSaqueables  = pirata { botin = (botin pirata) ++ (
 entregar_tesoro :: Tesoro -> Pirata -> Pirata
 entregar_tesoro tesoroAEntregar pirata = pirata {botin = delete tesoroAEntregar (botin pirata)} 
 
-recibir_tesoro_mas_valioso :: Pirata -> Barco -> Pirata
-recibir_tesoro_mas_valioso pirata barco_adversario 
-  | length (tesoros_tripulantes barco_adversario) > 0 = pirata {botin = (botin pirata) ++ [tesoro_mas_valioso (tesoros_tripulantes barco_adversario)]}  
+recibir_tesoro_mas_valioso :: Pirata -> [Tesoro] -> Pirata
+recibir_tesoro_mas_valioso pirata tesoros_adversario 
+  | length tesoros_adversario > 0 = pirata {botin = (botin pirata) ++ [tesoro_mas_valioso tesoros_adversario]}  
   | otherwise = pirata
 
 tesoros_tripulantes :: Barco -> [Tesoro]
