@@ -295,7 +295,7 @@ pelea_mano_a_mano barco barco_adversario = do
 
 resultado_mano_a_mano :: Barco -> Barco -> Pirata -> IO(String)
 resultado_mano_a_mano barco barco_adversario pirata_enfrentado
-  | valor_tesoro_mas_valioso (get_protagonista barco) >= valor_tesoro_mas_valioso pirata_enfrentado = menu_historia_con_barco (incorporar_tripulantes barco (tripulacion_obtenida barco_adversario pirata_enfrentado))
+  | valor_tesoro_mas_valioso (get_protagonista barco) >= valor (unsafePerformIO(tesoroAleatorio (botin pirata_enfrentado)))  = menu_historia_con_barco (incorporar_tripulantes barco (tripulacion_obtenida barco_adversario pirata_enfrentado))
   | otherwise = menu_historia(get_protagonista barco)
 
 
