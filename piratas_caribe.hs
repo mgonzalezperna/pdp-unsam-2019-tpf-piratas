@@ -184,8 +184,6 @@ es_valioso = (>= 100) . valor
 tesoro_mas_valioso :: [Tesoro] -> Tesoro
 tesoro_mas_valioso tesoros = maximumBy (compare `on` valor) tesoros
 
-compararTesoros tesoro otroTesoro = (valor tesoro) >= (valor otroTesoro)
-
 --TEMPORADA DE SAQUEOS
 saquear :: Pirata -> (Tesoro -> Bool) -> Tesoro -> Pirata
 saquear pirata forma_saqueo tesoro 
