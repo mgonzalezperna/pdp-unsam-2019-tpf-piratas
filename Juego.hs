@@ -211,6 +211,29 @@ ser_repelidos_por_ciudad barco ciudad = do
     let protagonista = get_protagonista barco
     saquear_ciudad (protagonista { botin = unsafePerformIO (tesorosAleatorios (botin (protagonista))) }) ciudad
 
+--- RECLUTAR TRIPULANTES
+
+intentar_buscar_tripulacion :: Barco -> IO String
+intentar_buscar_tripulacion barco
+  | cantidad_tesoros_valiosos (get_protagonista barco) > 0 = buscar_posible_tripulacion barco
+  | otherwise = expulsado_de_taberna barco
+
+expulsado_de_taberna :: Barco -> IO String
+expulsado_de_taberna barco = do
+    putStrLn("El pirata que cuida la entrada a la cantina te hecha una severa mirada durante unos segundos y de pronto...")
+    suspenso(1)
+    putStrLn("...estalla en carcajadas.")
+    suspenso(1)
+    putStrLn("- No hay lugar en éste sitio para un pirata sin ningún tesoro que tenga algún valor... Vete de aquí y vuelve cuando seas algo más que un pobre diablo!- te contesta al reponerse.")
+    putStrLn("Parece que ningún ruin va a querer unirse a tí sin entregarles al menos una ofrenda valiosa.")
+    menu_historia_con_barco barco
+
+buscar_posible_tripulacion :: Barco -> IO String
+buscar_posible_tripulacion barco = do
+    putStrLn("Divisas la taberna más cercana y mal oliente de la región y pones rumbo a ella.")
+    menu_historia_con_barco barco
+
+
 --- BATALLA MARINA
 
 encuentro_barco :: Barco -> IO String
