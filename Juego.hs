@@ -204,7 +204,10 @@ ser_repelidos_por_ciudad barco ciudad = do
     putStrLn("Nada ha pasado.")
     suspenso(1)
     putStrLn("Quizás hubiese sido buena idea revisar el estado de la polvora antes de atacar...")
-    putStrLn("Intentas una manibra evasiva pero... Demasiado tarde! Los cañones del fuerte arrasan con tu nave y de pronto te encuentras escupiendo agua y arena en la playa. Sospechas que el mar te arrancó algunos tesoro. Sin embargo, aún puedes asaltar la ciudad a pie. No pueden rendirte ahora...")
+    suspenso(1)
+    putStrLn("Intentas una manibra evasiva pero... Demasiado tarde! Los cañones del fuerte arrasan con tu nave y de pronto te encuentras escupiendo agua y arena en la playa.")
+    putStrLn("Mientras te repones y checkeas si el mar te arrancó algunos tesoro, visualizas muy cerca la entrada a la ciudad. Los guardias parecen distraídos mirando tu corsario hundirse sin remedio.")
+    putStrLn("Es una oportunidad de oro de asaltar la ciudad a pie. No pueden rendirte ahora...")
     let protagonista = get_protagonista barco
     saquear_ciudad (protagonista { botin = unsafePerformIO (tesorosAleatorios (botin (protagonista))) }) ciudad
 
