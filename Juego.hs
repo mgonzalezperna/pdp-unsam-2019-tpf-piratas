@@ -122,7 +122,7 @@ saquear_ciudad protagonista ciudad = do
 sobornar_guardias :: Pirata -> Ciudad -> IO String
 sobornar_guardias protagonista ciudad
   | length (botin protagonista) > 0 = soborno_exitoso protagonista ciudad
-  | otherwise = soborno_imposible protagonista
+  | otherwise = encarcelamiento protagonista
     
 soborno_exitoso :: Pirata -> Ciudad -> IO String
 soborno_exitoso protagonista ciudad = do
@@ -130,9 +130,6 @@ soborno_exitoso protagonista ciudad = do
     putStrLn("Ofreces uno de tus tesoros a los guardias. \nEllos eligen " ++ nombre_con_articulo tesoroAEntregar)
     putStrLn("Lo entregas y te dan acceso a la boveda de los tesoros a cambio\n")
     menu_historia (realizar_intercambio protagonista tesoroAEntregar (tesorosSaqueables ciudad))
-
-soborno_imposible :: Pirata -> IO String
-soborno_imposible protagonista = return "Pero los guardias se dan cuenta que no tienes ni un doblon de oro. No vacilan en absoluto y te encierran en las mazmorras. Tus días de pirata están acabados."
 
 combatir_guardias :: Pirata -> Ciudad -> IO String
 combatir_guardias protagonista ciudad = do
@@ -161,8 +158,7 @@ evaluar_si_continua_segun_tesoros protagonista
   | otherwise = encarcelamiento protagonista
 
 encarcelamiento :: Pirata -> IO String
-encarcelamiento protagonista = return "Pero... ya no tienes tesoros que entregar! Los guardias te arrastran a la celda mas lejana de todo el calabozo. Tus días de pirata estan acabados. Quizás tengas más suerte la proxima vez."
-
+encarcelamiento protagonista = return "Pero los guardias se dan cuenta que no tienes ni un doblon de oro. No vacilan en absoluto y te encierran en las mazmorras. Tus días de pirata están acabados."
 
 --DESDE BARCO
 
