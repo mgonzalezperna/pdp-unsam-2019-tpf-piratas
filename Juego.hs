@@ -51,8 +51,10 @@ menu_historia_con_barco barco = do
     putStrLn("(1)-ATACAR UN BARCO")
     putStrLn("(2)-ANCLAR EN UNA ISLA CERCANA")
     putStrLn("(3)-ATACAR UNA CIUDAD")
-    putStrLn("(4)-RETIRARSE DE LA PIRATERIA")
-    putStrLn("(5)-VER MI ESTADO")
+    putStrLn("(4)-RECLUTAR TRIPULANTES")
+    putStrLn("(5)-RETIRARSE DE LA PIRATERIA")
+    putStrLn("(6)-VER MI ESTADO")
+    putStrLn("(7)-VER ESTADO TRIPULACION")
     opcion <- getLine
     desarrollar_historia_en_barco opcion barco
 
@@ -69,10 +71,11 @@ desarrollar_historia_en_barco opcion barco = case opcion of
       "1" -> encuentro_barco barco 
       "2" -> anclar_en_isla_cercana barco 
       "3" -> elegir_ciudad_a_asediar barco
---    4 -> retirarse protagonista
-      "5" -> ver_estado (get_protagonista barco) menu_historia_con_barco barco
+      "4" -> intentar_buscar_tripulacion barco
+--    5 -> retirarse protagonista
+      "6" -> ver_estado (get_protagonista barco) menu_historia_con_barco barco
+      "7" -> ver_estado (get_protagonista barco) menu_historia_con_barco barco
       _ -> menu_historia_con_barco barco
-
 
 
 -- ACCIONES POSIBLES
