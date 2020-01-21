@@ -225,12 +225,13 @@ expulsado_de_taberna barco = do
     putStrLn("...estalla en carcajadas.")
     suspenso(1)
     putStrLn("- No hay lugar en éste sitio para un pirata sin ningún tesoro que tenga algún valor... Vete de aquí y vuelve cuando seas algo más que un pobre diablo!- te contesta al reponerse.")
-    putStrLn("Parece que ningún ruin va a querer unirse a tí sin entregarles al menos una ofrenda valiosa.")
+    putStrLn("Parece que ningún ruin va a querer unirse a la tripulación del " + nombreBarco barco + " sin recibir al menos una ofrenda valiosa de tu parte.")
     menu_historia_con_barco barco
 
 buscar_posible_tripulacion :: Barco -> IO String
 buscar_posible_tripulacion barco = do
     putStrLn("Divisas la taberna más cercana y mal oliente de la región y pones rumbo a ella.")
+
     menu_historia_con_barco barco
 
 
