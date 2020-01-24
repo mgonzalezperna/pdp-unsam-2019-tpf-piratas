@@ -276,7 +276,7 @@ desarrollar_historia opcion protagonista = case opcion of
      1 -> robar_barco protagonista
      2 -> elegir_ciudad_a_saquear protagonista
 --     3 -> retirarse protagonista
-     4 -> ver_estado protagonista
+     4 -> ver_estado protagonista menu_historia 
      _ -> menu_historia protagonista
 
 desarrollar_historia_en_barco :: Integer -> Barco -> IO String
@@ -285,10 +285,8 @@ desarrollar_historia_en_barco opcion barco = case opcion of
       2 -> anclar_en_isla_cercana barco 
       3 -> elegir_ciudad_a_asediar barco
 --    4 -> retirarse protagonista
-      5 -> ver_estado (head (tripulacion barco))
+      5 -> ver_estado (head (tripulacion barco)) menu_historia_con_barco 
       _ -> menu_historia_con_barco barco
-
-
 
 
 
@@ -310,6 +308,9 @@ anclar_en_isla_cercana barco = do
     putStrLn("Cuando desbarcan, ven un enorme deposito de " ++ nombreTesoro(elemento_tipico isla))
     putStrLn("Añades el tesoro a tu botin y retomas tu aventura, a la espera de que la proxima vez hagas algo mas emocionante...")
     menu_historia_con_barco $ anclar_en_isla barco isla
+
+
+--SAQUEO CIUDAD
 
 elegir_ciudad_a_saquear :: Pirata -> IO String
 elegir_ciudad_a_saquear protagonista = do
@@ -420,6 +421,19 @@ ser_repelidos_por_ciudad barco ciudad = do
     let protagonista = head (tripulacion barco)
     saquear_ciudad (protagonista { botin = unsafePerformIO (tesorosAleatorios (botin (protagonista))) }) ciudad
 
+--- BATALLA MARINA
+
+encuentro_barco :: Barco -> IO String
+encuentro_barco barco = do
+    barco_adversario <- barcoAleatorio
+    putStrLn("Desde el largavistas alcanzas a vislumbrar la silueta de un barco vulnerable.")
+    putStrLn("Es el " ++ nombreBarco barco_adversario ++ "!")
+    putStrLn("Te lanzas a su encuentro a toda velocidad, preparando los cañones, listo para abordarlos.")
+    batalla_barcos barco barco_adversario
+
+batalla_barcos :: Barco -> Barco -> IO String
+batalla_barcos barco barco_adversario = return "Test" 
+
 --- FUNCIONES AUXILIARES
 
 tesoroAleatorio :: [Tesoro] -> IO Tesoro 
@@ -430,6 +444,9 @@ tesorosAleatorios tesoros = valoresAleatorios tesoros
 
 islaAleatoria :: IO Isla 
 islaAleatoria =  valorAleatorio islas
+
+barcoAleatorio :: IO Barco
+barcoAleatorio = valorAleatorio barcos
 
 valorAleatorio :: [a] -> IO a
 valorAleatorio list = do
@@ -481,12 +498,12 @@ recibir_tesoros botin tesorosSaqueables = botin ++ (unsafePerformIO (tesorosAlea
 entregar_tesoro :: [Tesoro] -> Tesoro -> [Tesoro]
 entregar_tesoro tesoros tesoroAEntregar = delete tesoroAEntregar tesoros
 
-ver_estado :: Pirata -> IO String
-ver_estado protagonista = do
+ver_estado :: Pirata -> ( _ -> IO String)-> IO String
+ver_estado protagonista menu = do
     putStrLn("\n")
     putStrLn(show protagonista)
     putStrLn("\n")
-    menu_historia protagonista
+    menu protagonista
 
 cantidad_tesoros_valiosos :: Pirata -> Int 
 cantidad_tesoros_valiosos pirata =
