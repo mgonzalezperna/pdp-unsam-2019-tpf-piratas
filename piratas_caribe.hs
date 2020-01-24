@@ -283,7 +283,7 @@ desarrollar_historia_en_barco :: Integer -> Barco -> IO String
 desarrollar_historia_en_barco opcion barco = case opcion of
 --    1 -> atacar_barco protagonista
       2 -> anclar_en_isla_cercana barco 
---    3 -> atacar_ciudad barco
+      3 -> elegir_ciudad_a_asediar barco
 --    4 -> retirarse protagonista
       5 -> ver_estado (head (tripulacion barco))
       _ -> menu_historia_con_barco barco
@@ -329,15 +329,23 @@ saquear_ciudad protagonista ciudad = do
     elegir_tipo_saqueo eleccion protagonista ciudad
 
 sobornar_guardias :: Pirata -> Ciudad -> IO String
-sobornar_guardias protagonista ciudad = do
+sobornar_guardias protagonista ciudad
+  | length (botin protagonista) > 0 = soborno_exitoso protagonista ciudad
+  | otherwise = soborno_imposible protagonista
+    
+soborno_exitoso :: Pirata -> Ciudad -> IO String
+soborno_exitoso protagonista ciudad = do
     let tesoroAEntregar = unsafePerformIO (tesoroAleatorio (botin protagonista))
     putStrLn("Ofreces uno de tus tesoros a los guardias. \nEllos eligen " ++ nombreTesoro tesoroAEntregar)
     putStrLn("Lo entregas y te dan acceso a la boveda de los tesoros a cambio\n")
     menu_historia (protagonista {botin = (realizar_intercambio protagonista tesoroAEntregar (tesorosSaqueables ciudad))})
 
+soborno_imposible :: Pirata -> IO String
+soborno_imposible protagonista = return "Pero los guardias se dan cuenta que no tienes ni un doblon de oro. No vacilan en absoluto y te encierran en las mazmorras. Tus dias de pirata estan acabados."
+
 combatir_guardias :: Pirata -> Ciudad -> IO String
 combatir_guardias protagonista ciudad = do
-    putStrLn("Ningun guardia en todo el caribe puede ser capaz de extorcionarte sin llevarse su merecido!")
+    putStrLn("Ningun guardia en todo el caribe puede ser capaz de extorsionarte sin llevarse su merecido!")
     putStrLn("Desenvainas tu espada y te preparas para el combate")
     (resultado_combate_guardias (valorAleatorio [0,1])) protagonista ciudad
 
@@ -364,6 +372,53 @@ evaluar_si_continua_segun_tesoros protagonista
 encarcelamiento :: Pirata -> IO String
 encarcelamiento protagonista = return "Pero... ya no tienes tesoros que entregar! Los guardias te arrastran a la celda mas lejana de todo el calabozo. Tus dias de pirata estan acabados. Quizas tengas mas suerte la proxima vez.\nFin."
 
+
+--DESDE BARCO
+
+elegir_ciudad_a_asediar :: Barco -> IO String
+elegir_ciudad_a_asediar barco = do
+    putStrLn("\nQue ciudad deseas asediar?")
+    putStrLn("(1)-Port Royal") --MMMMMMMMMMMMMMMMMMMMMMMMMMMMMM, MIEDO
+    putStrLn("(2)-New Providence")
+    eleccion <- getLine
+    procesar_eleccion_ciudad_asedio eleccion barco
+
+bombardear_ciudad :: Barco -> Ciudad -> IO String
+bombardear_ciudad barco ciudad= do
+    putStrLn("El barco se alinea, mientras se preparan los cañones y apuntan al fuerte de la ciudad. Te preparas a dar la voz de mando...")
+    suspenso(1)
+    putStrLn("PREPAREN")
+    suspenso(1)
+    putStrLn("APUNTEN")
+    suspenso(2)
+    putStrLn("FUEGOO!")
+    suspenso(1)
+    (resultado_asedio (valorAleatorio [0,1])) barco ciudad
+
+resultado_asedio :: IO Int -> (Barco -> Ciudad -> IO String)
+resultado_asedio resultado_asedio
+  | (unsafePerformIO resultado_asedio) == 1 = invadir_ciudad
+  | otherwise = ser_repelidos_por_ciudad
+
+invadir_ciudad :: Barco -> Ciudad -> IO String
+invadir_ciudad barco ciudad = do
+    putStrLn("Las murallas estallan en pedazos y rapidamente te escabulles dentro del fuerte de la ciudad buscando un botin")
+    botin_adquirido <- tesoroAleatorio( tesorosSaqueables ciudad )
+    putStrLn("Los guardias te persiguen por lo que solo eres capaz de tomar un " ++ nombreTesoro botin_adquirido ++ " antes de volver a embarcar.")
+    let protagonista = head(tripulacion barco)
+    let protagonista_con_tesoro = protagonista { botin = botin (protagonista) ++ [botin_adquirido] }
+    menu_historia_con_barco (barco { tripulacion = protagonista_con_tesoro:(drop 1 (tripulacion barco))})
+
+ser_repelidos_por_ciudad :: Barco -> Ciudad -> IO String
+ser_repelidos_por_ciudad barco ciudad = do
+    putStrLn("... pero")
+    suspenso(1)
+    putStrLn("Nada ha pasado.")
+    suspenso(1)
+    putStrLn("Quizas hubiese sido buena idea revisar el estado de la polvora antes de atacar...")
+    putStrLn("Demasiado tarde! Los cañones del fuerte arrasan con tu nave y de pronto te encuentras escupiendo agua y arena en la playa. El mar te arranco algunos tesoro. Sin embargo, aun puedes asaltar la ciudad a pie...")
+    let protagonista = head (tripulacion barco)
+    saquear_ciudad (protagonista { botin = unsafePerformIO (tesorosAleatorios (botin (protagonista))) }) ciudad
 
 --- FUNCIONES AUXILIARES
 
@@ -404,6 +459,12 @@ procesar_eleccion_ciudad eleccion protagonista
   | eleccion == "1" = saquear_ciudad protagonista port_royal
   | eleccion == "2" = saquear_ciudad protagonista new_providence
   | otherwise = elegir_ciudad_a_saquear protagonista
+
+procesar_eleccion_ciudad_asedio :: String -> Barco -> IO String   
+procesar_eleccion_ciudad_asedio eleccion barco 
+  | eleccion == "1" = bombardear_ciudad barco port_royal
+  | eleccion == "2" = bombardear_ciudad barco new_providence
+  | otherwise = elegir_ciudad_a_asediar barco 
 
 realizar_intercambio :: Pirata -> Tesoro -> [Tesoro] -> [Tesoro]    
 realizar_intercambio protagonista tesoroAEntregar tesorosSaqueables =  recibir_tesoros (entregar_tesoro (botin protagonista) tesoroAEntregar) tesorosSaqueables
