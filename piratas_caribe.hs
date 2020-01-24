@@ -348,25 +348,21 @@ resultado_combate_guardias resultado
 
 ganar_combate :: Pirata -> Ciudad -> IO String
 ganar_combate protagonista ciudad = do
-    putStrLn("Con un golpe certero del sable desarmas a tus contrincantes, que huyen atemorizados antes tu habilidad. El tesoro queda a tu merced")
+    putStrLn("Con un golpe certero del sable desarmas a tus contrincantes, que huyen atemorizados ante tu habilidad. El tesoro queda a tu merced")
     menu_historia (protagonista { botin = (tesorosSaqueables ciudad) })
 
 perder_combate :: Pirata -> Ciudad -> IO String
 perder_combate protagonista ciudad = do
-  putStrLn ("Sin embargo, tus enemigos son mas habiles de lo que esperabas. Con golpes certeros te desarman y quedas a su merced. Te exigen que entregues todos tus tesoros mas valiosos para dejarte en libertad...")
+  putStrLn ("Sin embargo, tus enemigos son mas habiles de lo que esperabas. Con golpes certeros te desarman y quedas a su merced. No tienes más alternativa que entregar todos tus tesoros valiosos a cambio de que te dejen escapar.")
   evaluar_si_continua_segun_tesoros (perder_tesoros_valiosos protagonista)
 
 evaluar_si_continua_segun_tesoros :: Pirata -> IO String
 evaluar_si_continua_segun_tesoros protagonista
-  | cantidad_tesoros protagonista > 0 = menu_historia protagonista
+  | cantidad_tesoros_valiosos protagonista > 0 = menu_historia protagonista
   | otherwise = encarcelamiento protagonista
 
 encarcelamiento :: Pirata -> IO String
-encarcelamiento protagonista = return "Pero no te quedan mas tesoros! Y mientras te arrastran por las mazmorras hasta el calabozo mas lejano, sabes con seguridad que tus dias de pirata han acabado. Quizas tengas mas muerte la proxima vez."
-
-
-
-
+encarcelamiento protagonista = return "Pero... ya no tienes tesoros que entregar! Los guardias te arrastran a la celda mas lejana de todo el calabozo. Tus dias de pirata estan acabados. Quizas tengas mas suerte la proxima vez.\nFin."
 
 
 --- FUNCIONES AUXILIARES
@@ -430,6 +426,10 @@ ver_estado protagonista = do
     putStrLn(show protagonista)
     putStrLn("\n")
     menu_historia protagonista
+
+cantidad_tesoros_valiosos :: Pirata -> Int 
+cantidad_tesoros_valiosos pirata =
+   length (filter ((not . (< 100) . valor)) (botin pirata))
 
 suspenso :: Int -> IO () 
 suspenso segundos = threadDelay (1000000 * segundos)
