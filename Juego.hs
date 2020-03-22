@@ -74,7 +74,7 @@ desarrollar_historia_en_barco opcion barco = case opcion of
       "4" -> intentar_buscar_tripulacion barco
 --    5 -> retirarse protagonista
       "6" -> ver_estado (get_protagonista barco) menu_historia_con_barco barco
-      "7" -> ver_estado (get_protagonista barco) menu_historia_con_barco barco
+      "7" -> ver_estado_tripulacion (barco) menu_historia_con_barco barco
       _ -> menu_historia_con_barco barco
 
 
@@ -500,7 +500,12 @@ ver_estado :: Pirata -> (a -> IO String) -> a -> IO String
 ver_estado protagonista menu_opciones argumento = do
     putStrLn("\n")
     putStrLn(show protagonista)
+    menu_opciones argumento
+
+ver_estado_tripulacion :: Barco -> (a -> IO String) -> a -> IO String
+ver_estado_tripulacion barco menu_opciones argumento = do
     putStrLn("\n")
+    putStrLn (unlines $ map show [tripulante | tripulante <- (tripulacion barco)])
     menu_opciones argumento
 
 cantidad_tesoros_valiosos :: Pirata -> Int 
