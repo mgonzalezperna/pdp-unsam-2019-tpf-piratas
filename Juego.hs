@@ -23,9 +23,9 @@ comenzar_historia = do
 crear_pirata :: IO (Pirata)
 crear_pirata = do
     putStrLn("¿Cuál es tu nombre?")
-    nombreProtagonista <- getLine
+    nombre_protagonista <- getLine
     -- Depurar input de nombre de Pirata.
-    putStrLn("Bienvenido " ++ nombreProtagonista ++ "!")
+    putStrLn("Bienvenido " ++ nombre_protagonista ++ "!")
     putStrLn("Ahora que ya tienes un nombre, sólo te hace falta un botín...")
     putStrLn("... ¿tienes un botín, verdad?")
     putStrLn("Agh... bueno, en este caso, tu botín inicial consiste en... una media sucia!")
@@ -33,7 +33,7 @@ crear_pirata = do
     putStrLn("Si te quedas sin botín, serás expulsado de la vida pirata!")
     putStrLn("Y recuerda que el valor de tus tesoros determina tu fortaleza en combate.")
     putStrLn("\n")
-    return Pirata {nombrePirata = nombreProtagonista, botin = [media_sucia]}
+    return Pirata {nombre_pirata = nombre_protagonista, botin = [media_sucia]}
 
 menu_historia :: Pirata -> IO String
 menu_historia protagonista = do
@@ -86,14 +86,14 @@ robar_barco protagonista = do
     putStrLn("Pero... que va, lo tomas y zarpas. Enhorabuena! Ahora es tuyo. ¿Qué nombre le pondrás?")
     nombreNuevoBarco <- getLine
     -- Depurar input de nombre de Barco.
-    menu_historia_con_barco Barco { tripulacion = [protagonista] , nombreBarco = nombreNuevoBarco}
+    menu_historia_con_barco Barco { tripulacion = [protagonista] , nombre_barco = nombreNuevoBarco}
 
 anclar_en_isla_cercana :: Barco -> IO String
 anclar_en_isla_cercana barco = do
     --pirata <- (head (tripulacion barco))
-    isla <- islaAleatoria
+    isla <- isla_aleatoria
     putStrLn("Los vientos de los siete mares te arrastran hacia la isla más cercana.")
-    putStrLn("En el horizonte se vislumbra el contorno de la isla " ++ (nombreIsla isla))
+    putStrLn("En el horizonte se vislumbra el contorno de la isla " ++ (nombre_isla isla))
     putStrLn("Cuando desbarcan, ven un enorme depósito de " ++ nombre_plural(elemento_tipico isla) ++ ".")
     putStrLn("Añades el tesoro a tu botín y retomas tu aventura, a la espera de que la proxima vez hagas algo más emocionante...")
     menu_historia_con_barco $ anclar_en_isla barco isla
@@ -112,7 +112,7 @@ elegir_ciudad_a_saquear protagonista = do
 
 saquear_ciudad :: Pirata -> Ciudad -> IO String
 saquear_ciudad protagonista ciudad = do
-    putStrLn(concat ["Te dirijes con paso firme a la ciudad de " , (nombreCiudad ciudad) , " dispuesto a llevarte todos sus tesoros!!"])
+    putStrLn(concat ["Te dirijes con paso firme a la ciudad de " , (nombre_ciudad ciudad) , " dispuesto a llevarte todos sus tesoros!!"])
     putStrLn("Pero en la entrada te detienen unos guardias con cara de pocos amigos. Te piden que te retires... ¿Qué decisión tomas?\n")
     putStrLn("(1)-SOBORNAR A LOS GUARDIAS PARA QUE TE DEN ALGUNOS TESOROS")
     putStrLn("(2)-COMBATIR CONTRA LOS GUARDIAS\n")
@@ -126,16 +126,16 @@ sobornar_guardias protagonista ciudad
     
 soborno_exitoso :: Pirata -> Ciudad -> IO String
 soborno_exitoso protagonista ciudad = do
-    let tesoroAEntregar = unsafePerformIO (tesoroAleatorio (botin protagonista))
-    putStrLn("Ofreces uno de tus tesoros a los guardias. \nEllos eligen " ++ nombre_con_articulo tesoroAEntregar)
+    let tesoro_a_entregar = unsafePerformIO (tesoro_aleatorio (botin protagonista))
+    putStrLn("Ofreces uno de tus tesoros a los guardias. \nEllos eligen " ++ nombre_con_articulo tesoro_a_entregar)
     putStrLn("Lo entregas y te dan acceso a la boveda de los tesoros a cambio\n")
-    menu_historia (realizar_intercambio protagonista tesoroAEntregar (tesorosSaqueables ciudad))
+    menu_historia (realizar_intercambio protagonista tesoro_a_entregar (tesoros_saqueables ciudad))
 
 combatir_guardias :: Pirata -> Ciudad -> IO String
 combatir_guardias protagonista ciudad = do
     putStrLn("Ningun guardia en todo el caribe puede ser capaz de extorsionarte sin llevarse su merecido!")
     putStrLn("Desenvainas tu espada y te preparas para el combate")
-    (resultado_combate_guardias (valorAleatorio [0,1])) protagonista ciudad
+    (resultado_combate_guardias (valor_aleatorio [0,1])) protagonista ciudad
 
 resultado_combate_guardias :: IO Int -> (Pirata -> Ciudad -> IO String)
 resultado_combate_guardias resultado
@@ -145,7 +145,7 @@ resultado_combate_guardias resultado
 ganar_combate :: Pirata -> Ciudad -> IO String
 ganar_combate protagonista ciudad = do
     putStrLn("Con un golpe certero del sable desarmas a tus contrincantes, que huyen atemorizados ante tu habilidad. El tesoro queda a tu merced")
-    menu_historia (protagonista { botin = (tesorosSaqueables ciudad) })
+    menu_historia (protagonista { botin = (tesoros_saqueables ciudad) })
 
 perder_combate :: Pirata -> Ciudad -> IO String
 perder_combate protagonista ciudad = do
@@ -181,7 +181,7 @@ bombardear_ciudad barco ciudad= do
     suspenso(2)
     putStrLn("FUEGOO!")
     suspenso(1)
-    (resultado_asedio (valorAleatorio [0,1])) barco ciudad
+    (resultado_asedio (valor_aleatorio [0,1])) barco ciudad
 
 resultado_asedio :: IO Int -> (Barco -> Ciudad -> IO String)
 resultado_asedio resultado_asedio
@@ -191,7 +191,7 @@ resultado_asedio resultado_asedio
 invadir_ciudad :: Barco -> Ciudad -> IO String
 invadir_ciudad barco ciudad = do
     putStrLn("Las murallas estallan en pedazos y rapidamente te escabulles dentro del fuerte de la ciudad buscando un botín.")
-    botin_adquirido <- tesoroAleatorio( tesorosSaqueables ciudad )
+    botin_adquirido <- tesoro_aleatorio( tesoros_saqueables ciudad )
     putStrLn("Los guardias te persiguen por lo que solo eres capaz de tomar " ++ nombre_con_articulo botin_adquirido ++ " antes de volver a embarcar.")
     let protagonista = get_protagonista barco
     let protagonista_con_tesoro = protagonista { botin = botin (protagonista) ++ [botin_adquirido] }
@@ -209,7 +209,7 @@ ser_repelidos_por_ciudad barco ciudad = do
     putStrLn("Mientras te repones y checkeas si el mar te arrancó algunos tesoro, visualizas muy cerca la entrada a la ciudad. Los guardias parecen distraídos mirando tu corsario hundirse sin remedio.")
     putStrLn("Es una oportunidad de oro de asaltar la ciudad a pie. No pueden rendirte ahora...")
     let protagonista = get_protagonista barco
-    saquear_ciudad (protagonista { botin = unsafePerformIO (tesorosAleatorios (botin (protagonista))) }) ciudad
+    saquear_ciudad (protagonista { botin = unsafePerformIO (tesoros_aleatorios (botin (protagonista))) }) ciudad
 
 --- RECLUTAR TRIPULANTES
 
@@ -225,7 +225,7 @@ expulsado_de_taberna barco = do
     putStrLn("...estalla en carcajadas.")
     suspenso(1)
     putStrLn("- No hay lugar en éste sitio para un pirata sin ningún tesoro que tenga algún valor... Vete de aquí y vuelve cuando seas algo más que un pobre diablo!- te contesta al reponerse.")
-    putStrLn("Parece que ningún ruin va a querer unirse a la tripulación del " ++ nombreBarco barco ++ " sin recibir al menos una ofrenda valiosa de tu parte.")
+    putStrLn("Parece que ningún ruin va a querer unirse a la tripulación del " ++ nombre_barco barco ++ " sin recibir al menos una ofrenda valiosa de tu parte.")
     menu_historia_con_barco barco
 
 buscar_posible_tripulacion :: Barco -> IO String
@@ -243,12 +243,12 @@ buscar_posible_tripulacion barco = do
     putStrLn("Mientras maldices su avaricia, buscas en tu inventario por el primer tesoro que puedas hallar...")
     suspenso(1)
     let tesoro_a_ofrecer = tesoro_mas_valioso (botin (get_protagonista barco))
-    putStrLn("-OFREZCO " ++ nombreTesoro tesoro_a_ofrecer ++ "")
+    putStrLn("-OFREZCO " ++ nombre_tesoro tesoro_a_ofrecer ++ "")
     suspenso(1)
     --acá podríamos incorporar si el nuevo tripulante acepta o no dependiendo del valor del tesoro
     putStrLn("Tu interlocutor se encoje de hombros y acepta. -De acuerdo... Pero huyamos rápido antes de que se den cuenta que no pagué mi bebida!")
-    let nuevo_tripulante = unsafePerformIO (obtenerNuevoTripulante (barco))
-    putStrLn("Tu nuevo tripulante y tú se escabullen a la salida sigilosamente sin ningún remordimiento. Felicidades! " ++ nombrePirata nuevo_tripulante ++ " se suma al " ++ nombreBarco barco ++ "!")
+    let nuevo_tripulante = adquirir_tesoro (unsafePerformIO (obtener_nuevo_tripulante (barco))) tesoro_a_ofrecer
+    putStrLn("Tu nuevo tripulante y tú se escabullen a la salida sigilosamente sin ningún remordimiento. Felicidades! " ++ nombre_pirata nuevo_tripulante ++ " se suma al " ++ nombre_barco barco ++ "!")
     menu_historia_con_barco (barco 
         {tripulacion = entregar_tesoro tesoro_a_ofrecer (get_protagonista barco)
         : (tail (tripulacion barco) ++ [nuevo_tripulante])})
@@ -257,9 +257,9 @@ buscar_posible_tripulacion barco = do
 
 encuentro_barco :: Barco -> IO String
 encuentro_barco barco = do
-    barco_adversario <- barcoAleatorio
+    barco_adversario <- barco_aleatorio
     putStrLn("Desde el largavistas alcanzas a vislumbrar la silueta de un barco vulnerable.")
-    putStrLn("Es el " ++ nombreBarco barco_adversario ++ "!")
+    putStrLn("Es el " ++ nombre_barco barco_adversario ++ "!")
     suspenso(1)
     putStrLn("Te lanzas a su encuentro a toda velocidad, preparando los cañones, listo para abordarlos.")
     batalla_barcos cantidad_de_turnos barco barco_adversario (tesoros_tripulantes barco_adversario)
@@ -281,25 +281,25 @@ batalla_barcos :: [Integer] -> Barco -> Barco -> [Tesoro] -> IO String
 
 batalla_barcos [] barco barco_adversario tesoros_adversario = do
     let en_ventaja = barco_en_ventaja barco barco_adversario 
-    putStrLn ("Ya no quedan balas! Los tripulantes del " ++ nombreBarco en_ventaja ++ " lanzan tablones que caen pesadamente sobre su contrincante y se lanzan al abordaje. Ha llegado el momento de desfundar las espadas...")
+    putStrLn ("Ya no quedan balas! Los tripulantes del " ++ nombre_barco en_ventaja ++ " lanzan tablones que caen pesadamente sobre su contrincante y se lanzan al abordaje. Ha llegado el momento de desfundar las espadas...")
     suspenso(1)
     pelea_abordaje barco barco_adversario
 
 batalla_barcos [1] barco barco_adversario tesoros_adversario = do
     let en_ventaja = barco_en_ventaja barco barco_adversario 
-    putStrLn ("Los barcos se alinean de cara a lanzarse a las armas una última vez. Los tripulantes del " ++ nombreBarco en_ventaja ++ " se ven confiados mientras se preparan para el abordaje.")
-    putStrLn (relatos_de_la_batalla (valorAleatorio cantidad_de_relatos))
+    putStrLn ("Los barcos se alinean de cara a lanzarse a las armas una última vez. Los tripulantes del " ++ nombre_barco en_ventaja ++ " se ven confiados mientras se preparan para el abordaje.")
+    putStrLn (relatos_de_la_batalla (valor_aleatorio cantidad_de_relatos))
     turno [] (perder_tripulantes_protagonista barco) (perder_tripulantes barco_adversario) tesoros_adversario
 
 batalla_barcos [1,2] barco barco_adversario tesoros_adversario = do
     let barco_en_peligro = barco_mas_daniado barco barco_adversario
-    putStrLn ("Ambos contricantes recargan sus armas. El " ++ nombreBarco barco_en_peligro ++ " se ve severamente dañado.")
-    putStrLn (relatos_de_la_batalla (valorAleatorio cantidad_de_relatos))
+    putStrLn ("Ambos contricantes recargan sus armas. El " ++ nombre_barco barco_en_peligro ++ " se ve severamente dañado.")
+    putStrLn (relatos_de_la_batalla (valor_aleatorio cantidad_de_relatos))
     turno [1] (perder_tripulantes_protagonista barco) (perder_tripulantes barco_adversario) tesoros_adversario
 
 batalla_barcos [1,2,3] barco barco_adversario tesoros_adversario = do
-    putStrLn ("Los cañones del " ++ nombreBarco barco_adversario ++ " enemigo abren fuego tí y mientras tú desde el " ++ nombreBarco barco ++ " responden sin piedad.")
-    putStrLn (relatos_de_la_batalla (valorAleatorio cantidad_de_relatos))
+    putStrLn ("Los cañones del " ++ nombre_barco barco_adversario ++ " enemigo abren fuego tí y mientras tú desde el " ++ nombre_barco barco ++ " responden sin piedad.")
+    putStrLn (relatos_de_la_batalla (valor_aleatorio cantidad_de_relatos))
     turno [1,2] (perder_tripulantes_protagonista barco) (perder_tripulantes barco_adversario) tesoros_adversario
 
 barco_en_ventaja :: Barco -> Barco -> Barco
@@ -324,11 +324,11 @@ perder_batalla barco = do
 ganar_batalla :: Barco -> [Tesoro] -> IO(String)
 ganar_batalla barco tesoros_adversario
   | unsafePerformIO(sucede_evento_sobrenatural) = invocar_a_calypso barco
-  | otherwise = continuar_historia_en_barco (barco {tripulacion =  recibir_tesoro_mas_valioso (get_protagonista barco) tesoros_adversario : (tail (tripulacion barco))})
+  | otherwise = continuar_historia_en_barco (barco {tripulacion =  adquirir_tesoro_mas_valioso (get_protagonista barco) tesoros_adversario : (tail (tripulacion barco))})
 
 sucede_evento_sobrenatural :: IO(Bool)  
 sucede_evento_sobrenatural = do
-  random_int <- valorAleatorio [0..20]
+  random_int <- valor_aleatorio [0..20]
   return $ random_int == 1
 
 invocar_a_calypso :: Barco -> IO(String)
@@ -343,14 +343,14 @@ continuar_historia_en_barco barco = do
 
 pelea_abordaje :: Barco -> Barco -> IO(String)
 pelea_abordaje barco barco_adversario = do
-  rival <- tripulanteAleatorio (tripulacion barco_adversario)
+  rival <- tripulante_aleatorio (tripulacion barco_adversario)
   relato_pelea_abordaje rival
   resultado_mano_a_mano barco barco_adversario rival
 
 relato_pelea_abordaje :: Pirata -> IO ()
 relato_pelea_abordaje rival = do
   putStrLn("Las espadas chocan por doquier mientras los piratas combaten desesperadamente. Gritos y aullidos desgarran el aire mientras divisas a tu rival.")
-  putStrLn("Es nada mas y nada menos que " ++ nombrePirata rival ++ "!")
+  putStrLn("Es nada mas y nada menos que " ++ nombre_pirata rival ++ "!")
   putStrLn("Su mirada inyectada en furia se clava en tus ojos, y de pronto se lanza a tu encuentro.")
   putStrLn("Desenfundas tu sable confiando en la fortaleza de tu botín. Si ganas, podrás quedarte con sus tesoros, pero si pierdes...")
   suspenso(1)
@@ -364,7 +364,7 @@ resultado_mano_a_mano barco barco_adversario pirata_enfrentado
 
 definicion_mano_a_mano :: Barco -> Barco -> Pirata -> IO(String)
 definicion_mano_a_mano barco barco_adversario pirata_enfrentado
-  | valor_tesoro_mas_valioso (get_protagonista barco) >= valor (unsafePerformIO(tesoroAleatorio (botin pirata_enfrentado)))  = ganar_mano_a_mano barco barco_adversario pirata_enfrentado
+  | valor_tesoro_mas_valioso (get_protagonista barco) >= valor (unsafePerformIO(tesoro_aleatorio (botin pirata_enfrentado)))  = ganar_mano_a_mano barco barco_adversario pirata_enfrentado
   | otherwise = perder_mano_a_mano barco
 
 perder_mano_a_mano :: Barco -> IO(String)  
@@ -381,7 +381,7 @@ quedar_con_un_tesoro_no_valioso :: Pirata -> Pirata
 quedar_con_un_tesoro_no_valioso = quedar_con_un_tesoro . perder_tesoros_valiosos 
 
 quedar_con_un_tesoro :: Pirata -> Pirata
-quedar_con_un_tesoro pirata = pirata {botin = [unsafePerformIO(tesoroAleatorio (botin pirata))]}
+quedar_con_un_tesoro pirata = pirata {botin = [unsafePerformIO(tesoro_aleatorio (botin pirata))]}
 
 game_over :: IO(String)
 game_over = return "Game Over"
@@ -396,10 +396,10 @@ mock_end :: IO String
 mock_end = return "End"
 
 perder_tripulantes_protagonista :: Barco -> Barco
-perder_tripulantes_protagonista barco = barco {tripulacion = (get_protagonista barco) : (unsafePerformIO(tripulantesAleatorios (tail (tripulacion barco))))}
+perder_tripulantes_protagonista barco = barco {tripulacion = (get_protagonista barco) : (unsafePerformIO(tripulantes_aleatorios (tail (tripulacion barco))))}
 
 perder_tripulantes :: Barco -> Barco
-perder_tripulantes barco = barco {tripulacion = ( unsafePerformIO(tripulantesAleatorios (tripulacion barco)))}
+perder_tripulantes barco = barco {tripulacion = ( unsafePerformIO(tripulantes_aleatorios (tripulacion barco)))}
 
 tripulacion_obtenida :: Barco -> Pirata -> [Pirata]
 tripulacion_obtenida barco pirata_enfrentado = List.delete pirata_enfrentado (tripulacion barco)
@@ -410,55 +410,55 @@ incorporar_tripulantes barco tripulacion_obtenida = barco { tripulacion = (tripu
 get_protagonista :: Barco -> Pirata
 get_protagonista barco = head (tripulacion barco)
 
-recibir_tesoros :: Pirata -> [Tesoro] -> Pirata
-recibir_tesoros pirata tesorosSaqueables  = pirata { botin = (botin pirata) ++ (unsafePerformIO (tesorosAleatorios tesorosSaqueables)) }
-
 entregar_tesoro :: Tesoro -> Pirata -> Pirata
-entregar_tesoro tesoroAEntregar pirata = pirata {botin = List.delete tesoroAEntregar (botin pirata)} 
+entregar_tesoro tesoro_a_entregar pirata = pirata {botin = List.delete tesoro_a_entregar (botin pirata)} 
 
-recibir_tesoro_mas_valioso :: Pirata -> [Tesoro] -> Pirata
-recibir_tesoro_mas_valioso pirata tesoros_adversario 
-  | length tesoros_adversario > 0 = pirata {botin = (botin pirata) ++ [tesoro_mas_valioso tesoros_adversario]}  
+adquirir_tesoro_aleatorio :: Pirata -> [Tesoro] -> Pirata
+adquirir_tesoro_aleatorio pirata tesoros_saqueables  = adquirir_tesoro pirata (unsafePerformIO (tesoro_aleatorio tesoros_saqueables))
+
+adquirir_tesoro_mas_valioso :: Pirata -> [Tesoro] -> Pirata
+adquirir_tesoro_mas_valioso pirata tesoros_adversario 
+  | length tesoros_adversario > 0 = adquirir_tesoro pirata (tesoro_mas_valioso tesoros_adversario)
   | otherwise = pirata
 
 tesoros_tripulantes :: Barco -> [Tesoro]
 tesoros_tripulantes barco = concatMap botin (tripulacion barco)
 
-tesoroAleatorio :: [Tesoro] -> IO Tesoro 
-tesoroAleatorio tesoros = valorAleatorio tesoros
+tesoro_aleatorio :: [Tesoro] -> IO Tesoro 
+tesoro_aleatorio tesoros = valor_aleatorio tesoros
 
-tesorosAleatorios :: [Tesoro] -> IO [Tesoro] 
-tesorosAleatorios tesoros = valoresAleatorios tesoros
+tesoros_aleatorios :: [Tesoro] -> IO [Tesoro] 
+tesoros_aleatorios tesoros = valores_aleatorios tesoros
 
-islaAleatoria :: IO Isla 
-islaAleatoria =  valorAleatorio islas
+isla_aleatoria :: IO Isla 
+isla_aleatoria =  valor_aleatorio islas
 
-barcoAleatorio :: IO Barco
-barcoAleatorio = valorAleatorio barcos
+barco_aleatorio :: IO Barco
+barco_aleatorio = valor_aleatorio barcos
 
-tripulanteAleatorio :: [Pirata] -> IO Pirata
-tripulanteAleatorio tripulacion = valorAleatorio tripulacion
+tripulante_aleatorio :: [Pirata] -> IO Pirata
+tripulante_aleatorio tripulacion = valor_aleatorio tripulacion
 
-tripulantesAleatorios :: [Pirata] -> IO [Pirata]
-tripulantesAleatorios tripulacion = valoresAleatorios tripulacion
+tripulantes_aleatorios :: [Pirata] -> IO [Pirata]
+tripulantes_aleatorios tripulacion = valores_aleatorios tripulacion
 
-contrincanteAleatorio :: [Barco] -> IO Barco
-contrincanteAleatorio contrincantes = valorAleatorio contrincantes
+contrincante_aleatorio :: [Barco] -> IO Barco
+contrincante_aleatorio contrincantes = valor_aleatorio contrincantes
 
-obtenerNuevoTripulante :: Barco -> IO Pirata
-obtenerNuevoTripulante barco = 
-    valorAleatorio (obtenerNoIncluidosEnSubgrupo piratas (tripulacion barco))
+obtener_nuevo_tripulante :: Barco -> IO Pirata
+obtener_nuevo_tripulante barco = 
+    valor_aleatorio (obtener_grupo_sin_subgrupo piratas (tripulacion barco))
 
-obtenerNoIncluidosEnSubgrupo :: Ord a => [a] -> [a] -> [a]
-obtenerNoIncluidosEnSubgrupo grupo subgrupo = grupo List.\\ subgrupo
+obtener_grupo_sin_subgrupo :: Ord a => [a] -> [a] -> [a]
+obtener_grupo_sin_subgrupo grupo subgrupo = grupo List.\\ subgrupo
 
-valorAleatorio :: [a] -> IO a
-valorAleatorio list = do
+valor_aleatorio :: [a] -> IO a
+valor_aleatorio list = do
     i <- getStdRandom (randomR (0, length list - 1)) 
     return $ list !! i
 
-valoresAleatorios :: [a] -> IO [a]
-valoresAleatorios list = do
+valores_aleatorios :: [a] -> IO [a]
+valores_aleatorios list = do
     i <- getStdRandom (randomR (0, length list)) 
     return $ List.take i list 
 
@@ -488,7 +488,7 @@ procesar_eleccion_ciudad_asedio eleccion barco
   | otherwise = elegir_ciudad_a_asediar barco 
 
 realizar_intercambio :: Pirata -> Tesoro -> [Tesoro] -> Pirata    
-realizar_intercambio protagonista tesoroAEntregar = (entregar_tesoro tesoroAEntregar) . recibir_tesoros protagonista
+realizar_intercambio protagonista tesoro_a_entregar = (entregar_tesoro tesoro_a_entregar) . adquirir_tesoro_aleatorio protagonista
 
 elegir_tipo_saqueo :: String -> Pirata -> Ciudad -> IO String
 elegir_tipo_saqueo eleccion protagonista ciudad
@@ -522,7 +522,7 @@ nombre_plural tesoro
   | tesoro == espada = "espadas"
   | tesoro == cuchillo = "cuchillos"
   | tesoro == media_sucia = "medias sucias"
-  | otherwise =  nombreEnMinusculas tesoro
+  | otherwise =  nombre_en_minusculas tesoro
 
 --- NOMBRES DE TESOROS - CON ARTICULOS
 
@@ -533,14 +533,14 @@ unos = [doblones]
 
 nombre_con_articulo :: Tesoro -> String
 nombre_con_articulo tesoro
-  | elem tesoro unos = "unos " ++ nombreEnMinusculas tesoro
-  | elem tesoro unas  = "unas " ++ nombreEnMinusculas tesoro
-  | elem tesoro una = "una " ++ nombreEnMinusculas tesoro
-  | elem tesoro un = "un " ++ nombreEnMinusculas tesoro
-  | otherwise = nombreEnMinusculas tesoro
+  | elem tesoro unos = "unos " ++ nombre_en_minusculas tesoro
+  | elem tesoro unas  = "unas " ++ nombre_en_minusculas tesoro
+  | elem tesoro una = "una " ++ nombre_en_minusculas tesoro
+  | elem tesoro un = "un " ++ nombre_en_minusculas tesoro
+  | otherwise = nombre_en_minusculas tesoro
 
-nombreEnMinusculas :: Tesoro -> String
-nombreEnMinusculas tesoro = lowerString (nombreTesoro tesoro)
+nombre_en_minusculas :: Tesoro -> String
+nombre_en_minusculas tesoro = lowerString (nombre_tesoro tesoro)
 
 lowerString :: String -> String
 lowerString = List.map toLower
