@@ -7,7 +7,7 @@ import Data.Time.Clock
 import System.IO.Unsafe
 import Control.Concurrent
 import Data.Char (toLower)
-import Data.List
+import Data.List as List
 
 --HISTORIA
 comenzar_historia :: IO () 
@@ -195,7 +195,7 @@ invadir_ciudad barco ciudad = do
     putStrLn("Los guardias te persiguen por lo que solo eres capaz de tomar " ++ nombre_con_articulo botin_adquirido ++ " antes de volver a embarcar.")
     let protagonista = get_protagonista barco
     let protagonista_con_tesoro = protagonista { botin = botin (protagonista) ++ [botin_adquirido] }
-    menu_historia_con_barco (barco { tripulacion = protagonista_con_tesoro:(drop 1 (tripulacion barco))})
+    menu_historia_con_barco (barco { tripulacion = protagonista_con_tesoro:(List.drop 1 (tripulacion barco))})
 
 ser_repelidos_por_ciudad :: Barco -> Ciudad -> IO String
 ser_repelidos_por_ciudad barco ciudad = do
@@ -285,7 +285,7 @@ batalla_barcos [1,2,3] barco barco_adversario tesoros_adversario = do
     turno [1,2] (perder_tripulantes_protagonista barco) (perder_tripulantes barco_adversario) tesoros_adversario
 
 barco_en_ventaja :: Barco -> Barco -> Barco
-barco_en_ventaja barco barco_adversario = head (delete (barco_mas_daniado barco barco_adversario) [barco, barco_adversario])
+barco_en_ventaja barco barco_adversario = head (List.delete (barco_mas_daniado barco barco_adversario) [barco, barco_adversario])
 
 barco_mas_daniado :: Barco -> Barco -> Barco
 barco_mas_daniado barco barco_adversario
@@ -308,7 +308,7 @@ ganar_batalla barco tesoros_adversario
   | unsafePerformIO(sucede_evento_sobrenatural) = invocar_a_calypso barco
   | otherwise = continuar_historia_en_barco (barco {tripulacion =  recibir_tesoro_mas_valioso (get_protagonista barco) tesoros_adversario : (tail (tripulacion barco))})
 
-sucede_evento_sobrenatural:: IO(Bool)  
+sucede_evento_sobrenatural :: IO(Bool)  
 sucede_evento_sobrenatural = do
   random_int <- valorAleatorio [0..20]
   return $ random_int == 1
@@ -384,7 +384,7 @@ perder_tripulantes :: Barco -> Barco
 perder_tripulantes barco = barco {tripulacion = ( unsafePerformIO(tripulantesAleatorios (tripulacion barco)))}
 
 tripulacion_obtenida :: Barco -> Pirata -> [Pirata]
-tripulacion_obtenida barco pirata_enfrentado = delete pirata_enfrentado (tripulacion barco)
+tripulacion_obtenida barco pirata_enfrentado = List.delete pirata_enfrentado (tripulacion barco)
 
 incorporar_tripulantes :: Barco -> [Pirata] -> Barco 
 incorporar_tripulantes barco tripulacion_obtenida = barco { tripulacion = (tripulacion barco) ++ tripulacion_obtenida}
@@ -396,7 +396,7 @@ recibir_tesoros :: Pirata -> [Tesoro] -> Pirata
 recibir_tesoros pirata tesorosSaqueables  = pirata { botin = (botin pirata) ++ (unsafePerformIO (tesorosAleatorios tesorosSaqueables)) }
 
 entregar_tesoro :: Tesoro -> Pirata -> Pirata
-entregar_tesoro tesoroAEntregar pirata = pirata {botin = delete tesoroAEntregar (botin pirata)} 
+entregar_tesoro tesoroAEntregar pirata = pirata {botin = List.delete tesoroAEntregar (botin pirata)} 
 
 recibir_tesoro_mas_valioso :: Pirata -> [Tesoro] -> Pirata
 recibir_tesoro_mas_valioso pirata tesoros_adversario 
@@ -405,7 +405,6 @@ recibir_tesoro_mas_valioso pirata tesoros_adversario
 
 tesoros_tripulantes :: Barco -> [Tesoro]
 tesoros_tripulantes barco = concatMap botin (tripulacion barco)
-
 
 tesoroAleatorio :: [Tesoro] -> IO Tesoro 
 tesoroAleatorio tesoros = valorAleatorio tesoros
@@ -436,7 +435,7 @@ valorAleatorio list = do
 valoresAleatorios :: [a] -> IO [a]
 valoresAleatorios list = do
     i <- getStdRandom (randomR (0, length list)) 
-    return $ take i list 
+    return $ List.take i list 
 
 confirmar :: String -> IO Bool
 confirmar mensaje_a_confirmar = do
@@ -481,7 +480,7 @@ ver_estado protagonista menu_opciones argumento = do
 
 cantidad_tesoros_valiosos :: Pirata -> Int 
 cantidad_tesoros_valiosos pirata =
-   length (filter (es_valioso) (botin pirata))
+   length (List.filter (es_valioso) (botin pirata))
 
 suspenso :: Int -> IO () 
 suspenso segundos = threadDelay (1000000 * segundos)
@@ -519,4 +518,4 @@ nombreEnMinusculas :: Tesoro -> String
 nombreEnMinusculas tesoro = lowerString (nombreTesoro tesoro)
 
 lowerString :: String -> String
-lowerString = map toLower
+lowerString = List.map toLower
