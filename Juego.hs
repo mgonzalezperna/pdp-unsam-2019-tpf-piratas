@@ -231,9 +231,27 @@ expulsado_de_taberna barco = do
 buscar_posible_tripulacion :: Barco -> IO String
 buscar_posible_tripulacion barco = do
     putStrLn("Divisas la taberna más cercana y mal oliente de la región y pones rumbo a ella.")
-
-    menu_historia_con_barco barco
-
+    putStrLn("Al entrar, te acercas a la barra y pides un jarro de Grog. Una figura cerca tuyo te mira fijo.")
+    putStrLn("Friamente, devuelves la mirada mientras sorbes tu trago...")
+    suspenso(1)
+    putStrLn("El Grog es realmente asqueroso.")
+    suspenso(1)
+    putStrLn("Mientras contienes las lágrimas de asco y picor, intentas reafirmarte poniendo tu cara más ruda y gritas roncamente:")
+    putStrLn("-QUIEN DE TODOS USTEDES QUIERE DEMOSTRAR EL FEROZ PIRATA QUE PUEDE SER?")
+    putStrLn("Una voz desde el fondo contesta")
+    putStrLn("-LO HARÉ... A CAMBIO DE TU TESORO MÁS VALIOSO!")
+    putStrLn("Mientras maldices su avaricia, buscas en tu inventario por el primer tesoro que puedas hallar...")
+    suspenso(1)
+    let tesoro_a_ofrecer = tesoro_mas_valioso (botin (get_protagonista barco))
+    putStrLn("-OFREZCO " ++ nombreTesoro tesoro_a_ofrecer ++ "")
+    suspenso(1)
+    --acá podríamos incorporar si el nuevo tripulante acepta o no dependiendo del valor del tesoro
+    putStrLn("Tu interlocutor se encoje de hombros y acepta. -De acuerdo... Pero huyamos rápido antes de que se den cuenta que no pagué mi bebida!")
+    let nuevo_tripulante = unsafePerformIO (obtenerNuevoTripulante (barco))
+    putStrLn("Tu nuevo tripulante y tú se escabullen a la salida sigilosamente sin ningún remordimiento. Felicidades! " ++ nombrePirata nuevo_tripulante ++ " se suma al " ++ nombreBarco barco ++ "!")
+    menu_historia_con_barco (barco 
+        {tripulacion = entregar_tesoro tesoro_a_ofrecer (get_protagonista barco)
+        : (tail (tripulacion barco) ++ [nuevo_tripulante])})
 
 --- BATALLA MARINA
 
@@ -426,6 +444,13 @@ tripulantesAleatorios tripulacion = valoresAleatorios tripulacion
 
 contrincanteAleatorio :: [Barco] -> IO Barco
 contrincanteAleatorio contrincantes = valorAleatorio contrincantes
+
+obtenerNuevoTripulante :: Barco -> IO Pirata
+obtenerNuevoTripulante barco = 
+    valorAleatorio (obtenerNoIncluidosEnSubgrupo piratas (tripulacion barco))
+
+obtenerNoIncluidosEnSubgrupo :: Ord a => [a] -> [a] -> [a]
+obtenerNoIncluidosEnSubgrupo grupo subgrupo = grupo List.\\ subgrupo
 
 valorAleatorio :: [a] -> IO a
 valorAleatorio list = do
