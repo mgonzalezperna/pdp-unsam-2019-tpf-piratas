@@ -215,7 +215,7 @@ ser_repelidos_por_ciudad barco ciudad = do
 
 intentar_buscar_tripulacion :: Barco -> IO String
 intentar_buscar_tripulacion barco
-  | cantidad_tesoros_valiosos (get_protagonista barco) > 0 = buscar_posible_tripulacion barco
+  | cantidad_tesoros_valiosos (get_protagonista barco) > 1 = buscar_posible_tripulacion barco
   | otherwise = expulsado_de_taberna barco
 
 expulsado_de_taberna :: Barco -> IO String
@@ -224,7 +224,7 @@ expulsado_de_taberna barco = do
     suspenso(1)
     putStrLn("...estalla en carcajadas.")
     suspenso(1)
-    putStrLn("- No hay lugar en éste sitio para un pirata sin ningún tesoro que tenga algún valor... Vete de aquí y vuelve cuando seas algo más que un pobre diablo!- te contesta al reponerse.")
+    putStrLn("- No hay lugar en éste sitio para un pirata sin al menos dos tesoro que tenga algún valor... Vete de aquí y vuelve cuando seas algo más que un pobre diablo!- te contesta al reponerse.")
     putStrLn("Parece que ningún ruin va a querer unirse a la tripulación del " ++ nombre_barco barco ++ " sin recibir al menos una ofrenda valiosa de tu parte.")
     menu_historia_con_barco barco
 
@@ -245,7 +245,7 @@ buscar_posible_tripulacion barco = do
     let tesoro_a_ofrecer = tesoro_mas_valioso (botin (get_protagonista barco))
     putStrLn("-OFREZCO " ++ nombre_tesoro tesoro_a_ofrecer ++ "")
     suspenso(1)
-    --acá podríamos incorporar si el nuevo tripulante acepta o no dependiendo del valor del tesoro
+    --TODO: Acá podríamos incorporar una evaluación si el nuevo tripulante acepta o no dependiendo del valor del tesoro.
     putStrLn("Tu interlocutor se encoje de hombros y acepta. -De acuerdo... Pero huyamos rápido antes de que se den cuenta que no pagué mi bebida!")
     let nuevo_tripulante = adquirir_tesoro (unsafePerformIO (obtener_nuevo_tripulante (barco))) tesoro_a_ofrecer
     putStrLn("Tu nuevo tripulante y tú se escabullen a la salida sigilosamente sin ningún remordimiento. Felicidades! " ++ nombre_pirata nuevo_tripulante ++ " se suma al " ++ nombre_barco barco ++ "!")
@@ -288,17 +288,20 @@ batalla_barcos [] barco barco_adversario tesoros_adversario = do
 batalla_barcos [1] barco barco_adversario tesoros_adversario = do
     let en_ventaja = barco_en_ventaja barco barco_adversario 
     putStrLn ("Los barcos se alinean de cara a lanzarse a las armas una última vez. Los tripulantes del " ++ nombre_barco en_ventaja ++ " se ven confiados mientras se preparan para el abordaje.")
+    suspenso(1)
     putStrLn (relatos_de_la_batalla (valor_aleatorio cantidad_de_relatos))
     turno [] (perder_tripulantes_protagonista barco) (perder_tripulantes barco_adversario) tesoros_adversario
 
 batalla_barcos [1,2] barco barco_adversario tesoros_adversario = do
     let barco_en_peligro = barco_mas_daniado barco barco_adversario
     putStrLn ("Ambos contricantes recargan sus armas. El " ++ nombre_barco barco_en_peligro ++ " se ve severamente dañado.")
+    suspenso(1)
     putStrLn (relatos_de_la_batalla (valor_aleatorio cantidad_de_relatos))
     turno [1] (perder_tripulantes_protagonista barco) (perder_tripulantes barco_adversario) tesoros_adversario
 
 batalla_barcos [1,2,3] barco barco_adversario tesoros_adversario = do
     putStrLn ("Los cañones del " ++ nombre_barco barco_adversario ++ " enemigo abren fuego tí y mientras tú desde el " ++ nombre_barco barco ++ " responden sin piedad.")
+    suspenso(1)
     putStrLn (relatos_de_la_batalla (valor_aleatorio cantidad_de_relatos))
     turno [1,2] (perder_tripulantes_protagonista barco) (perder_tripulantes barco_adversario) tesoros_adversario
 
