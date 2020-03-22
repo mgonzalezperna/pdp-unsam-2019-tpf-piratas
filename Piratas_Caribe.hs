@@ -9,7 +9,7 @@ data Pirata = Pirata
   } deriving (Ord, Eq)
 
 instance Show Pirata where
-  show pirata = nombre_pirata pirata ++ "\n\nBotin: " ++ show (botin pirata)
+  show pirata = nombre_pirata pirata ++ "\n\nBotin: " ++ show (botin pirata) ++ "\n\n"
 
 data Tesoro = Tesoro
   { nombre_tesoro :: String
