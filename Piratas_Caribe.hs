@@ -6,7 +6,7 @@ import Data.Function (on)
 data Pirata = Pirata
   { nombrePirata :: String
   , botin        :: [Tesoro]
-  } deriving (Eq)
+  } deriving (Ord, Eq)
 
 instance Show Pirata where
   show pirata = nombrePirata pirata ++ "\n\nBotin: " ++ show (botin pirata)
@@ -14,7 +14,7 @@ instance Show Pirata where
 data Tesoro = Tesoro
   { nombreTesoro :: String
   , valor        :: Integer
-  } deriving (Eq)
+  } deriving (Ord, Eq)
 
 instance Show Tesoro where
   show tesoro = " " ++ nombreTesoro tesoro ++ ": $" ++ show (valor tesoro) ++ " " 
