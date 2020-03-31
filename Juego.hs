@@ -6,7 +6,7 @@ import System.Random
 import Data.Time.Clock
 import System.IO.Unsafe
 import Control.Concurrent
-import Data.Char (toLower)
+import Data.Char (toLower, toUpper)
 import Data.List as List
 
 --HISTORIA
@@ -243,7 +243,7 @@ buscar_posible_tripulacion barco = do
     putStrLn("Mientras maldices su avaricia, buscas en tu inventario por el primer tesoro que puedas hallar...")
     suspenso(1)
     let tesoro_a_ofrecer = tesoro_mas_valioso (botin (get_protagonista barco))
-    putStrLn("-OFREZCO " ++ nombre_tesoro tesoro_a_ofrecer ++ "")
+    putStrLn("-OFREZCO " ++ upperString (nombre_tesoro tesoro_a_ofrecer) ++ "!")
     suspenso(1)
     --TODO: Acá podríamos incorporar una evaluación si el nuevo tripulante acepta o no dependiendo del valor del tesoro.
     putStrLn("Tu interlocutor se encoje de hombros y acepta. -De acuerdo... Pero huyamos rápido antes de que se den cuenta que no pagué mi bebida!")
@@ -576,3 +576,6 @@ nombre_en_minusculas tesoro = lowerString (nombre_tesoro tesoro)
 
 lowerString :: String -> String
 lowerString = List.map toLower
+
+upperString :: String->String
+upperString = List.map toUpper
