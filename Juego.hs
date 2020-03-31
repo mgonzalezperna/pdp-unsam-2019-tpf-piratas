@@ -288,22 +288,42 @@ batalla_barcos [] barco barco_adversario tesoros_adversario = do
 batalla_barcos [1] barco barco_adversario tesoros_adversario = do
     let en_ventaja = barco_en_ventaja barco barco_adversario 
     putStrLn ("Los barcos se alinean de cara a lanzarse a las armas una última vez. Los tripulantes del " ++ nombre_barco en_ventaja ++ " se ven confiados mientras se preparan para el abordaje.")
+    let barco_post_batalla = perder_tripulantes_protagonista barco
+    let barco_adversario_post_batalla = perder_tripulantes barco
+    reporte_post_turno (tripulacion barco) (tripulacion barco_post_batalla)
+    suspenso(4)
+    putStrLn ("Ruegas que el barco resista un esfuerzo más...")
     suspenso(1)
     putStrLn (relatos_de_la_batalla (valor_aleatorio cantidad_de_relatos))
-    turno [] (perder_tripulantes_protagonista barco) (perder_tripulantes barco_adversario) tesoros_adversario
+    turno [] barco_post_batalla barco_adversario_post_batalla tesoros_adversario 
 
 batalla_barcos [1,2] barco barco_adversario tesoros_adversario = do
     let barco_en_peligro = barco_mas_daniado barco barco_adversario
     putStrLn ("Ambos contricantes recargan sus armas. El " ++ nombre_barco barco_en_peligro ++ " se ve severamente dañado.")
-    suspenso(1)
+    let barco_post_batalla = perder_tripulantes_protagonista barco
+    let barco_adversario_post_batalla = perder_tripulantes barco
+    reporte_post_turno (tripulacion barco) (tripulacion barco_post_batalla)
+    suspenso(4)
     putStrLn (relatos_de_la_batalla (valor_aleatorio cantidad_de_relatos))
-    turno [1] (perder_tripulantes_protagonista barco) (perder_tripulantes barco_adversario) tesoros_adversario
+    turno [1] barco_post_batalla barco_adversario_post_batalla tesoros_adversario 
 
 batalla_barcos [1,2,3] barco barco_adversario tesoros_adversario = do
     putStrLn ("Los cañones del " ++ nombre_barco barco_adversario ++ " enemigo abren fuego tí y mientras tú desde el " ++ nombre_barco barco ++ " responden sin piedad.")
-    suspenso(1)
+    let barco_post_batalla = perder_tripulantes_protagonista barco
+    let barco_adversario_post_batalla = perder_tripulantes barco
+    reporte_post_turno (tripulacion barco) (tripulacion barco_post_batalla)
+    suspenso(4)
     putStrLn (relatos_de_la_batalla (valor_aleatorio cantidad_de_relatos))
-    turno [1,2] (perder_tripulantes_protagonista barco) (perder_tripulantes barco_adversario) tesoros_adversario
+    turno [1,2] barco_post_batalla barco_adversario_post_batalla tesoros_adversario
+
+reporte_post_turno :: [Pirata] -> [Pirata] -> IO() 
+reporte_post_turno tripulacion_anterior tripulacion_resultante 
+  | length (tripulacion_anterior) > length (tripulacion_resultante) = do
+      putStrLn("Has perdido tripulantes!! Quedan " ++ show(length(tripulacion_resultante)-1) ++ "!!. Los piratas que cayeron al agua son:\n")
+      estado_piratas ( obtener_grupo_sin_subgrupo tripulacion_anterior tripulacion_resultante )
+  | otherwise = do
+      putStrLn("La tripulacion sigue intacta!\n")
+      estado_piratas ( tripulacion_anterior )
 
 barco_en_ventaja :: Barco -> Barco -> Barco
 barco_en_ventaja barco barco_adversario = head (List.delete (barco_mas_daniado barco barco_adversario) [barco, barco_adversario])
@@ -508,8 +528,12 @@ ver_estado protagonista menu_opciones argumento = do
 ver_estado_tripulacion :: Barco -> (a -> IO String) -> a -> IO String
 ver_estado_tripulacion barco menu_opciones argumento = do
     putStrLn("\n")
-    putStrLn (unlines $ map show [tripulante | tripulante <- (tripulacion barco)])
+    estado_piratas (tripulacion barco)
     menu_opciones argumento
+
+estado_piratas :: [Pirata] -> IO() 
+estado_piratas lista_piratas = do
+    putStrLn (unlines $ map show [pirata | pirata <- lista_piratas])
 
 cantidad_tesoros_valiosos :: Pirata -> Int 
 cantidad_tesoros_valiosos pirata =
