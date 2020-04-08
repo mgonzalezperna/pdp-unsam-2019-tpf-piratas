@@ -15,7 +15,7 @@ comenzar_historia = do
     putStrLn("Ahora es hora de salir a navegar los 7 mares! Tu historia comienza en la isla Tortuga.")
     resultado_historia <- menu_historia protagonista
     putStrLn(resultado_historia)
-    putStrLn("\n\nFin.")
+    putStrLn("\n\nFin. Gracias por jugar!")
     putStrLn("\n\nHecho con <3 por Alejandro Dini, Nicolás Viotti y Martin Gonzalez Perna.\n")
 
 crear_pirata :: IO (Pirata)
@@ -231,7 +231,7 @@ ser_repelidos_por_ciudad barco ciudad = do
     putStrLn("... pero nada ha pasado")
     putStrLn("Quizás hubiese sido buena idea revisar el estado de la polvora antes de atacar...")
     suspenso(1)
-    putStrLn("Intentas una manoibra evasiva pero... Demasiado tarde! Los cañones del fuerte arrasan con tu nave y de pronto te encuentras escupiendo agua y arena en la playa.")
+    putStrLn("Intentas una maniobra evasiva pero... Demasiado tarde! Los cañones del fuerte arrasan con tu nave y de pronto te encuentras escupiendo agua y arena en la playa.")
     putStrLn("Mientras te repones y checkeas si el mar te arrancó algunos tesoro, visualizas muy cerca la entrada a la ciudad. Los guardias parecen distraídos mirando tu corsario hundirse sin remedio.")
     evaluar_si_continua_segun_tesoros (quedar_con_algunos_tesoros(get_protagonista barco)) sin_tesoro_valioso
 
