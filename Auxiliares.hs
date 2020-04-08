@@ -10,17 +10,21 @@ import System.Random
 import System.IO.Unsafe
 
 --- FUNCIONES AUXILIARES
+
+barco_con_protagonista_modificado :: Pirata -> Barco -> Barco
+barco_con_protagonista_modificado protagonista barco = barco { tripulacion = protagonista:(List.drop 1 (tripulacion barco))} 
+
 mock_end :: IO String
 mock_end = return "End"
+
+perder_tesoros_aleatorios :: Pirata -> Pirata
+perder_tesoros_aleatorios pirata = pirata {botin = unsafePerformIO (tesoros_aleatorios (botin pirata))}
 
 perder_tripulantes_protagonista :: Barco -> Barco
 perder_tripulantes_protagonista barco = barco {tripulacion = (get_protagonista barco) : (unsafePerformIO(tripulantes_aleatorios (tail (tripulacion barco))))}
 
 perder_tripulantes :: Barco -> Barco
 perder_tripulantes barco = barco {tripulacion = ( unsafePerformIO(tripulantes_aleatorios (tripulacion barco)))}
-
-tripulacion_obtenida :: Barco -> Pirata -> [Pirata]
-tripulacion_obtenida barco pirata_enfrentado = List.delete pirata_enfrentado (tripulacion barco)
 
 incorporar_tripulantes :: Barco -> [Pirata] -> Barco 
 incorporar_tripulantes barco tripulacion_obtenida = barco { tripulacion = (tripulacion barco) ++ tripulacion_obtenida}
@@ -30,6 +34,9 @@ get_protagonista barco = head (tripulacion barco)
 
 entregar_tesoro :: Tesoro -> Pirata -> Pirata
 entregar_tesoro tesoro_a_entregar pirata = pirata {botin = List.delete tesoro_a_entregar (botin pirata)} 
+
+quedar_con_algunos_tesoros :: Pirata -> Pirata
+quedar_con_algunos_tesoros pirata = pirata {botin = unsafePerformIO (tesoros_aleatorios (botin pirata))}
 
 adquirir_tesoro_aleatorio :: Pirata -> [Tesoro] -> Pirata
 adquirir_tesoro_aleatorio pirata tesoros_saqueables  = adquirir_tesoro pirata (unsafePerformIO (tesoro_aleatorio tesoros_saqueables))
@@ -70,9 +77,25 @@ obtener_nuevo_tripulante barco =
 obtener_grupo_sin_subgrupo :: Ord a => [a] -> [a] -> [a]
 obtener_grupo_sin_subgrupo grupo subgrupo = grupo List.\\ subgrupo
 
+fuerza_golpe_protagonista :: Pirata -> IO Integer
+fuerza_golpe_protagonista protagonista = do
+    let fuerza_golpe = sum (valores_tesoros protagonista)
+    putStrLn("Desenvainas tu espada y preparas tu golpe con una fuerza de " ++ show(fuerza_golpe))
+    return fuerza_golpe
+    
+fuerza_golpe_contrincante :: Pirata -> IO Integer
+fuerza_golpe_contrincante pirata = do
+    let fuerza_base_contrincante = valor (unsafePerformIO (tesoro_aleatorio (botin pirata)))
+    let fuerza_guardia = fromInteger (fuerza_base_contrincante) * coeficiente_combate pirata
+    putStrLn("En respuesta, tu rival golpea con una fuerza de " ++ show (floor fuerza_guardia))
+    return (floor fuerza_guardia)
+
+coeficiente_combate :: Pirata -> Float
+coeficiente_combate pirata =  2 ^^ ((length (botin pirata))-3)
+
 valor_aleatorio :: [a] -> IO a
 valor_aleatorio list = do
-    i <- getStdRandom (randomR (0, length list - 1)) 
+    i <- getStdRandom (randomR (0, length list - 1))
     return $ list !! i
 
 valores_aleatorios :: [a] -> IO [a]
