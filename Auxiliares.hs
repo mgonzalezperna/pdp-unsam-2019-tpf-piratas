@@ -121,7 +121,7 @@ nombre_plural tesoro
 --- NOMBRES DE TESOROS - CON ARTICULOS
 
 una = [biciCopada, brujula, cajitaMusical, moneda, espada, media_sucia]
-unas = [zapatillasViotti, zapatillasDini]
+unas = [zapatillasMike, zapatillasArdidas]
 un = [frascoJack, frascoAnne, cuchillo]
 unos = [doblones]
 

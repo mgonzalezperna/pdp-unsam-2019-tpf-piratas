@@ -39,11 +39,11 @@ auricularesChetos :: Tesoro
 auricularesChetos =
   Tesoro {nombre_tesoro = "Auriculares Shure SRH 440", valor = 6000}
 
-zapatillasViotti :: Tesoro
-zapatillasViotti = Tesoro {nombre_tesoro = "Zapatillas Mike", valor = 400}
+zapatillasMike :: Tesoro
+zapatillasMike = Tesoro {nombre_tesoro = "Zapatillas Mike", valor = 400}
 
-zapatillasDini :: Tesoro
-zapatillasDini = Tesoro {nombre_tesoro = "Zapatillas Mike", valor = 500}
+zapatillasArdidas :: Tesoro
+zapatillasArdidas = Tesoro {nombre_tesoro = "Zapatillas Ardidas", valor = 500}
 
 biciCopada :: Tesoro
 biciCopada = Tesoro {nombre_tesoro = "Bicicleta GT Avalanche", valor = 25000}
@@ -86,13 +86,13 @@ viotti :: Pirata
 viotti =
   Pirata
     { nombre_pirata = "Viotti el terrible"
-    , botin = [auricularesChetos, zapatillasViotti]
+    , botin = [auricularesChetos, zapatillasMike]
     }
 
 dini :: Pirata
 dini =
   Pirata
-    {nombre_pirata = "Dini el magnifico", botin = [biciCopada, zapatillasDini]}
+    {nombre_pirata = "Dini el magnifico", botin = [biciCopada, zapatillasArdidas]}
 
 jackSparrow :: Pirata
 jackSparrow =
