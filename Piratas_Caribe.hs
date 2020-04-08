@@ -99,7 +99,7 @@ jackSparrow =
   Pirata {nombre_pirata = "Jack Sparrow", botin = [brujula, frascoJack]}
 
 davidJones :: Pirata
-davidJones = Pirata {nombre_pirata = "David Jones", botin = [cajitaMusical]}
+davidJones = Pirata {nombre_pirata = "David Jones", botin = [cajitaMusical, biciCopada]}
 
 anneBonny :: Pirata
 anneBonny = Pirata {nombre_pirata = "Anne Bonny", botin = [doblones, frascoAnne]}
@@ -125,7 +125,7 @@ islas :: [Isla]
 islas = [isla_tortuga, isla_ron]
 
 --CIUDADES
-port_royal = Ciudad { nombre_ciudad = "Port Royal", tesoros_saqueables = [brujula] }
+port_royal = Ciudad { nombre_ciudad = "Port Royal", tesoros_saqueables = [brujula, moneda, cajitaMusical] }
 new_providence = Ciudad { nombre_ciudad = "Nueva Providencia", tesoros_saqueables = [oro, ron, doblones] }
 
 ciudades :: [Ciudad]
