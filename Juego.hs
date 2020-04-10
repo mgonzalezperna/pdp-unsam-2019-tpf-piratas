@@ -31,7 +31,8 @@ crear_pirata = do
     putStrLn("... bueno, en este caso, tu botín inicial consiste en... una media sucia!")
     putStrLn("Tomala!")
     suspenso(2)
-    putStrLn("Si te quedas sin botín, serás expulsado de la vida pirata!")
+    putStrLn("Si te quedas sin tesoros valiosos, serás expulsado de la vida pirata!")
+    putStrLn("Los tesoros valiosos valen más de 100")
     putStrLn("Y recuerda que el valor sumado de tus tesoros determina tu fortaleza en combate.")
     putStrLn("Pero la cantidad de tesoros que lleves va a hacerte más lento y tendrás más chances de perder los combates!")
     putStrLn("\n")
@@ -188,7 +189,7 @@ anclar_en_isla_cercana barco = do
     isla <- isla_aleatoria
     putStrLn("Los vientos de los siete mares te arrastran hacia la isla más cercana.")
     putStrLn("En el horizonte se vislumbra el contorno de la isla " ++ (nombre_isla isla))
-    putStrLn("Cuando desbarcan, ven un enorme depósito de " ++ nombre_plural(elemento_tipico isla) ++ ".")
+    putStrLn("Cuando desenbarcan, ven un enorme depósito de " ++ nombre_plural(elemento_tipico isla) ++ ".")
     putStrLn("Añades el tesoro a tu botín pero cuando vuelves a subir a tu nave, te sientes más liviano... Es posible que se te haya caído algún tesoro en la visita?")
     let protagonista = perder_tesoros_aleatorios (get_protagonista barco)
     let nuevo_barco = barco_con_protagonista_modificado protagonista barco
@@ -232,7 +233,7 @@ ser_repelidos_por_ciudad barco ciudad = do
     putStrLn("Quizás hubiese sido buena idea revisar el estado de la polvora antes de atacar...")
     suspenso(1)
     putStrLn("Intentas una maniobra evasiva pero... Demasiado tarde! Los cañones del fuerte arrasan con tu nave y de pronto te encuentras escupiendo agua y arena en la playa.")
-    putStrLn("Mientras te repones y checkeas si el mar te arrancó algunos tesoro, visualizas muy cerca la entrada a la ciudad. Los guardias parecen distraídos mirando tu corsario hundirse sin remedio.")
+    putStrLn("Mientras te repones y revisas si el mar te arrancó algunos tesoros, visualizas muy cerca la entrada a la ciudad. Los guardias parecen distraídos mirando tu corsario hundirse sin remedio.")
     evaluar_si_continua_segun_tesoros (quedar_con_algunos_tesoros(get_protagonista barco)) sin_tesoro_valioso
 
 --- RECLUTAR TRIPULANTES
@@ -250,11 +251,11 @@ imposible_reclutar_mas_piratas barco = do
 
 expulsado_de_taberna :: Barco -> IO String
 expulsado_de_taberna barco = do
-    putStrLn("El pirata que cuida la entrada a la cantina te hecha una severa mirada durante unos segundos y de pronto...")
+    putStrLn("El pirata que cuida la entrada a la cantina te echa una severa mirada durante unos segundos y de pronto...")
     suspenso(1)
     putStrLn("...estalla en carcajadas.")
     suspenso(1)
-    putStrLn("- No hay lugar en éste sitio para un pirata sin al menos DOS tesoro que tenga algún valor... Vete de aquí y vuelve cuando seas algo más que un pobre diablo!- te contesta al reponerse.")
+    putStrLn("- No hay lugar en éste sitio para un pirata sin al menos DOS tesoros que tenga algún valor... Vete de aquí y vuelve cuando seas algo más que un pobre diablo!- te contesta al reponerse.")
     putStrLn("Parece que ningún ruin va a querer unirse a la tripulación del " ++ nombre_barco barco ++ " sin recibir al menos una ofrenda valiosa de tu parte.")
     menu_historia_con_barco barco
 
@@ -444,7 +445,7 @@ evaluar_si_continua_segun_tesoros protagonista funcion_fin_del_juego
   | otherwise = funcion_fin_del_juego protagonista
 
 sin_tesoro_valioso :: Pirata -> IO(String)
-sin_tesoro_valioso pirata = return "Sin embargo, al revisar tu botín, te das cuenta que estás acabado. Sin un tesoro valioso, ya no te queda forma de continuar con tu aventura. Quizás sea hora de dejes de jugar y que sigas haciendo la tarea de Paradigmas..."
+sin_tesoro_valioso pirata = return "Sin embargo, al revisar tu botín, te das cuenta de que estás acabado. Sin un tesoro valioso, ya no te queda forma de continuar con tu aventura. Quizás sea hora de que dejes de jugar y que sigas haciendo la tarea de Paradigmas..."
 
 retirarse_de_la_pirateria :: Pirata -> IO(String)
 retirarse_de_la_pirateria pirata = do
