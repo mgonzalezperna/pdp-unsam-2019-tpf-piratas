@@ -6,6 +6,7 @@ En éste sencillo juego encarnamos un pirata que decide emprender una aventura e
 ### Pasos previos.
 
 * Instalar plataforma Haskell. (https://www.haskell.org/downloads/) 
+* Instalar el paquete *random*. Para esto, desde un terminal escribir `cabal v1-install random`
 * Clonar repositorio.
 
 ### Como jugar.
