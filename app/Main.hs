@@ -1,5 +1,5 @@
-
-module Juego where
+{-# LANGUAGE BlockArguments #-}
+module Main where
 
 import Piratas_Caribe
 import Auxiliares
@@ -7,8 +7,8 @@ import System.IO.Unsafe
 import Data.List as List
 
 --HISTORIA
-comenzar_historia :: IO () 
-comenzar_historia = do
+main :: IO () 
+main = do
     putStrLn("Ahoy novato! Estas aquí para convertirte en un poderoso pirata!")
     putStrLn("Es hora de comenzar tu aventura! Pero antes...")
     protagonista <- crear_pirata
