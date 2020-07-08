@@ -5,8 +5,8 @@ En éste sencillo juego encarnamos un pirata que decide emprender una aventura e
 
 ### Pasos previos.
 
-* Instalar plataforma Haskell. (https://www.haskell.org/downloads/) 
-* Instalar el paquete *random*. Para esto, desde un terminal escribir `cabal v1-install random`
+* Instalar Stack (https://docs.haskellstack.org/en/stable/install_and_upgrade/). En Sistemas Operativos Unix type se puede hacer usando:
+```wget -qO- https://get.haskellstack.org/ | sh)```
 * Clonar repositorio.
 
 ### Como jugar.
@@ -15,17 +15,12 @@ Dentro del directorio base del repositorio, cambiar al branch *Juego*
 
 `git checkout juego`
 
-Y luego correr:
+Luego ejecutar 
 
-`ghci Juego.hs`
+```stack build```
 
-El CLI de Haskell mostrará que el juego fue compilado con éxito.
-Dentro de la consola de Haskell, tipear:
-
-`comenzar_historia`
+Finalmente correr el juego usando ```stack exec juego-piratas-exe```
 
 El juego comenzará. Disfrutalo!
 
 Para salir del juego, podés presionar *Ctrl+C* en cualquier instante.
-Para salir del CLI de Haskell, podés tipear *:q* en la consola.
-
